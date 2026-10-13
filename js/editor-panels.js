@@ -140,6 +140,43 @@ const NoorPanels = {
       </div>
     `;
   },
+   /* =========================================
+   Panel: Image
+   ========================================= */
+renderImagePanel() {
+  return `
+    <h3 class="panel-title">إضافة صورة</h3>
+
+    <div class="panel-row">
+      <button class="panel-btn" id="pick-image-btn">📷 اختر صورة من جهازك</button>
+    </div>
+
+    <p class="panel-note">
+      الصورة ستُضاف على التصميم. يمكنك تحريكها وتغيير حجمها بعد الإضافة.
+    </p>
+
+    <input type="file" id="image-picker" accept="image/*" hidden />
+
+    <div class="panel-row">
+      <label class="panel-label">صور جاهزة (قوالب)</label>
+      <div class="bg-grid" id="image-templates">
+        <button class="bg-item" data-image-tpl="allah">
+          <span class="bg-item-color" style="background:#0d8b5f;color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;">الله</span>
+        </button>
+        <button class="bg-item" data-image-tpl="muhammad">
+          <span class="bg-item-color" style="background:#0d8b5f;color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;">محمد</span>
+        </button>
+        <button class="bg-item" data-image-tpl="bismillah">
+          <span class="bg-item-color" style="background:#c9a227;color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;">﷽</span>
+        </button>
+        <button class="bg-item" data-image-tpl="star">
+          <span class="bg-item-color" style="background:#1e40af;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;">★</span>
+        </button>
+      </div>
+    </div>
+  `;
+},
+   
 
   /* ---------- Escape HTML ---------- */
   escape(str) {
@@ -386,6 +423,78 @@ NoorPanels.bind = async function (tool) {
       window.showToast?.("تم تطبيق الآية");
     });
   }
+   /* ---------- IMAGE ---------- */
+if (tool === "image") {
+  const pickBtn = document.getElementById("pick-image-btn");
+  const picker = document.getElementById("image-picker");
+
+  pickBtn?.addEventListener("click", () => {
+    picker?.click();
+  });
+
+  picker?.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        const d = NoorState.design;
+        const maxW = d.width * 0.6;
+        const ratio = img.height / img.width;
+        const w = Math.min(maxW, img.width);
+        const h = w * ratio;
+
+        if (!d.images) d.images = [];
+        d.images.push({
+          id: "img_" + Date.now(),
+          src: ev.target.result,
+          x: (d.width - w) / 2,
+          y: (d.height - h) / 2,
+          width: w,
+          height: h,
+        });
+
+        NoorState.pushHistory();
+        NoorRenderer.debouncedRender();
+        NoorPanels.close();
+        window.showToast?.("تم إضافة الصورة");
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // القوالب الجاهزة
+  document.querySelectorAll("[data-image-tpl]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const tpl = btn.dataset.imageTpl;
+      const d = NoorState.design;
+      const texts = {
+        allah: "الله",
+        muhammad: "محمد",
+        bismillah: "﷽",
+        star: "★",
+      };
+
+      if (!d.stickers) d.stickers = [];
+      d.stickers.push({
+        id: "stk_" + Date.now(),
+        text: texts[tpl] || "★",
+        x: d.width / 2,
+        y: d.height / 2,
+        size: 120,
+        color: "#0d8b5f",
+      });
+
+      NoorState.pushHistory();
+      NoorRenderer.debouncedRender();
+      window.showToast?.("تم إضافة العنصر");
+    });
+  });
+      }
+       
 
   /* ---------- FONT ---------- */
   if (tool === "font") {
