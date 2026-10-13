@@ -220,3 +220,350 @@ const NoorPanels = {
     return String(str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
   },
 };
+
+/* =========================================
+   Event Binding for panels
+   ========================================= */
+
+NoorPanels.bind = async function (tool) {
+
+  /* ---------- AYAH ---------- */
+  if (tool === "ayah") {
+    const surahSel = document.getElementById("surah-select");
+    const ayahSel = document.getElementById("ayah-select");
+    const textArea = document.getElementById("ayah-text");
+
+    await QuranUI.populateSurahSelect(surahSel);
+
+    const d = NoorState.design;
+    if (d.ayah.surah) {
+      surahSel.value = d.ayah.surah;
+      await QuranUI.populateAyahSelect(d.ayah.surah, ayahSel);
+      ayahSel.disabled = false;
+      if (d.ayah.ayahNumber) ayahSel.value = d.ayah.ayahNumber;
+    }
+
+    surahSel?.addEventListener("change", async () => {
+      const val = surahSel.value;
+      if (!val) {
+        ayahSel.innerHTML = '<option value="">-- اختر السورة أولًا --</option>';
+        ayahSel.disabled = true;
+        return;
+      }
+      await QuranUI.populateAyahSelect(val, ayahSel);
+      ayahSel.disabled = false;
+    });
+
+    ayahSel?.addEventListener("change", async () => {
+      const surah = surahSel.value;
+      const ayah = ayahSel.value;
+      if (!surah || !ayah) return;
+      try {
+        const text = await QuranUI.loadAyahText(surah, ayah);
+        if (text) textArea.value = text;
+      } catch (e) {
+        window.showToast?.("تعذر تحميل الآية");
+      }
+    });
+
+    // Font grid - inline
+    document.querySelectorAll("#font-grid .font-option").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#font-grid .font-option").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        NoorState.design.text.fontId = btn.dataset.font;
+        NoorRenderer.debouncedRender();
+      });
+    });
+
+    // Font size - inline
+    const sizeInput = document.getElementById("font-size");
+    const sizeOut = document.getElementById("size-value");
+    sizeInput?.addEventListener("input", () => {
+      NoorState.design.text.size = parseInt(sizeInput.value);
+      if (sizeOut) sizeOut.textContent = sizeInput.value;
+      NoorRenderer.debouncedRender();
+    });
+
+    // Text color - inline
+    document.querySelectorAll("#text-color-options .color-swatch").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#text-color-options .color-swatch").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        NoorState.design.text.color = btn.dataset.color;
+        NoorRenderer.debouncedRender();
+      });
+    });
+
+    document.getElementById("apply-ayah-btn")?.addEventListener("click", () => {
+      const surah = surahSel.value;
+      const ayah = ayahSel.value;
+      const text = textArea.value.trim();
+
+      if (!text) {
+        window.showToast?.("اكتب أو اختر آية");
+        return;
+      }
+
+      NoorState.design.ayah.surah = surah ? parseInt(surah) : null;
+      NoorState.design.ayah.ayahNumber = ayah ? parseInt(ayah) : null;
+      NoorState.design.ayah.surahName = surah ? (QuranUI.surahsCache?.find((s) => s.number === parseInt(surah))?.name || "") : "";
+      NoorState.design.ayah.text = text;
+
+      NoorState.pushHistory();
+      NoorRenderer.debouncedRender();
+      NoorPanels.close();
+      window.showToast?.("تم تطبيق الآية");
+    });
+  }
+
+  /* ---------- IMAGE ---------- */
+  if (tool === "image") {
+    const pickBtn = document.getElementById("pick-image-btn");
+    const picker = document.getElementById("image-picker");
+
+    pickBtn?.addEventListener("click", () => picker?.click());
+
+    picker?.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+          const d = NoorState.design;
+          const maxW = d.width * 0.6;
+          const ratio = img.height / img.width;
+          const w = Math.min(maxW, img.width);
+          const h = w * ratio;
+
+          if (!d.images) d.images = [];
+          d.images.push({
+            id: "img_" + Date.now(),
+            src: ev.target.result,
+            x: (d.width - w) / 2,
+            y: (d.height - h) / 2,
+            width: w,
+            height: h,
+          });
+
+          NoorState.pushHistory();
+          NoorRenderer.debouncedRender();
+          NoorPanels.close();
+          window.showToast?.("تم إضافة الصورة");
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    document.querySelectorAll("[data-image-tpl]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const tpl = btn.dataset.imageTpl;
+        const d = NoorState.design;
+        const texts = { allah: "الله", muhammad: "محمد", bismillah: "﷽", star: "★" };
+
+        if (!d.stickers) d.stickers = [];
+        d.stickers.push({
+          id: "stk_" + Date.now(),
+          text: texts[tpl] || "★",
+          x: d.width / 2,
+          y: d.height / 2,
+          size: 120,
+          color: "#0d8b5f",
+        });
+
+        NoorState.pushHistory();
+        NoorRenderer.debouncedRender();
+        window.showToast?.("تم إضافة العنصر");
+      });
+    });
+  }
+
+  /* ---------- FONT ---------- */
+  if (tool === "font") {
+    document.querySelectorAll("#font-grid .font-option").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#font-grid .font-option").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        NoorState.design.text.fontId = btn.dataset.font;
+        NoorState.pushHistory();
+        NoorRenderer.debouncedRender();
+      });
+    });
+
+    const sizeInput = document.getElementById("font-size");
+    const sizeOut = document.getElementById("size-value");
+    sizeInput?.addEventListener("input", () => {
+      NoorState.design.text.size = parseInt(sizeInput.value);
+      if (sizeOut) sizeOut.textContent = sizeInput.value;
+      NoorRenderer.debouncedRender();
+    });
+    sizeInput?.addEventListener("change", () => NoorState.pushHistory());
+
+    document.querySelectorAll("#align-group .toggle-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#align-group .toggle-btn").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        NoorState.design.text.align = btn.dataset.align;
+        NoorState.pushHistory();
+        NoorRenderer.debouncedRender();
+      });
+    });
+
+    document.querySelectorAll("#shadow-group .toggle-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#shadow-group .toggle-btn").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        NoorState.design.text.shadow = btn.dataset.shadow === "on";
+        NoorState.pushHistory();
+        NoorRenderer.debouncedRender();
+      });
+    });
+  }
+
+  /* ---------- TEXT COLOR ---------- */
+  if (tool === "text-color") {
+    document.querySelectorAll("#text-color-options .color-swatch").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#text-color-options .color-swatch").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        NoorState.design.text.color = btn.dataset.color;
+        NoorState.pushHistory();
+        NoorRenderer.debouncedRender();
+      });
+    });
+  }
+
+  /* ---------- BACKGROUND ---------- */
+  if (tool === "background") {
+    document.querySelectorAll(".bg-item[data-bg-type]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".bg-item").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        NoorState.design.background.type = btn.dataset.bgType;
+        NoorState.design.background.value = btn.dataset.bgValue;
+        NoorState.design.background.imageUrl = null;
+        NoorState.pushHistory();
+        NoorRenderer.debouncedRender();
+      });
+    });
+
+    document.querySelectorAll(".bg-item[data-bg-category]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".bg-item").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        const catId = btn.dataset.bgCategory;
+        const d = NoorState.design;
+        const url = NoorBackgrounds.getRandomFromCategory(catId, d.width, d.height);
+        if (url) {
+          const note = document.getElementById("bg-note");
+          if (note) note.hidden = false;
+          NoorState.design.background.type = "image";
+          NoorState.design.background.imageUrl = url;
+          NoorRenderer.render().then(() => {
+            if (note) note.hidden = true;
+            NoorState.pushHistory();
+          });
+        }
+      });
+    });
+  }
+
+  /* ---------- FRAME ---------- */
+  if (tool === "frame") {
+    document.querySelectorAll("#frame-types .frame-item").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#frame-types .frame-item").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        NoorState.design.frame.type = btn.dataset.frame;
+        NoorState.pushHistory();
+        NoorRenderer.debouncedRender();
+      });
+    });
+
+    document.querySelectorAll("#frame-colors .color-swatch").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#frame-colors .color-swatch").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        NoorState.design.frame.color = btn.dataset.color;
+        NoorState.pushHistory();
+        NoorRenderer.debouncedRender();
+      });
+    });
+
+    const thickInput = document.getElementById("frame-thickness");
+    const thickOut = document.getElementById("frame-thick-value");
+    thickInput?.addEventListener("input", () => {
+      NoorState.design.frame.thickness = parseInt(thickInput.value);
+      if (thickOut) thickOut.textContent = thickInput.value;
+      NoorRenderer.debouncedRender();
+    });
+    thickInput?.addEventListener("change", () => NoorState.pushHistory());
+  }
+
+  /* ---------- TRANSLATION ---------- */
+  if (tool === "translation") {
+    document.querySelectorAll("[data-trans]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("[data-trans]").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        NoorState.design.translation.enabled = btn.dataset.trans === "on";
+        NoorState.pushHistory();
+        NoorRenderer.debouncedRender();
+      });
+    });
+
+    document.querySelectorAll("#lang-grid .lang-btn").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        document.querySelectorAll("#lang-grid .lang-btn").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        const lang = btn.dataset.lang;
+        NoorState.design.translation.lang = lang;
+
+        const d = NoorState.design;
+        if (d.ayah.surah && d.ayah.ayahNumber) {
+          window.showToast?.("جاري تحميل الترجمة...");
+          const text = await QuranUI.loadTranslation(d.ayah.surah, d.ayah.ayahNumber, lang);
+          if (text) {
+            d.translation.text = text;
+            NoorState.pushHistory();
+            NoorRenderer.debouncedRender();
+            NoorPanels.refresh();
+          }
+        }
+      });
+    });
+
+    document.getElementById("translation-text")?.addEventListener("input", (e) => {
+      NoorState.design.translation.text = e.target.value;
+      NoorRenderer.debouncedRender();
+    });
+
+    const transSize = document.getElementById("trans-size");
+    const transOut = document.getElementById("trans-size-value");
+    transSize?.addEventListener("input", () => {
+      NoorState.design.translation.size = parseInt(transSize.value);
+      if (transOut) transOut.textContent = transSize.value;
+      NoorRenderer.debouncedRender();
+    });
+    transSize?.addEventListener("change", () => NoorState.pushHistory());
+  }
+
+  /* ---------- DECOR ---------- */
+  if (tool === "decor") {
+    document.querySelectorAll("[data-decor]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const val = btn.dataset.decor;
+        if (val === "top-on") NoorState.design.decor.top = true;
+        if (val === "top-off") NoorState.design.decor.top = false;
+        if (val === "bottom-on") NoorState.design.decor.bottom = true;
+        if (val === "bottom-off") NoorState.design.decor.bottom = false;
+        NoorState.pushHistory();
+        NoorRenderer.debouncedRender();
+        NoorPanels.refresh();
+      });
+    });
+  }
+};
