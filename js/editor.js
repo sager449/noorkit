@@ -1,6 +1,5 @@
 /* =========================================
    NoorKit — Editor Main
-   يربط كل شيء ببعضه
    ========================================= */
 
 (function () {
@@ -8,36 +7,25 @@
 
   let autoSaveTimer = null;
 
-  /* ---------- Init ---------- */
   document.addEventListener("DOMContentLoaded", init);
 
   async function init() {
     try {
-      // 1. Preload fonts
       NoorFonts.loadAll();
-
-      // 2. Init state
       NoorState.reset(1080, 1080);
 
-      // 3. Init renderer
       const canvas = document.getElementById("main-canvas");
       NoorRenderer.init(canvas);
 
-      // 4. Wait for fonts to load
       await NoorRenderer.preloadFonts();
-
-      // 5. First render
       await NoorRenderer.render();
 
-      // 6. Setup UI
       setupHeader();
       setupToolbar();
       setupPanelClose();
 
-      // 7. Restore saved design if exists
       await restoreLastDesign();
 
-      // 8. Push initial history
       NoorState.pushHistory();
 
       window.showToast?.("مرحبًا بك في نور كيت");
@@ -46,7 +34,6 @@
     }
   }
 
-  /* ---------- Header buttons ---------- */
   function setupHeader() {
     document.getElementById("undo-btn")?.addEventListener("click", async () => {
       if (NoorState.undo()) {
@@ -63,7 +50,7 @@
     });
 
     document.getElementById("save-btn")?.addEventListener("click", () => {
-      saveDesign(true);
+      saveDesignNow(true);
     });
 
     document.getElementById("export-btn")?.addEventListener("click", exportDesign);
@@ -75,7 +62,6 @@
     });
   }
 
-  /* ---------- Toolbar buttons ---------- */
   function setupToolbar() {
     document.querySelectorAll(".tool-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -92,7 +78,6 @@
     });
   }
 
-  /* ---------- Panel close ---------- */
   function setupPanelClose() {
     document.getElementById("panel-close")?.addEventListener("click", () => {
       NoorPanels.close();
@@ -100,21 +85,17 @@
     });
   }
 
-  /* ---------- Auto save ---------- */
   function scheduleAutoSave() {
     clearTimeout(autoSaveTimer);
-    autoSaveTimer = setTimeout(() => saveDesign(false), 800);
+    autoSaveTimer = setTimeout(() => saveDesignNow(false), 800);
   }
 
-  /* ---------- Save design ---------- */
-  async function saveDesign(showMsg) {
+  async function saveDesignNow(showMsg) {
     try {
       const title = document.getElementById("design-title")?.value.trim() || "تصميم بدون عنوان";
       NoorState.design.title = title;
 
-      if (typeof saveDesign === "function") {
-        await saveDesign(NoorState.design);
-      } else if (typeof NoorDB !== "undefined") {
+      if (typeof NoorDB !== "undefined" && NoorDB.save) {
         await NoorDB.save(NoorState.design);
       }
 
@@ -125,31 +106,30 @@
     }
   }
 
-  /* ---------- Export design ---------- */
   async function exportDesign() {
     try {
       window.showToast?.("جاري التصدير...");
-      await NoorState.design && await NoorRenderer.export();
+      await NoorRenderer.export();
       window.showToast?.("تم التصدير");
     } catch (err) {
       console.error("Export failed:", err);
       window.showToast?.("تعذر التصدير");
     }
   }
-    /* ---------- Size picker (bottom sheet) ---------- */
+
   function openSizePicker() {
     const panel = document.getElementById("tool-panel");
     const content = document.getElementById("panel-content");
     if (!panel || !content) return;
 
     const sizes = [
-      { id: "square",    name: "مربع",            w: 1080, h: 1080, desc: "إنستغرام، فيسبوك" },
-      { id: "portrait",  name: "عمودي",           w: 1080, h: 1350, desc: "إنستغرام Portrait" },
-      { id: "story",     name: "ستوري",           w: 1080, h: 1920, desc: "ستوري، تيك توك" },
-      { id: "phone",     name: "خلفية جوال",      w: 1080, h: 2340, desc: "خلفيات الجوال" },
-      { id: "twitter",   name: "تويتر",           w: 1200, h: 675,  desc: "منشور تويتر" },
-      { id: "youtube",   name: "يوتيوب",          w: 1280, h: 720,  desc: "Thumbnail" },
-      { id: "a4",        name: "A4 للطباعة",      w: 2480, h: 3508, desc: "طباعة عالية الدقة" },
+      { id: "square",   name: "مربع",       w: 1080, h: 1080, desc: "إنستغرام، فيسبوك" },
+      { id: "portrait", name: "عمودي",      w: 1080, h: 1350, desc: "إنستغرام Portrait" },
+      { id: "story",    name: "ستوري",      w: 1080, h: 1920, desc: "ستوري، تيك توك" },
+      { id: "phone",    name: "خلفية جوال", w: 1080, h: 2340, desc: "خلفيات الجوال" },
+      { id: "twitter",  name: "تويتر",      w: 1200, h: 675,  desc: "منشور تويتر" },
+      { id: "youtube",  name: "يوتيوب",     w: 1280, h: 720,  desc: "Thumbnail" },
+      { id: "a4",       name: "A4 للطباعة", w: 2480, h: 3508, desc: "طباعة عالية الدقة" },
     ];
 
     content.innerHTML = `
@@ -168,39 +148,26 @@
     panel.hidden = false;
 
     content.querySelectorAll("[data-size-id]").forEach((btn) => {
+      if (parseInt(btn.dataset.w) === NoorState.design.width && parseInt(btn.dataset.h) === NoorState.design.height) {
+        btn.classList.add("active");
+      }
       btn.addEventListener("click", async () => {
-        const w = parseInt(btn.dataset.w);
-        const h = parseInt(btn.dataset.h);
-        NoorState.design.width = w;
-        NoorState.design.height = h;
+        NoorState.design.width = parseInt(btn.dataset.w);
+        NoorState.design.height = parseInt(btn.dataset.h);
         NoorState.pushHistory();
         NoorRenderer.resize();
         await NoorRenderer.render();
         NoorPanels.close();
         document.querySelectorAll(".tool-btn").forEach((b) => b.classList.remove("active"));
-        window.showToast?.(`تم تغيير الحجم إلى ${w}×${h}`);
+        window.showToast?.(`تم تغيير الحجم إلى ${btn.dataset.w}×${btn.dataset.h}`);
       });
-    });
-
-    // Highlight current size
-    content.querySelectorAll("[data-size-id]").forEach((btn) => {
-      if (parseInt(btn.dataset.w) === NoorState.design.width && parseInt(btn.dataset.h) === NoorState.design.height) {
-        btn.classList.add("active");
-      }
     });
   }
 
-  /* ---------- Restore last design from IndexedDB ---------- */
   async function restoreLastDesign() {
     try {
-      let record = null;
-
-      if (typeof NoorDB !== "undefined" && NoorDB.getLast) {
-        record = await NoorDB.getLast();
-      } else if (typeof getLastDesign === "function") {
-        record = await getLastDesign();
-      }
-
+      if (typeof NoorDB === "undefined" || !NoorDB.getLast) return;
+      const record = await NoorDB.getLast();
       if (record && record.design) {
         NoorState.load(record);
         const titleInput = document.getElementById("design-title");
@@ -213,7 +180,6 @@
     }
   }
 
-  /* ---------- Keyboard shortcuts ---------- */
   document.addEventListener("keydown", (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key === "z" && !e.shiftKey) {
       e.preventDefault();
