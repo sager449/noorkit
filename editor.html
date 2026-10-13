@@ -67,78 +67,89 @@
         </button>
       </div>
     </header>
+
     <main class="editor-main">
-  <div class="canvas-wrapper" id="canvas-wrapper">
-    <div class="canvas-stage" id="canvas-stage">
-      <canvas id="main-canvas"></canvas>
+      <div class="canvas-wrapper" id="canvas-wrapper">
+        <div class="canvas-stage" id="canvas-stage">
+          <canvas id="main-canvas"></canvas>
+        </div>
+      </div>
+    </main>
+
+    <nav class="editor-toolbar" id="editor-toolbar">
+      <button class="tool-btn" data-tool="ayah">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+        </svg>
+        <span>الآية</span>
+      </button>
+
+      <button class="tool-btn" data-tool="font">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="4 7 4 4 20 4 20 7"></polyline>
+          <line x1="9" y1="20" x2="15" y2="20"></line>
+          <line x1="12" y1="4" x2="12" y2="20"></line>
+        </svg>
+        <span>الخط</span>
+      </button>
+
+      <button class="tool-btn" data-tool="text-color">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+          <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+        </svg>
+        <span>اللون</span>
+      </button>
+
+      <button class="tool-btn" data-tool="background">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+          <circle cx="8.5" cy="8.5" r="1.5"></circle>
+          <polyline points="21 15 16 10 5 21"></polyline>
+        </svg>
+        <span>الخلفية</span>
+      </button>
+
+      <button class="tool-btn" data-tool="frame">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+          <rect x="7" y="7" width="10" height="10" rx="1"></rect>
+        </svg>
+        <span>الإطار</span>
+      </button>
+
+      <button class="tool-btn" data-tool="translation">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="2" y1="12" x2="22" y2="12"></line>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+        </svg>
+        <span>الترجمة</span>
+      </button>
+
+      <button class="tool-btn" data-tool="decor">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L15.09 8.26 22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+        </svg>
+        <span>زخرفة</span>
+      </button>
+    </nav>
+
+    <div class="tool-panel" id="tool-panel" hidden>
+      <button class="panel-close" id="panel-close" aria-label="إغلاق">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+      <div class="panel-content" id="panel-content"></div>
     </div>
-  </div>
-</main>
 
-<nav class="editor-toolbar" id="editor-toolbar">
-  <button class="tool-btn" data-tool="ayah">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-    </svg>
-    <span>الآية</span>
-  </button>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <button class="tool-btn" data-tool="font">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="4 7 4 4 20 4 20 7"></polyline>
-      <line x1="9" y1="20" x2="15" y2="20"></line>
-      <line x1="12" y1="4" x2="12" y2="20"></line>
-    </svg>
-    <span>الخط</span>
-  </button>
-
-  <button class="tool-btn" data-tool="text-color">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
-      <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
-    </svg>
-    <span>اللون</span>
-  </button>
-
-  <button class="tool-btn" data-tool="background">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="2"></rect>
-      <circle cx="8.5" cy="8.5" r="1.5"></circle>
-      <polyline points="21 15 16 10 5 21"></polyline>
-    </svg>
-    <span>الخلفية</span>
-  </button>
-
-  <button class="tool-btn" data-tool="frame">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="2"></rect>
-      <rect x="7" y="7" width="10" height="10" rx="1"></rect>
-    </svg>
-    <span>الإطار</span>
-  </button>
-
-  <button class="tool-btn" data-tool="translation">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="12" r="10"></circle>
-      <line x1="2" y1="12" x2="22" y2="12"></line>
-      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-    </svg>
-    <span>الترجمة</span>
-  </button>
-
-  <button class="tool-btn" data-tool="decor">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 2L15.09 8.26 22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
-    </svg>
-    <span>زخرفة</span>
-  </button>
-</nav>
-
-<div class="tool-panel" id="tool-panel" hidden>
-  <button class="panel-close" id="panel-close" aria-label="إغلاق">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-          <script src="js/quran-api.js"></script>
+    <script src="js/db.js"></script>
+    <script src="js/quran-api.js"></script>
     <script src="js/backgrounds.js"></script>
     <script src="js/fonts.js"></script>
     <script src="js/design-state.js"></script>
@@ -146,13 +157,4 @@
     <script src="js/editor-panels.js"></script>
     <script src="js/editor.js"></script>
   </body>
-    </html>
-      <line x1="18" y1="6" x2="6" y2="18"></line>
-      <line x1="6" y1="6" x2="18" y2="18"></line>
-    </svg>
-  </button>
-  <div class="panel-content" id="panel-content"></div>
-</div>
-
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
-              
+  </html>
