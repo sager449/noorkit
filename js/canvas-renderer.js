@@ -57,6 +57,10 @@ const NoorRenderer = {
 
     // 2. Ayah text
     this.drawAyah(d);
+     // 2.5. Images & Stickers
+this.drawImages(d);
+this.drawStickers(d);
+     
 
     // 3. Translation
     if (d.translation.enabled && d.translation.text) {
@@ -219,6 +223,34 @@ const NoorRenderer = {
 
     return lines;
   },
+   /* ---------- Draw Images ---------- */
+drawImages(d) {
+  if (!d.images || d.images.length === 0) return;
+  const ctx = this.ctx;
+  for (const img of d.images) {
+    const image = new Image();
+    image.onload = () => {
+      ctx.drawImage(image, img.x, img.y, img.width, img.height);
+    };
+    image.src = img.src;
+  }
+},
+
+/* ---------- Draw Stickers (text) ---------- */
+drawStickers(d) {
+  if (!d.stickers || d.stickers.length === 0) return;
+  const ctx = this.ctx;
+  ctx.save();
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  for (const stk of d.stickers) {
+    ctx.font = `700 ${stk.size}px 'Amiri', serif`;
+    ctx.fillStyle = stk.color || "#0d8b5f";
+    ctx.fillText(stk.text, stk.x, stk.y);
+  }
+  ctx.restore();
+},
+   
 
   /* ---------- Draw translation ---------- */
   drawTranslation(d) {
