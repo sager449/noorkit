@@ -14,6 +14,7 @@ const NoorPanels = {
     if (!panel || !content) return;
 
     if (tool === "ayah")         content.innerHTML = this.renderAyahPanel();
+    else if (tool === "image")   content.innerHTML = this.renderImagePanel();
     else if (tool === "font")    content.innerHTML = this.renderFontPanel();
     else if (tool === "text-color") content.innerHTML = this.renderTextColorPanel();
     else if (tool === "background") content.innerHTML = this.renderBackgroundPanel();
