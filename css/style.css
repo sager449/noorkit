@@ -192,3 +192,89 @@ svg { display: block; }
   width: 100%;
   margin: 0 auto;
                                     }
+/* ============ Features ============ */
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  padding-bottom: 80px;
+}
+
+.feature {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 28px 24px;
+  text-align: center;
+  transition: 0.2s ease;
+}
+
+.feature:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.feature-icon {
+  width: 56px;
+  height: 56px;
+  background: var(--accent-soft);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  color: var(--accent);
+}
+
+.feature-icon svg { width: 26px; height: 26px; }
+
+.feature h3 {
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  letter-spacing: -0.3px;
+}
+
+.feature p {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+/* ============ Footer ============ */
+.app-footer {
+  border-top: 1px solid var(--line);
+  padding: 32px 24px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  background: var(--cream);
+}
+
+.app-footer .brand { font-size: 16px; }
+.app-footer .brand-mark { width: 32px; height: 32px; border-radius: 9px; }
+.app-footer .brand-mark svg { width: 18px; height: 18px; }
+.app-footer .brand span:last-child { font-size: 16px; }
+
+/* ============ Responsive ============ */
+@media (max-width: 600px) {
+  .app-header { padding: 14px 18px; }
+  .brand { font-size: 18px; }
+  .brand-mark { width: 36px; height: 36px; border-radius: 10px; }
+  .brand-mark svg { width: 20px; height: 20px; }
+  .container { padding: 0 18px; }
+  .hero { padding: 40px 0 28px; margin-bottom: 32px; }
+  .hero h1 { font-size: 26px; line-height: 1.35; }
+  .hero-sub { font-size: 15px; }
+  .features { gap: 14px; padding-bottom: 60px; }
+  .feature { padding: 22px 18px; }
+  .feature-icon { width: 48px; height: 48px; border-radius: 14px; }
+  .feature-icon svg { width: 22px; height: 22px; }
+  .feature h3 { font-size: 16px; }
+  .feature p { font-size: 13px; }
+}
