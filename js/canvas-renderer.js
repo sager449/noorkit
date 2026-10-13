@@ -1,14 +1,13 @@
 /* =========================================
    NoorKit — Canvas Renderer
-   يرسم التصميم على Canvas
    ========================================= */
 
 const NoorRenderer = {
   canvas: null,
   ctx: null,
   previewScale: 1,
+  imageCache: new Map(),
 
-  /* ---------- Init ---------- */
   init(canvasEl) {
     this.canvas = canvasEl;
     this.ctx = canvasEl.getContext("2d");
@@ -19,62 +18,43 @@ const NoorRenderer = {
     });
   },
 
-  /* ---------- Resize canvas to fit screen ---------- */
   resize() {
     if (!this.canvas || !NoorState.design) return;
-
     const d = NoorState.design;
     const wrapper = document.getElementById("canvas-wrapper");
     const availW = (wrapper?.clientWidth || window.innerWidth) - 32;
     const availH = window.innerHeight - 220;
-
     const scaleW = availW / d.width;
     const scaleH = availH / d.height;
     this.previewScale = Math.min(scaleW, scaleH, 1);
-
-    // High-DPI support
     const dpr = window.devicePixelRatio || 1;
     this.canvas.width = d.width * dpr;
     this.canvas.height = d.height * dpr;
     this.canvas.style.width = (d.width * this.previewScale) + "px";
     this.canvas.style.height = (d.height * this.previewScale) + "px";
-
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   },
 
-  /* ---------- Main render ---------- */
   async render() {
     if (!this.ctx || !NoorState.design) return;
-
     const d = NoorState.design;
     const ctx = this.ctx;
 
-    // Clear
     ctx.clearRect(0, 0, d.width, d.height);
 
-    // 1. Background
     await this.drawBackground(d);
-
-    // 2. Ayah text
     this.drawAyah(d);
-     // 2.5. Images & Stickers
-this.drawImages(d);
-this.drawStickers(d);
-     
+    await this.drawImages(d);
+    this.drawStickers(d);
 
-    // 3. Translation
     if (d.translation.enabled && d.translation.text) {
       this.drawTranslation(d);
     }
 
-    // 4. Frame
     this.drawFrame(d);
-
-    // 5. Decorations
     this.drawDecor(d);
   },
 
-  /* ---------- Draw background ---------- */
   async drawBackground(d) {
     const ctx = this.ctx;
     const bg = d.background;
@@ -95,7 +75,6 @@ this.drawStickers(d);
     if (bg.type === "image" && bg.imageUrl) {
       const img = await this.loadImage(bg.imageUrl);
       if (img) {
-        // Cover fit
         const ratio = Math.max(d.width / img.width, d.height / img.height);
         const w = img.width * ratio;
         const h = img.height * ratio;
@@ -106,11 +85,9 @@ this.drawStickers(d);
         ctx.fillStyle = "#f5ede0";
         ctx.fillRect(0, 0, d.width, d.height);
       }
-      return;
     }
   },
 
-  /* ---------- Parse CSS gradient ---------- */
   parseGradient(css, w, h) {
     try {
       const match = css.match(/linear-gradient\((\d+)deg,\s*(.+)\)/);
@@ -133,39 +110,40 @@ this.drawStickers(d);
     }
   },
 
-  /* ---------- Load image helper ---------- */
   loadImage(src) {
     return new Promise((resolve) => {
+      if (!src) { resolve(null); return; }
+      if (this.imageCache.has(src)) {
+        resolve(this.imageCache.get(src));
+        return;
+      }
       const img = new Image();
       img.crossOrigin = "anonymous";
-      img.onload = () => resolve(img);
+      img.onload = () => {
+        this.imageCache.set(src, img);
+        resolve(img);
+      };
       img.onerror = () => resolve(null);
       img.src = src;
     });
   },
 
-  /* ---------- Draw Ayah text ---------- */
   drawAyah(d) {
     const ctx = this.ctx;
     const font = NoorFonts.get(d.text.fontId);
     const text = d.ayah.text || "";
-
     if (!text) return;
 
     ctx.save();
-
-    // Layout
     const padding = Math.round(d.width * 0.1);
     const maxW = d.width - padding * 2;
     const cy = d.height / 2;
 
-    // Font
     ctx.font = `400 ${d.text.size}px ${font.family}`;
     ctx.textAlign = d.text.align || "center";
     ctx.textBaseline = "middle";
     ctx.direction = "rtl";
 
-    // Shadow
     if (d.text.shadow) {
       ctx.shadowColor = d.text.shadowColor;
       ctx.shadowBlur = d.text.shadowBlur;
@@ -173,21 +151,17 @@ this.drawStickers(d);
       ctx.shadowOffsetY = 2;
     }
 
-    // Wrap lines
     const lines = this.wrapText(ctx, text, maxW);
     const lineHeight = d.text.size * (d.text.lineHeight || 1.8);
     const totalH = lines.length * lineHeight;
     const startY = cy - totalH / 2 + lineHeight / 2;
 
-    // Color
     ctx.fillStyle = d.text.color || "#1a1a1a";
 
-    // X position
     let x = d.width / 2;
     if (d.text.align === "right") x = d.width - padding;
     if (d.text.align === "left") x = padding;
 
-    // Draw
     lines.forEach((line, i) => {
       ctx.fillText(line, x, startY + i * lineHeight);
     });
@@ -195,7 +169,6 @@ this.drawStickers(d);
     ctx.restore();
   },
 
-  /* ---------- Wrap text to fit width ---------- */
   wrapText(ctx, text, maxWidth) {
     const paragraphs = text.split("\n");
     const lines = [];
@@ -223,43 +196,62 @@ this.drawStickers(d);
 
     return lines;
   },
-   /* ---------- Draw Images ---------- */
-drawImages(d) {
-  if (!d.images || d.images.length === 0) return;
-  const ctx = this.ctx;
-  for (const img of d.images) {
-    const image = new Image();
-    image.onload = () => {
-      ctx.drawImage(image, img.x, img.y, img.width, img.height);
-    };
-    image.src = img.src;
-  }
-},
 
-/* ---------- Draw Stickers (text) ---------- */
-drawStickers(d) {
-  if (!d.stickers || d.stickers.length === 0) return;
-  const ctx = this.ctx;
-  ctx.save();
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  for (const stk of d.stickers) {
-    ctx.font = `700 ${stk.size}px 'Amiri', serif`;
-    ctx.fillStyle = stk.color || "#0d8b5f";
-    ctx.fillText(stk.text, stk.x, stk.y);
-  }
-  ctx.restore();
-},
-   
+  async drawImages(d) {
+    if (!d.images || d.images.length === 0) return;
+    const ctx = this.ctx;
 
-  /* ---------- Draw translation ---------- */
+    for (const item of d.images) {
+      const img = await this.loadImage(item.src);
+      if (!img) continue;
+
+      ctx.save();
+      const cx = item.x + item.width / 2;
+      const cy = item.y + item.height / 2;
+      if (item.rotation) {
+        ctx.translate(cx, cy);
+        ctx.rotate((item.rotation * Math.PI) / 180);
+        ctx.translate(-cx, -cy);
+      }
+      if (item.opacity !== undefined) {
+        ctx.globalAlpha = item.opacity;
+      }
+      ctx.drawImage(img, item.x, item.y, item.width, item.height);
+      ctx.restore();
+    }
+  },
+
+  drawStickers(d) {
+    if (!d.stickers || d.stickers.length === 0) return;
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    for (const stk of d.stickers) {
+      ctx.save();
+      if (stk.rotation) {
+        ctx.translate(stk.x, stk.y);
+        ctx.rotate((stk.rotation * Math.PI) / 180);
+        ctx.translate(-stk.x, -stk.y);
+      }
+      if (stk.opacity !== undefined) {
+        ctx.globalAlpha = stk.opacity;
+      }
+      ctx.font = `700 ${stk.size}px 'Amiri', serif`;
+      ctx.fillStyle = stk.color || "#0d8b5f";
+      ctx.fillText(stk.text, stk.x, stk.y);
+      ctx.restore();
+    }
+    ctx.restore();
+  },
+
   drawTranslation(d) {
     const ctx = this.ctx;
     const tr = d.translation;
     if (!tr.text) return;
 
     ctx.save();
-
     const font = NoorFonts.get(tr.fontId);
     ctx.font = `400 ${tr.size}px ${font.family}`;
     ctx.fillStyle = tr.color || "#4a4a4a";
@@ -272,27 +264,22 @@ drawStickers(d) {
     const lines = this.wrapText(ctx, tr.text, maxW);
     const lineHeight = tr.size * 1.5;
 
-    // Position: below ayah
     const ayahFont = NoorFonts.get(d.text.fontId);
     ctx.font = `400 ${d.text.size}px ${ayahFont.family}`;
     const ayahLines = this.wrapText(ctx, d.ayah.text, maxW);
     const ayahHeight = ayahLines.length * d.text.size * (d.text.lineHeight || 1.8);
     const ayahBottom = d.height / 2 + ayahHeight / 2;
-
     const startY = ayahBottom + 40;
 
     ctx.font = `400 ${tr.size}px ${font.family}`;
     lines.forEach((line, i) => {
       ctx.fillText(line, d.width / 2, startY + i * lineHeight);
     });
-
     ctx.restore();
   },
 
-  /* ---------- Draw frame ---------- */
   drawFrame(d) {
     if (d.frame.type === "none") return;
-
     const ctx = this.ctx;
     const pad = Math.round(d.width * 0.05);
     const thick = d.frame.thickness;
@@ -309,23 +296,16 @@ drawStickers(d) {
     } else if (d.frame.type === "ornate") {
       ctx.lineWidth = thick + 1;
       ctx.strokeRect(pad, pad, d.width - pad * 2, d.height - pad * 2);
-      // Corner ornaments
       const cs = 30;
-      const corners = [
-        [pad, pad], [d.width - pad, pad],
-        [pad, d.height - pad], [d.width - pad, d.height - pad],
-      ];
-      corners.forEach(([cx, cy]) => {
+      [[pad, pad], [d.width - pad, pad], [pad, d.height - pad], [d.width - pad, d.height - pad]].forEach(([cx, cy]) => {
         ctx.beginPath();
         ctx.arc(cx, cy, cs / 2, 0, Math.PI * 2);
         ctx.stroke();
       });
     }
-
     ctx.restore();
   },
 
-  /* ---------- Draw decorations --------- */
   drawDecor(d) {
     const ctx = this.ctx;
     const gold = "#c9a227";
@@ -351,12 +331,8 @@ drawStickers(d) {
     }
   },
 };
-/* =========================================
-   NoorKit — Canvas Renderer (Part 2)
-   Helpers: fonts, export, toast
-   ========================================= */
 
-/* ---------- Preload all fonts before render ---------- */
+/* ---------- Preload fonts ---------- */
 NoorRenderer.preloadFonts = async function () {
   if (!document.fonts) return;
   const loads = [];
@@ -370,37 +346,28 @@ NoorRenderer.preloadFonts = async function () {
   } catch (e) { /* ignore */ }
 };
 
-/* ---------- Export canvas to PNG ---------- */
+/* ---------- Export PNG ---------- */
 NoorRenderer.export = async function () {
   if (!this.canvas) return;
-
-  // Ensure fonts are loaded
   await this.preloadFonts();
-
-  // Create a high-res export canvas
   const d = NoorState.design;
   const exportCanvas = document.createElement("canvas");
-  const exportScale = 2; // 2x resolution
+  const exportScale = 2;
   exportCanvas.width = d.width * exportScale;
   exportCanvas.height = d.height * exportScale;
-
   const exportCtx = exportCanvas.getContext("2d");
   exportCtx.scale(exportScale, exportScale);
 
-  // Temporarily swap context for rendering
   const originalCanvas = this.canvas;
   const originalCtx = this.ctx;
   this.canvas = exportCanvas;
   this.ctx = exportCtx;
 
-  // Render at full size
   await this.render();
 
-  // Restore original
   this.canvas = originalCanvas;
   this.ctx = originalCtx;
 
-  // Trigger download
   return new Promise((resolve) => {
     exportCanvas.toBlob((blob) => {
       if (!blob) { resolve(null); return; }
@@ -418,7 +385,7 @@ NoorRenderer.export = async function () {
   });
 };
 
-/* ---------- Show toast ---------- */
+/* ---------- Toast ---------- */
 window.showToast = function (message) {
   const toast = document.getElementById("toast");
   if (!toast) return;
