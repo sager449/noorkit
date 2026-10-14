@@ -50,7 +50,8 @@ const NoorRenderer = {
     if (d.translation.enabled && d.translation.text) {
       this.drawTranslation(d);
     }
-
+     this.drawAyahNumber(d);
+this.drawDecorations(d);
     this.drawFrame(d);
     this.drawDecor(d);
   },
@@ -226,7 +227,7 @@ const NoorRenderer = {
     const ctx = this.ctx;
     ctx.save();
     ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
+    ctx.textBaseline = middle";
 
     for (const stk of d.stickers) {
       ctx.save();
@@ -245,6 +246,54 @@ const NoorRenderer = {
     }
     ctx.restore();
   },
+   
+drawAyahNumber(d) {
+  if (!d.ayah.decorNumber) return;
+  const ctx = this.ctx;
+  const size = d.ayah.decorNumberSize || 40;
+  const margin = 20;
+
+  // موضع: أسفل يمين النص
+  const x = d.width - margin - size - 10;
+  const y = d.height - margin - size - 10;
+
+  if (typeof NoorDecorations !== "undefined") {
+    NoorDecorations.drawAyahNumber(
+      ctx,
+      d.ayah.ayahNumber || "﴿﴾",
+      x, y, size,
+      d.ayah.decorNumberColor || "#c9a227"
+    );
+  }
+},
+
+drawDecorations(d) {
+  if (!d.decorations || d.decorations.length === 0) return;
+  const ctx = this.ctx;
+
+  for (const deco of d.decorations) {
+    const def = typeof NoorDecorations !== "undefined" ? NoorDecorations.get(deco.id) : null;
+    if (!def) continue;
+
+    ctx.save();
+    ctx.font = `400 ${deco.size || def.size || 60}px 'Amiri', serif`;
+    ctx.fillStyle = deco.color || def.color || "#c9a227";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.direction = "rtl";
+
+    if (deco.rotation) {
+      ctx.translate(deco.x, deco.y);
+      ctx.rotate((deco.rotation * Math.PI) / 180);
+      ctx.translate(-deco.x, -deco.y);
+    }
+
+    if (def.type === "text" && def.symbol) {
+      ctx.fillText(def.symbol, deco.x, deco.y);
+    }
+    ctx.restore();
+  }
+},
 
   drawTranslation(d) {
     const ctx = this.ctx;
