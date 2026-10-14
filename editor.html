@@ -206,6 +206,13 @@ window.addEventListener("load", () => {
   check("NoorRenderer", window.NoorRenderer);
   check("NoorTools", window.NoorTools);
   check("NoorPanels", window.NoorPanels);
+  check("NoorDecorations", window.NoorDecorations);
+box.innerHTML += "<br>--- Panel HTML ---<br>";
+const testPanel = NoorPanels.renderAyahPanel();
+box.innerHTML += "show-bismillah: " + (testPanel.includes("show-bismillah") ? "✅" : "❌") + "<br>";
+box.innerHTML += "ayah-decorations: " + (testPanel.includes("ayah-decorations") ? "✅" : "❌") + "<br>";
+box.innerHTML += "show-surah-name: " + (testPanel.includes("show-surah-name") ? "✅" : "❌") + "<br>";
+box.innerHTML += "data-deco-id: " + (testPanel.includes("data-deco-id") ? "✅" : "❌") + "<br>";
 });
     </script>
   </body>
