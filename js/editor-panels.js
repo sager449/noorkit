@@ -67,8 +67,7 @@ window.NoorPanels = {
       </div>
     `;
   },
-  
-renderImagePanel() {
+   renderImagePanel() {
   return `
     <h3 class="panel-title">إضافة صورة</h3>
     <div class="panel-row"><button class="panel-btn" id="pick-image-btn">📷 اختر صورة من جهازك</button></div>
@@ -82,44 +81,6 @@ renderImagePanel() {
         <button class="bg-item" data-image-tpl="star"><span class="bg-item-color" style="background:#1e40af;color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;">★</span></button>
       </div>
     </div>
-    <div class="panel-row">
-  <label class="panel-label">عنوان الآية (اسم السورة)</label>
-  <div class="toggle-group" id="show-surah-name">
-    <button class="toggle-btn ${d.ayah.showSurahName ? "active" : ""}" data-surah-name="on">إظهار</button>
-    <button class="toggle-btn ${!d.ayah.showSurahName ? "active" : ""}" data-surah-name="off">إخفاء</button>
-  </div>
-</div>
-
-<div class="panel-row">
-  <label class="panel-label">البسملة (﷽)</label>
-  <div class="toggle-group" id="show-bismillah">
-    <button class="toggle-btn ${d.ayah.showBismillah ? "active" : ""}" data-bismillah="on">إظهار</button>
-    <button class="toggle-btn ${!d.ayah.showBismillah ? "active" : ""}" data-bismillah="off">إخفاء</button>
-  </div>
-</div>
-
-<div class="panel-row">
-  <label class="panel-label">أعوذ بالله (الاستعاذة)</label>
-  <div class="toggle-group" id="show-istiadha">
-    <button class="toggle-btn ${d.ayah.showIstiadha ? "active" : ""}" data-istiadha="on">إظهار</button>
-    <button class="toggle-btn ${!d.ayah.showIstiadha ? "active" : ""}" data-istiadha="off">إخفاء</button>
-  </div>
-</div>
-
-<div class="panel-row">
-  <label class="panel-label">رقم الآية داخل زخرفة</label>
-  <div class="toggle-group" id="show-ayah-num">
-    <button class="toggle-btn ${d.ayah.decorNumber ? "active" : ""}" data-ayah-num="on">إظهار</button>
-    <button class="toggle-btn ${!d.ayah.decorNumber ? "active" : ""}" data-ayah-num="off">إخفاء</button>
-  </div>
-</div>
-
-<div class="panel-row">
-  <label class="panel-label">زخارف إضافية</label>
-  <div class="bg-grid" id="ayah-decorations">
-    ${(typeof NoorDecorations !== "undefined" ? NoorDecorations.list : []).slice(0, 12).map((deco) => `<button class="bg-item" data-deco-id="${deco.id}" title="${deco.name}"><span class="bg-item-color" style="display:flex;align-items:center;justify-content:center;font-size:22px;font-family:'Amiri',serif;color:${deco.color || "#c9a227"};">${deco.symbol || "◆"}</span></button>`).join("")}
-  </div>
-</div>
   `;
 },
 
