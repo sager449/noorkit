@@ -1,13 +1,11 @@
 /* =========================================
    NoorKit — Quran API Client
-   Uses alquran.cloud public API
    ========================================= */
 
-const QuranAPI = {
+window.QuranAPI = {
   BASE: "https://api.alquran.cloud/v1",
   cache: new Map(),
 
-  /* ---------- Get list of surahs ---------- */
   async getSurahs() {
     const key = "surahs";
     if (this.cache.has(key)) return this.cache.get(key);
@@ -35,7 +33,6 @@ const QuranAPI = {
     }
   },
 
-  /* ---------- Get surah with all ayahs ---------- */
   async getSurah(number, edition = "quran-uthmani") {
     const key = `surah_${number}_${edition}`;
     if (this.cache.has(key)) return this.cache.get(key);
@@ -65,7 +62,6 @@ const QuranAPI = {
     }
   },
 
-  /* ---------- Get specific ayah ---------- */
   async getAyah(surah, ayah, edition = "quran-uthmani") {
     try {
       const res = await fetch(`${this.BASE}/ayah/${surah}:${ayah}/${edition}`);
@@ -78,7 +74,6 @@ const QuranAPI = {
     }
   },
 
-  /* ---------- Get translation ---------- */
   async getTranslation(surah, ayah, lang = "ar") {
     const editions = {
       ar: "ar.muyassar",
@@ -94,7 +89,6 @@ const QuranAPI = {
     return this.getAyah(surah, ayah, edition);
   },
 
-  /* ---------- Fallback: minimal surah list ---------- */
   getSurahsFallback() {
     return [
       { number: 1, name: "الفاتحة", englishName: "Al-Fatihah", versesCount: 7, revelationType: "Meccan" },
@@ -112,18 +106,16 @@ const QuranAPI = {
     this.cache.clear();
   },
 };
+
 /* =========================================
-   NoorKit — Quran UI Helpers
-   Functions to populate selectors
+   Quran UI Helpers
    ========================================= */
 
-const QuranUI = {
+window.QuranUI = {
   surahsCache: null,
 
-  /* ---------- Populate surah dropdown ---------- */
   async populateSurahSelect(selectEl) {
     if (!selectEl) return;
-
     selectEl.innerHTML = '<option value="">-- اختر السورة --</option>';
 
     const surahs = await QuranAPI.getSurahs();
@@ -137,12 +129,9 @@ const QuranUI = {
     });
   },
 
-  /* ---------- Populate ayah dropdown ---------- */
   async populateAyahSelect(surahNumber, ayahSelect) {
     if (!ayahSelect) return;
-
     ayahSelect.innerHTML = '<option value="">-- اختر الآية --</option>';
-
     if (!surahNumber) return;
 
     const surah = this.surahsCache?.find((s) => s.number === parseInt(surahNumber));
@@ -156,14 +145,12 @@ const QuranUI = {
     }
   },
 
-  /* ---------- Load ayah text ---------- */
   async loadAyahText(surah, ayah) {
     if (!surah || !ayah) return "";
     const text = await QuranAPI.getAyah(surah, ayah);
     return text || "";
   },
 
-  /* ---------- Load translation ---------- */
   async loadTranslation(surah, ayah, lang) {
     if (!surah || !ayah) return "";
     const text = await QuranAPI.getTranslation(surah, ayah, lang);
