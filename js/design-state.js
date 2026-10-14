@@ -1,20 +1,15 @@
 /* =========================================
    NoorKit — Design State
-   Holds the design data + history
    ========================================= */
 
-const NoorState = {
+window.NoorState = {
   design: {
     id: null,
     title: "تصميم بدون عنوان",
     width: 1080,
     height: 1080,
 
-    background: {
-      type: "solid",
-      value: "#f5ede0",
-      imageUrl: null,
-    },
+    background: { type: "solid", value: "#f5ede0", imageUrl: null },
 
     ayah: {
       surah: null,
@@ -22,6 +17,9 @@ const NoorState = {
       surahName: "",
       text: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
       showBismillah: false,
+      showSurahName: false,
+      showIstiadha: false,
+      decorNumber: false,
     },
 
     text: {
@@ -44,22 +42,16 @@ const NoorState = {
       color: "#4a4a4a",
     },
 
-    frame: {
-      type: "none",
-      color: "#c9a227",
-      thickness: 4,
-    },
-
-    decor: {
-      top: false,
-      bottom: false,
-    },
+    frame: { type: "none", color: "#c9a227", thickness: 4 },
+    decor: { top: false, bottom: false },
+    images: [],
+    stickers: [],
+    decorations: [],
   },
 
   history: [],
   historyIndex: -1,
 
-  /* ---------- Save snapshot to history ---------- */
   pushHistory() {
     const snapshot = JSON.parse(JSON.stringify(this.design));
     this.history = this.history.slice(0, this.historyIndex + 1);
@@ -69,7 +61,6 @@ const NoorState = {
     this.updateUndoButtons();
   },
 
-  /* ---------- Undo ---------- */
   undo() {
     if (this.historyIndex <= 0) return false;
     this.historyIndex--;
@@ -78,7 +69,6 @@ const NoorState = {
     return true;
   },
 
-  /* ---------- Redo ---------- */
   redo() {
     if (this.historyIndex >= this.history.length - 1) return false;
     this.historyIndex++;
@@ -87,7 +77,6 @@ const NoorState = {
     return true;
   },
 
-  /* ---------- Enable / disable undo buttons ---------- */
   updateUndoButtons() {
     const undoBtn = document.getElementById("undo-btn");
     const redoBtn = document.getElementById("redo-btn");
@@ -95,7 +84,6 @@ const NoorState = {
     if (redoBtn) redoBtn.disabled = this.historyIndex >= this.history.length - 1;
   },
 
-  /* ---------- Update single property by path ---------- */
   set(path, value) {
     const keys = path.split(".");
     let obj = this.design;
@@ -106,7 +94,6 @@ const NoorState = {
     obj[keys[keys.length - 1]] = value;
   },
 
-  /* ---------- Get property by path ---------- */
   get(path) {
     const keys = path.split(".");
     let obj = this.design;
@@ -117,7 +104,6 @@ const NoorState = {
     return obj;
   },
 
-  /* ---------- Load design from saved record ---------- */
   load(record) {
     if (!record || !record.design) return false;
     this.design = JSON.parse(JSON.stringify(record.design));
@@ -127,7 +113,6 @@ const NoorState = {
     return true;
   },
 
-  /* ---------- Reset to new design ---------- */
   reset(width = 1080, height = 1080) {
     this.design = {
       id: "design_" + Date.now(),
@@ -141,6 +126,9 @@ const NoorState = {
         surahName: "",
         text: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
         showBismillah: false,
+        showSurahName: false,
+        showIstiadha: false,
+        decorNumber: false,
       },
       text: {
         fontId: "amiri",
@@ -162,6 +150,9 @@ const NoorState = {
       },
       frame: { type: "none", color: "#c9a227", thickness: 4 },
       decor: { top: false, bottom: false },
+      images: [],
+      stickers: [],
+      decorations: [],
     };
     this.history = [JSON.parse(JSON.stringify(this.design))];
     this.historyIndex = 0;
