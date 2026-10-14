@@ -1,4 +1,8 @@
-const NoorPanels = {
+/* =========================================
+   NoorKit — Editor Panels
+   ========================================= */
+
+window.NoorPanels = {
   activeTool: null,
 
   open(tool) {
@@ -188,7 +192,7 @@ renderTextColorPanel() {
    Event Binding
    ========================================= */
 
-NoorPanels.bind = async function (tool) {
+window.NoorPanels.bind = async function (tool) {
 
   if (tool === "ayah") {
     const surahSel = document.getElementById("surah-select");
@@ -383,7 +387,7 @@ if (tool === "text-color") {
       NoorRenderer.debouncedRender();
     });
   });
-}
+          }
   
   if (tool === "background") {
     document.querySelectorAll(".bg-item[data-bg-type]").forEach((btn) => {
