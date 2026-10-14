@@ -8,7 +8,6 @@ const NoorPanels = {
     if (!panel || !content) return;
 
     if (tool === "ayah") content.innerHTML = this.renderAyahPanel();
-      else if (NoorTools && NoorTools.has(tool)) content.innerHTML = NoorTools.render(tool);
     else if (tool === "image") content.innerHTML = this.renderImagePanel();
     else if (tool === "font") content.innerHTML = this.renderFontPanel();
     else if (tool === "text-color") content.innerHTML = this.renderTextColorPanel();
@@ -16,14 +15,10 @@ const NoorPanels = {
     else if (tool === "frame") content.innerHTML = this.renderFramePanel();
     else if (tool === "translation") content.innerHTML = this.renderTranslationPanel();
     else if (tool === "decor") content.innerHTML = this.renderDecorPanel();
+    else if (NoorTools && NoorTools.has(tool)) content.innerHTML = NoorTools.render(tool);
 
     panel.hidden = false;
     this.bind(tool);
-    
-if (NoorTools && NoorTools.has(tool)) {
-  NoorTools.bind(tool);
-  return;
-}
   },
 
   close() {
@@ -67,50 +62,42 @@ if (NoorTools && NoorTools.has(tool)) {
         </div>
       </div>
       <div class="panel-row">
-  <label class="panel-label">عنوان الآية (اسم السورة)</label>
-  <div class="toggle-group" id="show-surah-name">
-    <button class="toggle-btn ${d.ayah.showSurahName ? "active" : ""}" data-surah-name="on">إظهار</button>
-    <button class="toggle-btn ${!d.ayah.showSurahName ? "active" : ""}" data-surah-name="off">إخفاء</button>
-  </div>
-</div>
-
-<div class="panel-row">
-  <label class="panel-label">البسملة (﷽)</label>
-  <div class="toggle-group" id="show-bismillah">
-    <button class="toggle-btn ${d.ayah.showBismillah ? "active" : ""}" data-bismillah="on">إظهار</button>
-    <button class="toggle-btn ${!d.ayah.showBismillah ? "active" : ""}" data-bismillah="off">إخفاء</button>
-  </div>
-</div>
-
-<div class="panel-row">
-  <label class="panel-label">أعوذ بالله (الاستعاذة)</label>
-  <div class="toggle-group" id="show-istiadha">
-    <button class="toggle-btn ${d.ayah.showIstiadha ? "active" : ""}" data-istiadha="on">إظهار</button>
-    <button class="toggle-btn ${!d.ayah.showIstiadha ? "active" : ""}" data-istiadha="off">إخفاء</button>
-  </div>
-</div>
-
-<div class="panel-row">
-  <label class="panel-label">رقم الآية داخل زخرفة</label>
-  <div class="toggle-group" id="show-ayah-num">
-    <button class="toggle-btn ${d.ayah.decorNumber ? "active" : ""}" data-ayah-num="on">إظهار</button>
-    <button class="toggle-btn ${!d.ayah.decorNumber ? "active" : ""}" data-ayah-num="off">إخفاء</button>
-  </div>
-</div>
-
-<div class="panel-row">
-  <label class="panel-label">زخارف إضافية</label>
-  <div class="bg-grid" id="ayah-decorations">
-    ${(typeof NoorDecorations !== "undefined" ? NoorDecorations.list : []).slice(0, 12).map((deco) => `
-      <button class="bg-item" data-deco-id="${deco.id}" title="${deco.name}">
-        <span class="bg-item-color" style="display:flex;align-items:center;justify-content:center;font-size:22px;font-family:'Amiri',serif;color:${deco.color || "#c9a227"};">${deco.symbol || "◆"}</span>
-      </button>
-    `).join("")}
-  </div>
-</div>
+        <label class="panel-label">عنوان الآية (اسم السورة)</label>
+        <div class="toggle-group" id="show-surah-name">
+          <button class="toggle-btn ${d.ayah.showSurahName ? "active" : ""}" data-surah-name="on">إظهار</button>
+          <button class="toggle-btn ${!d.ayah.showSurahName ? "active" : ""}" data-surah-name="off">إخفاء</button>
+        </div>
+      </div>
+      <div class="panel-row">
+        <label class="panel-label">البسملة (﷽)</label>
+        <div class="toggle-group" id="show-bismillah">
+          <button class="toggle-btn ${d.ayah.showBismillah ? "active" : ""}" data-bismillah="on">إظهار</button>
+          <button class="toggle-btn ${!d.ayah.showBismillah ? "active" : ""}" data-bismillah="off">إخفاء</button>
+        </div>
+      </div>
+      <div class="panel-row">
+        <label class="panel-label">أعوذ بالله</label>
+        <div class="toggle-group" id="show-istiadha">
+          <button class="toggle-btn ${d.ayah.showIstiadha ? "active" : ""}" data-istiadha="on">إظهار</button>
+          <button class="toggle-btn ${!d.ayah.showIstiadha ? "active" : ""}" data-istiadha="off">إخفاء</button>
+        </div>
+      </div>
+      <div class="panel-row">
+        <label class="panel-label">رقم الآية داخل زخرفة</label>
+        <div class="toggle-group" id="show-ayah-num">
+          <button class="toggle-btn ${d.ayah.decorNumber ? "active" : ""}" data-ayah-num="on">إظهار</button>
+          <button class="toggle-btn ${!d.ayah.decorNumber ? "active" : ""}" data-ayah-num="off">إخفاء</button>
+        </div>
+      </div>
+      <div class="panel-row">
+        <label class="panel-label">زخارف إضافية</label>
+        <div class="bg-grid" id="ayah-decorations">
+          ${(typeof NoorDecorations !== "undefined" ? NoorDecorations.list : []).slice(0, 12).map((deco) => `<button class="bg-item" data-deco-id="${deco.id}" title="${deco.name}"><span class="bg-item-color" style="display:flex;align-items:center;justify-content:center;font-size:22px;font-family:'Amiri',serif;color:${deco.color || "#c9a227"};">${deco.symbol || "◆"}</span></button>`).join("")}
+        </div>
+      </div>
     `;
   },
-   
+  
 renderImagePanel() {
   return `
     <h3 class="panel-title">إضافة صورة</h3>
@@ -156,7 +143,7 @@ renderTextColorPanel() {
     </div></div>
   `;
 },
-   
+  
   renderBackgroundPanel() {
     const d = NoorState.design;
     const colorItems = NoorBackgrounds.solidColors.map((c) => `<button class="bg-item ${d.background.type === "solid" && d.background.value === c.color ? "active" : ""}" data-bg-type="solid" data-bg-value="${c.color}" title="${c.name}"><span class="bg-item-color" style="background:${c.color};"></span></button>`).join("");
@@ -318,8 +305,65 @@ NoorPanels.bind = async function (tool) {
         NoorRenderer.debouncedRender();
       });
     });
-  }
 
+    document.querySelectorAll("[data-surah-name]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("[data-surah-name]").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        NoorState.design.ayah.showSurahName = btn.dataset.surahName === "on";
+        NoorRenderer.debouncedRender();
+      });
+    });
+
+    document.querySelectorAll("[data-bismillah]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("[data-bismillah]").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        NoorState.design.ayah.showBismillah = btn.dataset.bismillah === "on";
+        NoorRenderer.debouncedRender();
+      });
+    });
+
+    document.querySelectorAll("[data-istiadha]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("[data-istiadha]").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        NoorState.design.ayah.showIstiadha = btn.dataset.istiadha === "on";
+        NoorRenderer.debouncedRender();
+      });
+    });
+
+    document.querySelectorAll("[data-ayah-num]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("[data-ayah-num]").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        NoorState.design.ayah.decorNumber = btn.dataset.ayahNum === "on";
+        NoorRenderer.debouncedRender();
+      });
+    });
+
+    document.querySelectorAll("[data-deco-id]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.decoId;
+        const d = NoorState.design;
+        if (!d.decorations) d.decorations = [];
+        const def = NoorDecorations.get(id);
+        if (!def) return;
+        d.decorations.push({
+          id: id,
+          x: d.width / 2,
+          y: d.height - 100,
+          size: def.size || 60,
+          color: def.color || "#c9a227",
+          rotation: 0,
+        });
+        NoorState.pushHistory();
+        NoorRenderer.debouncedRender();
+        window.showToast?.("تم إضافة الزخرفة");
+      });
+    });
+          }
+  
   if (tool === "image") {
     const pickBtn = document.getElementById("pick-image-btn");
     const picker = document.getElementById("image-picker");
@@ -329,7 +373,6 @@ NoorPanels.bind = async function (tool) {
     picker?.addEventListener("change", (e) => {
       const file = e.target.files[0];
       if (!file) return;
-
       const reader = new FileReader();
       reader.onload = (ev) => {
         const img = new Image();
@@ -339,7 +382,6 @@ NoorPanels.bind = async function (tool) {
           const ratio = img.height / img.width;
           const w = Math.min(maxW, img.width);
           const h = w * ratio;
-
           if (!d.images) d.images = [];
           d.images.push({
             id: "img_" + Date.now(),
@@ -348,8 +390,8 @@ NoorPanels.bind = async function (tool) {
             y: (d.height - h) / 2,
             width: w,
             height: h,
+            rotation: 0,
           });
-
           NoorState.pushHistory();
           NoorRenderer.debouncedRender();
           window.showToast?.("تم إضافة الصورة");
@@ -364,7 +406,6 @@ NoorPanels.bind = async function (tool) {
         const tpl = btn.dataset.imageTpl;
         const d = NoorState.design;
         const texts = { allah: "الله", muhammad: "محمد", bismillah: "﷽", star: "★" };
-
         if (!d.stickers) d.stickers = [];
         d.stickers.push({
           id: "stk_" + Date.now(),
@@ -373,8 +414,8 @@ NoorPanels.bind = async function (tool) {
           y: d.height / 2,
           size: 120,
           color: "#7c3aed",
+          rotation: 0,
         });
-
         NoorState.pushHistory();
         NoorRenderer.debouncedRender();
         window.showToast?.("تم إضافة العنصر");
@@ -517,7 +558,6 @@ NoorPanels.bind = async function (tool) {
         btn.classList.add("active");
         const lang = btn.dataset.lang;
         NoorState.design.translation.lang = lang;
-
         const d = NoorState.design;
         if (d.ayah.surah && d.ayah.ayahNumber) {
           window.showToast?.("جاري تحميل الترجمة...");
@@ -560,5 +600,10 @@ NoorPanels.bind = async function (tool) {
         NoorPanels.refresh();
       });
     });
+  }
+
+  if (NoorTools && NoorTools.has(tool)) {
+    NoorTools.bind(tool);
+    return;
   }
 };
