@@ -15,7 +15,7 @@ const NoorPanels = {
     else if (tool === "frame") content.innerHTML = this.renderFramePanel();
     else if (tool === "translation") content.innerHTML = this.renderTranslationPanel();
     else if (tool === "decor") content.innerHTML = this.renderDecorPanel();
-    else if (NoorTools && NoorTools.has(tool)) content.innerHTML = NoorTools.render(tool);
+    else if (typeof NoorTools !== "undefined" && NoorTools.has(tool)) content.innerHTML = NoorTools.render(tool);
 
     panel.hidden = false;
     this.bind(tool);
@@ -273,118 +273,118 @@ NoorPanels.bind = async function (tool) {
     });
   }
   
-  if (tool === "image") {
-    const pickBtn = document.getElementById("pick-image-btn");
-    const picker = document.getElementById("image-picker");
+if (tool === "image") {
+  const pickBtn = document.getElementById("pick-image-btn");
+  const picker = document.getElementById("image-picker");
 
-    pickBtn?.addEventListener("click", () => picker?.click());
+  pickBtn?.addEventListener("click", () => picker?.click());
 
-    picker?.addEventListener("change", (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        const img = new Image();
-        img.onload = () => {
-          const d = NoorState.design;
-          const maxW = d.width * 0.6;
-          const ratio = img.height / img.width;
-          const w = Math.min(maxW, img.width);
-          const h = w * ratio;
-          if (!d.images) d.images = [];
-          d.images.push({
-            id: "img_" + Date.now(),
-            src: ev.target.result,
-            x: (d.width - w) / 2,
-            y: (d.height - h) / 2,
-            width: w,
-            height: h,
-            rotation: 0,
-          });
-          NoorState.pushHistory();
-          NoorRenderer.debouncedRender();
-          window.showToast?.("تم إضافة الصورة");
-        };
-        img.src = ev.target.result;
-      };
-      reader.readAsDataURL(file);
-    });
-
-    document.querySelectorAll("[data-image-tpl]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const tpl = btn.dataset.imageTpl;
+  picker?.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
         const d = NoorState.design;
-        const texts = { allah: "الله", muhammad: "محمد", bismillah: "﷽", star: "★" };
-        if (!d.stickers) d.stickers = [];
-        d.stickers.push({
-          id: "stk_" + Date.now(),
-          text: texts[tpl] || "★",
-          x: d.width / 2,
-          y: d.height / 2,
-          size: 120,
-          color: "#7c3aed",
+        const maxW = d.width * 0.6;
+        const ratio = img.height / img.width;
+        const w = Math.min(maxW, img.width);
+        const h = w * ratio;
+        if (!d.images) d.images = [];
+        d.images.push({
+          id: "img_" + Date.now(),
+          src: ev.target.result,
+          x: (d.width - w) / 2,
+          y: (d.height - h) / 2,
+          width: w,
+          height: h,
           rotation: 0,
         });
         NoorState.pushHistory();
         NoorRenderer.debouncedRender();
-        window.showToast?.("تم إضافة العنصر");
-      });
-    });
-  }
+        window.showToast?.("تم إضافة الصورة");
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
 
-  if (tool === "font") {
-    document.querySelectorAll("#font-grid .font-option").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll("#font-grid .font-option").forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-        NoorState.design.text.fontId = btn.dataset.font;
-        NoorState.pushHistory();
-        NoorRenderer.debouncedRender();
+  document.querySelectorAll("[data-image-tpl]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const tpl = btn.dataset.imageTpl;
+      const d = NoorState.design;
+      const texts = { allah: "الله", muhammad: "محمد", bismillah: "﷽", star: "★" };
+      if (!d.stickers) d.stickers = [];
+      d.stickers.push({
+        id: "stk_" + Date.now(),
+        text: texts[tpl] || "★",
+        x: d.width / 2,
+        y: d.height / 2,
+        size: 120,
+        color: "#7c3aed",
+        rotation: 0,
       });
+      NoorState.pushHistory();
+      NoorRenderer.debouncedRender();
+      window.showToast?.("تم إضافة العنصر");
     });
+  });
+}
 
-    const sizeInput = document.getElementById("font-size");
-    const sizeOut = document.getElementById("size-value");
-    sizeInput?.addEventListener("input", () => {
-      NoorState.design.text.size = parseInt(sizeInput.value);
-      if (sizeOut) sizeOut.textContent = sizeInput.value;
+if (tool === "font") {
+  document.querySelectorAll("#font-grid .font-option").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#font-grid .font-option").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      NoorState.design.text.fontId = btn.dataset.font;
+      NoorState.pushHistory();
       NoorRenderer.debouncedRender();
     });
-    sizeInput?.addEventListener("change", () => NoorState.pushHistory());
+  });
 
-    document.querySelectorAll("#align-group .toggle-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll("#align-group .toggle-btn").forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-        NoorState.design.text.align = btn.dataset.align;
-        NoorState.pushHistory();
-        NoorRenderer.debouncedRender();
-      });
+  const sizeInput = document.getElementById("font-size");
+  const sizeOut = document.getElementById("size-value");
+  sizeInput?.addEventListener("input", () => {
+    NoorState.design.text.size = parseInt(sizeInput.value);
+    if (sizeOut) sizeOut.textContent = sizeInput.value;
+    NoorRenderer.debouncedRender();
+  });
+  sizeInput?.addEventListener("change", () => NoorState.pushHistory());
+
+  document.querySelectorAll("#align-group .toggle-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#align-group .toggle-btn").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      NoorState.design.text.align = btn.dataset.align;
+      NoorState.pushHistory();
+      NoorRenderer.debouncedRender();
     });
+  });
 
-    document.querySelectorAll("#shadow-group .toggle-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll("#shadow-group .toggle-btn").forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-        NoorState.design.text.shadow = btn.dataset.shadow === "on";
-        NoorState.pushHistory();
-        NoorRenderer.debouncedRender();
-      });
+  document.querySelectorAll("#shadow-group .toggle-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#shadow-group .toggle-btn").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      NoorState.design.text.shadow = btn.dataset.shadow === "on";
+      NoorState.pushHistory();
+      NoorRenderer.debouncedRender();
     });
-  }
+  });
+}
 
-  if (tool === "text-color") {
-    document.querySelectorAll("#text-color-options .color-swatch").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll("#text-color-options .color-swatch").forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-        NoorState.design.text.color = btn.dataset.color;
-        NoorState.pushHistory();
-        NoorRenderer.debouncedRender();
-      });
+if (tool === "text-color") {
+  document.querySelectorAll("#text-color-options .color-swatch").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#text-color-options .color-swatch").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      NoorState.design.text.color = btn.dataset.color;
+      NoorState.pushHistory();
+      NoorRenderer.debouncedRender();
     });
-  }
-
+  });
+}
+  
   if (tool === "background") {
     document.querySelectorAll(".bg-item[data-bg-type]").forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -511,7 +511,7 @@ NoorPanels.bind = async function (tool) {
     });
   }
 
-  if (NoorTools && NoorTools.has(tool)) {
+  if (typeof NoorTools !== "undefined" && NoorTools.has(tool)) {
     NoorTools.bind(tool);
     return;
   }
