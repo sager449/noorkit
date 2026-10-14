@@ -188,31 +188,34 @@
 window.addEventListener("load", () => {
   const box = document.createElement("div");
   box.id = "debug-box";
-  box.style.cssText = "position:fixed;top:0;left:0;right:0;background:#000;color:#0f0;font-family:monospace;font-size:11px;padding:8px;z-index:999999;max-height:200px;overflow:auto;direction:ltr;text-align:left;";
+  box.style.cssText = "position:fixed;top:0;left:0;right:0;background:#000;color:#0f0;font-family:monospace;font-size:11px;padding:8px;z-index:999999;max-height:250px;overflow:auto;direction:ltr;text-align:left;";
   box.innerHTML = "=== DEBUG ===<br>";
   document.body.appendChild(box);
 
   const check = (name, obj) => {
     const ok = typeof obj !== "undefined";
-    box.innerHTML += (ok ? "✅ " : "❌ ") + name + ": " + typeof obj + "<br>";
+    box.innerHTML += (ok ? "✅ " : "❌ ") + name + "<br>";
   };
 
   check("NoorDB", window.NoorDB);
-  check("QuranAPI", window.QuranAPI);
-  check("QuranUI", window.QuranUI);
-  check("NoorBackgrounds", window.NoorBackgrounds);
   check("NoorFonts", window.NoorFonts);
   check("NoorState", window.NoorState);
   check("NoorRenderer", window.NoorRenderer);
-  check("NoorTools", window.NoorTools);
   check("NoorPanels", window.NoorPanels);
   check("NoorDecorations", window.NoorDecorations);
-box.innerHTML += "<br>--- Panel HTML ---<br>";
-const testPanel = NoorPanels.renderAyahPanel();
-box.innerHTML += "show-bismillah: " + (testPanel.includes("show-bismillah") ? "✅" : "❌") + "<br>";
-box.innerHTML += "ayah-decorations: " + (testPanel.includes("ayah-decorations") ? "✅" : "❌") + "<br>";
-box.innerHTML += "show-surah-name: " + (testPanel.includes("show-surah-name") ? "✅" : "❌") + "<br>";
-box.innerHTML += "data-deco-id: " + (testPanel.includes("data-deco-id") ? "✅" : "❌") + "<br>";
+  check("NoorTools", window.NoorTools);
+
+  box.innerHTML += "<br>--- AyahPanel Test ---<br>";
+  try {
+    const html = NoorPanels.renderAyahPanel();
+    box.innerHTML += "show-bismillah: " + (html.includes("show-bismillah") ? "✅" : "❌") + "<br>";
+    box.innerHTML += "ayah-decorations: " + (html.includes("ayah-decorations") ? "✅" : "❌") + "<br>";
+    box.innerHTML += "show-surah-name: " + (html.includes("show-surah-name") ? "✅" : "❌") + "<br>";
+    box.innerHTML += "data-deco-id: " + (html.includes("data-deco-id") ? "✅" : "❌") + "<br>";
+    box.innerHTML += "panel length: " + html.length + "<br>";
+  } catch (e) {
+    box.innerHTML += "❌ Error: " + e.message + "<br>";
+  }
 });
     </script>
   </body>
