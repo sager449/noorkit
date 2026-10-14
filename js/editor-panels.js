@@ -425,6 +425,63 @@ if (tool === "text-color") {
       NoorRenderer.debouncedRender();
     });
   });
+   
+document.querySelectorAll("[data-surah-name]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("[data-surah-name]").forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+    NoorState.design.ayah.showSurahName = btn.dataset.surahName === "on";
+    NoorRenderer.debouncedRender();
+  });
+});
+
+document.querySelectorAll("[data-bismillah]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("[data-bismillah]").forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+    NoorState.design.ayah.showBismillah = btn.dataset.bismillah === "on";
+    NoorRenderer.debouncedRender();
+  });
+});
+
+document.querySelectorAll("[data-istiadha]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("[data-istiadha]").forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+    NoorState.design.ayah.showIstiadha = btn.dataset.istiadha === "on";
+    NoorRenderer.debouncedRender();
+  });
+});
+
+document.querySelectorAll("[data-ayah-num]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("[data-ayah-num]").forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+    NoorState.design.ayah.decorNumber = btn.dataset.ayahNum === "on";
+    NoorRenderer.debouncedRender();
+  });
+});
+
+document.querySelectorAll("[data-deco-id]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const id = btn.dataset.decoId;
+    const d = NoorState.design;
+    if (!d.decorations) d.decorations = [];
+    const def = NoorDecorations.get(id);
+    if (!def) return;
+    d.decorations.push({
+      id: id,
+      x: d.width / 2,
+      y: d.height - 100,
+      size: def.size || 60,
+      color: def.color || "#c9a227",
+      rotation: 0,
+    });
+    NoorState.pushHistory();
+    NoorRenderer.debouncedRender();
+    window.showToast?.("تم إضافة الزخرفة");
+  });
+});
           }
   
   if (tool === "background") {
