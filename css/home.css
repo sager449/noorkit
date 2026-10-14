@@ -1,0 +1,66 @@
+/* =========================================
+   NoorKit — Home Page
+   ========================================= */
+
+.home-body {
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--cream);
+}
+
+.home-main {
+  flex: 1 1 auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.floating-btn {
+  position: fixed;
+  bottom: 32px;
+  right: 24px;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.35);
+  transition: 0.2s ease;
+  text-decoration: none;
+  z-index: 100;
+  border: none;
+  cursor: pointer;
+}
+
+.floating-btn:hover {
+  background: var(--accent-dark);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 12px 32px rgba(124, 58, 237, 0.45);
+}
+
+.floating-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.floating-btn svg {
+  width: 28px;
+  height: 28px;
+}
+
+@media (max-width: 600px) {
+  .floating-btn {
+    width: 58px;
+    height: 58px;
+    bottom: 24px;
+    right: 18px;
+  }
+  .floating-btn svg {
+    width: 26px;
+    height: 26px;
+  }
+}
