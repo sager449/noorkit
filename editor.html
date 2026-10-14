@@ -184,36 +184,5 @@
     <script src="js/tools/editor.js"></script>
     <script src="js/editor-panels.js"></script>
     <script src="js/editor.js"></script>
-    <script>
-window.addEventListener("load", () => {
-  const box = document.createElement("div");
-  box.id = "debug-box";
-  box.style.cssText = "position:fixed;bottom:80px;left:0;right:0;background:#000;color:#0f0;font-family:monospace;font-size:11px;padding:8px;z-index:999999;max-height:200px;overflow:auto;direction:ltr;text-align:left;";
-  box.innerHTML = "=== DEBUG ===<br>";
-  document.body.appendChild(box);
-
-  const log = (msg) => {
-    box.innerHTML += msg + "<br>";
-  };
-
-  log("NoorState: " + (typeof NoorState));
-  log("NoorRenderer: " + (typeof NoorRenderer));
-  log("NoorPanels: " + (typeof NoorPanels));
-  log("NoorDecorations: " + (typeof NoorDecorations));
-
-  // نراقب تغييرات ayahNumber
-  window._checkAyahNum = () => {
-    if (typeof NoorState !== "undefined") {
-      log("ayahNumber: " + NoorState.design.ayah.ayahNumber);
-      log("decorNumber: " + NoorState.design.ayah.decorNumber);
-    }
-  };
-
-  setTimeout(() => {
-    window._checkAyahNum();
-    log("<br>---> اختر آية الآن ثم أعد تحميل الصفحة <---");
-  }, 2000);
-});
-    </script>
   </body>
   </html>
