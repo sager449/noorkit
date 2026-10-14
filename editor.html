@@ -183,5 +183,29 @@
     <script src="js/tools/editor.js"></script>
     <script src="js/editor-panels.js"></script>
     <script src="js/editor.js"></script>
+    <script>
+window.addEventListener("load", () => {
+  const box = document.createElement("div");
+  box.id = "debug-box";
+  box.style.cssText = "position:fixed;top:0;left:0;right:0;background:#000;color:#0f0;font-family:monospace;font-size:11px;padding:8px;z-index:999999;max-height:200px;overflow:auto;direction:ltr;text-align:left;";
+  box.innerHTML = "=== DEBUG ===<br>";
+  document.body.appendChild(box);
+
+  const check = (name, obj) => {
+    const ok = typeof obj !== "undefined";
+    box.innerHTML += (ok ? "✅ " : "❌ ") + name + ": " + typeof obj + "<br>";
+  };
+
+  check("NoorDB", window.NoorDB);
+  check("QuranAPI", window.QuranAPI);
+  check("QuranUI", window.QuranUI);
+  check("NoorBackgrounds", window.NoorBackgrounds);
+  check("NoorFonts", window.NoorFonts);
+  check("NoorState", window.NoorState);
+  check("NoorRenderer", window.NoorRenderer);
+  check("NoorTools", window.NoorTools);
+  check("NoorPanels", window.NoorPanels);
+});
+    </script>
   </body>
   </html>
