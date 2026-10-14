@@ -2,7 +2,7 @@
    NoorKit — IndexedDB Layer
    ========================================= */
 
-const NoorDB = {
+window.NoorDB = {
   DB_NAME: "noorkit",
   VERSION: 1,
   STORE: "designs",
