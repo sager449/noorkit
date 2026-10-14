@@ -2,7 +2,7 @@
    NoorKit — Canvas Renderer
    ========================================= */
 
-const NoorRenderer = {
+window.NoorRenderer = {
   canvas: null,
   ctx: null,
   previewScale: 1,
@@ -50,8 +50,9 @@ const NoorRenderer = {
     if (d.translation.enabled && d.translation.text) {
       this.drawTranslation(d);
     }
-     this.drawAyahNumber(d);
-this.drawDecorations(d);
+
+    this.drawAyahNumber(d);
+    this.drawDecorations(d);
     this.drawFrame(d);
     this.drawDecor(d);
   },
@@ -197,7 +198,7 @@ this.drawDecorations(d);
 
     return lines;
   },
-
+   
   async drawImages(d) {
     if (!d.images || d.images.length === 0) return;
     const ctx = this.ctx;
@@ -214,9 +215,6 @@ this.drawDecorations(d);
         ctx.rotate((item.rotation * Math.PI) / 180);
         ctx.translate(-cx, -cy);
       }
-      if (item.opacity !== undefined) {
-        ctx.globalAlpha = item.opacity;
-      }
       ctx.drawImage(img, item.x, item.y, item.width, item.height);
       ctx.restore();
     }
@@ -227,7 +225,7 @@ this.drawDecorations(d);
     const ctx = this.ctx;
     ctx.save();
     ctx.textAlign = "center";
-    ctx.textBaseline = middle";
+    ctx.textBaseline = "middle";
 
     for (const stk of d.stickers) {
       ctx.save();
@@ -236,64 +234,70 @@ this.drawDecorations(d);
         ctx.rotate((stk.rotation * Math.PI) / 180);
         ctx.translate(-stk.x, -stk.y);
       }
-      if (stk.opacity !== undefined) {
-        ctx.globalAlpha = stk.opacity;
-      }
       ctx.font = `700 ${stk.size}px 'Amiri', serif`;
-      ctx.fillStyle = stk.color || "#0d8b5f";
+      ctx.fillStyle = stk.color || "#7c3aed";
       ctx.fillText(stk.text, stk.x, stk.y);
       ctx.restore();
     }
     ctx.restore();
   },
-   
-drawAyahNumber(d) {
-  if (!d.ayah.decorNumber) return;
-  const ctx = this.ctx;
-  const size = d.ayah.decorNumberSize || 40;
-  const margin = 20;
 
-  // موضع: أسفل يمين النص
-  const x = d.width - margin - size - 10;
-  const y = d.height - margin - size - 10;
-
-  if (typeof NoorDecorations !== "undefined") {
-    NoorDecorations.drawAyahNumber(
-      ctx,
-      d.ayah.ayahNumber || "﴿﴾",
-      x, y, size,
-      d.ayah.decorNumberColor || "#c9a227"
-    );
-  }
-},
-
-drawDecorations(d) {
-  if (!d.decorations || d.decorations.length === 0) return;
-  const ctx = this.ctx;
-
-  for (const deco of d.decorations) {
-    const def = typeof NoorDecorations !== "undefined" ? NoorDecorations.get(deco.id) : null;
-    if (!def) continue;
+  drawAyahNumber(d) {
+    if (!d.ayah.decorNumber) return;
+    const ctx = this.ctx;
+    const size = 40;
+    const margin = 20;
+    const x = d.width - margin - size - 10;
+    const y = d.height - margin - size - 10;
 
     ctx.save();
-    ctx.font = `400 ${deco.size || def.size || 60}px 'Amiri', serif`;
-    ctx.fillStyle = deco.color || def.color || "#c9a227";
+    ctx.fillStyle = "#c9a227";
+    ctx.beginPath();
+    ctx.arc(x, y, size, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(x, y, size - 4, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.fillStyle = "#ffffff";
+    ctx.font = `700 ${size}px 'Cairo', sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.direction = "rtl";
-
-    if (deco.rotation) {
-      ctx.translate(deco.x, deco.y);
-      ctx.rotate((deco.rotation * Math.PI) / 180);
-      ctx.translate(-deco.x, -deco.y);
-    }
-
-    if (def.type === "text" && def.symbol) {
-      ctx.fillText(def.symbol, deco.x, deco.y);
-    }
+    ctx.fillText(d.ayah.ayahNumber || "﴿﴾", x, y);
     ctx.restore();
-  }
-},
+  },
+
+  drawDecorations(d) {
+    if (!d.decorations || d.decorations.length === 0) return;
+    const ctx = this.ctx;
+
+    for (const deco of d.decorations) {
+      const def = typeof NoorDecorations !== "undefined" ? NoorDecorations.get(deco.id) : null;
+      if (!def) continue;
+
+      ctx.save();
+      ctx.font = `400 ${deco.size || def.size || 60}px 'Amiri', serif`;
+      ctx.fillStyle = deco.color || def.color || "#c9a227";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.direction = "rtl";
+
+      if (deco.rotation) {
+        ctx.translate(deco.x, deco.y);
+        ctx.rotate((deco.rotation * Math.PI) / 180);
+        ctx.translate(-deco.x, -deco.y);
+      }
+
+      if (def.type === "text" && def.symbol) {
+        ctx.fillText(def.symbol, deco.x, deco.y);
+      }
+      ctx.restore();
+    }
+  },
 
   drawTranslation(d) {
     const ctx = this.ctx;
@@ -382,7 +386,7 @@ drawDecorations(d) {
 };
 
 /* ---------- Preload fonts ---------- */
-NoorRenderer.preloadFonts = async function () {
+window.NoorRenderer.preloadFonts = async function () {
   if (!document.fonts) return;
   const loads = [];
   NoorFonts.list.forEach((f) => {
@@ -396,7 +400,7 @@ NoorRenderer.preloadFonts = async function () {
 };
 
 /* ---------- Export PNG ---------- */
-NoorRenderer.export = async function () {
+window.NoorRenderer.export = async function () {
   if (!this.canvas) return;
   await this.preloadFonts();
   const d = NoorState.design;
@@ -447,7 +451,7 @@ window.showToast = function (message) {
 };
 
 /* ---------- Debounced render ---------- */
-NoorRenderer.debouncedRender = (function () {
+window.NoorRenderer.debouncedRender = (function () {
   let timer = null;
   return function () {
     clearTimeout(timer);
