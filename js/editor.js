@@ -6,6 +6,7 @@
   "use strict";
 
   let autoSaveTimer = null;
+  const AUTO_SAVE = false;
 
   document.addEventListener("DOMContentLoaded", init);
 
@@ -23,8 +24,6 @@
       setupHeader();
       setupToolbar();
       setupPanelClose();
-
-      await restoreLastDesign();
 
       NoorState.pushHistory();
 
@@ -58,7 +57,7 @@
     document.getElementById("size-btn")?.addEventListener("click", openSizePicker);
 
     document.getElementById("design-title")?.addEventListener("input", () => {
-      scheduleAutoSave();
+      if (AUTO_SAVE) scheduleAutoSave();
     });
   }
 
@@ -162,22 +161,6 @@
         window.showToast?.(`تم تغيير الحجم إلى ${btn.dataset.w}×${btn.dataset.h}`);
       });
     });
-  }
-
-  async function restoreLastDesign() {
-    try {
-      if (typeof NoorDB === "undefined" || !NoorDB.getLast) return;
-      const record = await NoorDB.getLast();
-      if (record && record.design) {
-        NoorState.load(record);
-        const titleInput = document.getElementById("design-title");
-        if (titleInput) titleInput.value = record.design.title || "تصميم بدون عنوان";
-        await NoorRenderer.resize();
-        await NoorRenderer.render();
-      }
-    } catch (err) {
-      console.warn("No saved design found:", err);
-    }
   }
 
   document.addEventListener("keydown", (e) => {
