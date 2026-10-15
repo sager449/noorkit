@@ -1,7 +1,3 @@
-/* =========================================
-   NoorKit — Editor Panels
-   ========================================= */
-
 window.NoorPanels = {
   activeTool: null,
 
@@ -65,47 +61,10 @@ window.NoorPanels = {
           ${["#1a1a1a","#ffffff","#c9a227","#0d8b5f","#1e40af","#b91c1c","#7c3aed","#f59e0b","#be185d","#0891b2"].map((c) => `<button class="color-swatch ${d.text.color === c ? "active" : ""}" data-color="${c}" style="background:${c};${c === "#ffffff" ? "border:2px solid #e5e5e5;" : ""}"></button>`).join("")}
         </div>
       </div>
-      <div class="panel-row">
-  <label class="panel-label">عنوان الآية (اسم السورة)</label>
-  <div class="toggle-group" id="show-surah-name">
-    <button class="toggle-btn ${d.ayah.showSurahName ? "active" : ""}" data-surah-name="on">إظهار</button>
-    <button class="toggle-btn ${!d.ayah.showSurahName ? "active" : ""}" data-surah-name="off">إخفاء</button>
-  </div>
-</div>
-
-<div class="panel-row">
-  <label class="panel-label">البسملة (﷽)</label>
-  <div class="toggle-group" id="show-bismillah">
-    <button class="toggle-btn ${d.ayah.showBismillah ? "active" : ""}" data-bismillah="on">إظهار</button>
-    <button class="toggle-btn ${!d.ayah.showBismillah ? "active" : ""}" data-bismillah="off">إخفاء</button>
-  </div>
-</div>
-
-<div class="panel-row">
-  <label class="panel-label">أعوذ بالله (الاستعاذة)</label>
-  <div class="toggle-group" id="show-istiadha">
-    <button class="toggle-btn ${d.ayah.showIstiadha ? "active" : ""}" data-istiadha="on">إظهار</button>
-    <button class="toggle-btn ${!d.ayah.showIstiadha ? "active" : ""}" data-istiadha="off">إخفاء</button>
-  </div>
-</div>
-
-<div class="panel-row">
-  <label class="panel-label">رقم الآية داخل زخرفة</label>
-  <div class="toggle-group" id="show-ayah-num">
-    <button class="toggle-btn ${d.ayah.decorNumber ? "active" : ""}" data-ayah-num="on">إظهار</button>
-    <button class="toggle-btn ${!d.ayah.decorNumber ? "active" : ""}" data-ayah-num="off">إخفاء</button>
-  </div>
-</div>
-
-<div class="panel-row">
-  <label class="panel-label">زخارف إضافية</label>
-  <div class="bg-grid" id="ayah-decorations">
-    ${(typeof NoorDecorations !== "undefined" ? NoorDecorations.list : []).slice(0, 12).map((deco) => `<button class="bg-item" data-deco-id="${deco.id}" title="${deco.name}"><span class="bg-item-color" style="display:flex;align-items:center;justify-content:center;font-size:22px;font-family:'Amiri',serif;color:${deco.color || "#c9a227"};">${deco.symbol || "◆"}</span></button>`).join("")}
-  </div>
-</div>
     `;
   },
-   renderImagePanel() {
+   
+renderImagePanel() {
   return `
     <h3 class="panel-title">إضافة صورة</h3>
     <div class="panel-row"><button class="panel-btn" id="pick-image-btn">📷 اختر صورة من جهازك</button></div>
@@ -150,7 +109,7 @@ renderTextColorPanel() {
     </div></div>
   `;
 },
-  
+   
   renderBackgroundPanel() {
     const d = NoorState.design;
     const colorItems = NoorBackgrounds.solidColors.map((c) => `<button class="bg-item ${d.background.type === "solid" && d.background.value === c.color ? "active" : ""}" data-bg-type="solid" data-bg-value="${c.color}" title="${c.name}"><span class="bg-item-color" style="background:${c.color};"></span></button>`).join("");
@@ -257,7 +216,7 @@ window.NoorPanels.bind = async function (tool) {
       ayahSel.disabled = false;
       NoorState.design.ayah.surah = parseInt(val);
       NoorState.design.ayah.surahName = QuranUI.surahsCache?.find((s) => s.number === parseInt(val))?.name || "";
-      NoorRenderer.debouncedRender();
+      await NoorRenderer.render();
     });
 
     ayahSel?.addEventListener("change", async () => {
@@ -270,8 +229,10 @@ window.NoorPanels.bind = async function (tool) {
           textArea.value = text;
           NoorState.design.ayah.text = text;
           NoorState.design.ayah.ayahNumber = parseInt(ayah);
+          NoorState.design.ayah.surahName = QuranUI.surahsCache?.find((s) => s.number === parseInt(surah))?.name || "";
           NoorState.pushHistory();
-          NoorRenderer.debouncedRender();
+          await NoorRenderer.render();
+          window.showToast?.("تم اختيار الآية " + ayah);
         }
       } catch (e) {
         window.showToast?.("تعذر تحميل الآية");
@@ -280,17 +241,16 @@ window.NoorPanels.bind = async function (tool) {
 
     textArea?.addEventListener("input", () => {
       NoorState.design.ayah.text = textArea.value;
-      NoorRenderer.debouncedRender();
+      NoorRenderer.render();
     });
-    textArea?.addEventListener("change", () => NoorState.pushHistory());
 
     document.querySelectorAll("#font-grid .font-option").forEach((btn) => {
-      btn.addEventListener("click", () => {
+      btn.addEventListener("click", async () => {
         document.querySelectorAll("#font-grid .font-option").forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
         NoorState.design.text.fontId = btn.dataset.font;
         NoorState.pushHistory();
-        NoorRenderer.debouncedRender();
+        await NoorRenderer.render();
       });
     });
 
@@ -299,205 +259,207 @@ window.NoorPanels.bind = async function (tool) {
     sizeInput?.addEventListener("input", () => {
       NoorState.design.text.size = parseInt(sizeInput.value);
       if (sizeOut) sizeOut.textContent = sizeInput.value;
-      NoorRenderer.debouncedRender();
+      NoorRenderer.render();
     });
-    sizeInput?.addEventListener("change", () => NoorState.pushHistory());
 
     document.querySelectorAll("#text-color-options .color-swatch").forEach((btn) => {
-      btn.addEventListener("click", () => {
+      btn.addEventListener("click", async () => {
         document.querySelectorAll("#text-color-options .color-swatch").forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
         NoorState.design.text.color = btn.dataset.color;
         NoorState.pushHistory();
-        NoorRenderer.debouncedRender();
+        await NoorRenderer.render();
       });
     });
-  }
-  
-if (tool === "image") {
-  const pickBtn = document.getElementById("pick-image-btn");
-  const picker = document.getElementById("image-picker");
 
-  pickBtn?.addEventListener("click", () => picker?.click());
+    document.querySelectorAll("[data-surah-name]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        document.querySelectorAll("[data-surah-name]").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        NoorState.design.ayah.showSurahName = btn.dataset.surahName === "on";
+        NoorState.pushHistory();
+        await NoorRenderer.render();
+      });
+    });
 
-  picker?.addEventListener("change", (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const img = new Image();
-      img.onload = () => {
+    document.querySelectorAll("[data-bismillah]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        document.querySelectorAll("[data-bismillah]").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        NoorState.design.ayah.showBismillah = btn.dataset.bismillah === "on";
+        NoorState.pushHistory();
+        await NoorRenderer.render();
+      });
+    });
+
+    document.querySelectorAll("[data-istiadha]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        document.querySelectorAll("[data-istiadha]").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        NoorState.design.ayah.showIstiadha = btn.dataset.istiadha === "on";
+        NoorState.pushHistory();
+        await NoorRenderer.render();
+      });
+    });
+
+    document.querySelectorAll("[data-ayah-num]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        document.querySelectorAll("[data-ayah-num]").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        NoorState.design.ayah.decorNumber = btn.dataset.ayahNum === "on";
+        NoorState.pushHistory();
+        await NoorRenderer.render();
+      });
+    });
+
+    document.querySelectorAll("[data-deco-id]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const id = btn.dataset.decoId;
         const d = NoorState.design;
-        const maxW = d.width * 0.6;
-        const ratio = img.height / img.width;
-        const w = Math.min(maxW, img.width);
-        const h = w * ratio;
-        if (!d.images) d.images = [];
-        d.images.push({
-          id: "img_" + Date.now(),
-          src: ev.target.result,
-          x: (d.width - w) / 2,
-          y: (d.height - h) / 2,
-          width: w,
-          height: h,
+        if (!d.decorations) d.decorations = [];
+        const def = NoorDecorations.get(id);
+        if (!def) return;
+        d.decorations.push({
+          id: id,
+          x: d.width / 2,
+          y: d.height - 100,
+          size: def.size || 60,
+          color: def.color || "#c9a227",
           rotation: 0,
         });
         NoorState.pushHistory();
-        NoorRenderer.debouncedRender();
-        window.showToast?.("تم إضافة الصورة");
-      };
-      img.src = ev.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
-
-  document.querySelectorAll("[data-image-tpl]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const tpl = btn.dataset.imageTpl;
-      const d = NoorState.design;
-      const texts = { allah: "الله", muhammad: "محمد", bismillah: "﷽", star: "★" };
-      if (!d.stickers) d.stickers = [];
-      d.stickers.push({
-        id: "stk_" + Date.now(),
-        text: texts[tpl] || "★",
-        x: d.width / 2,
-        y: d.height / 2,
-        size: 120,
-        color: "#7c3aed",
-        rotation: 0,
+        await NoorRenderer.render();
+        window.showToast?.("تم إضافة الزخرفة");
       });
-      NoorState.pushHistory();
-      NoorRenderer.debouncedRender();
-      window.showToast?.("تم إضافة العنصر");
     });
-  });
-}
-
-if (tool === "font") {
-  document.querySelectorAll("#font-grid .font-option").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll("#font-grid .font-option").forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-      NoorState.design.text.fontId = btn.dataset.font;
-      NoorState.pushHistory();
-      NoorRenderer.debouncedRender();
-    });
-  });
-
-  const sizeInput = document.getElementById("font-size");
-  const sizeOut = document.getElementById("size-value");
-  sizeInput?.addEventListener("input", () => {
-    NoorState.design.text.size = parseInt(sizeInput.value);
-    if (sizeOut) sizeOut.textContent = sizeInput.value;
-    NoorRenderer.debouncedRender();
-  });
-  sizeInput?.addEventListener("change", () => NoorState.pushHistory());
-
-  document.querySelectorAll("#align-group .toggle-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll("#align-group .toggle-btn").forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-      NoorState.design.text.align = btn.dataset.align;
-      NoorState.pushHistory();
-      NoorRenderer.debouncedRender();
-    });
-  });
-
-  document.querySelectorAll("#shadow-group .toggle-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll("#shadow-group .toggle-btn").forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-      NoorState.design.text.shadow = btn.dataset.shadow === "on";
-      NoorState.pushHistory();
-      NoorRenderer.debouncedRender();
-    });
-  });
-}
-
-if (tool === "text-color") {
-  document.querySelectorAll("#text-color-options .color-swatch").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll("#text-color-options .color-swatch").forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-      NoorState.design.text.color = btn.dataset.color;
-      NoorState.pushHistory();
-      NoorRenderer.debouncedRender();
-    });
-  });
+       }
    
-document.querySelectorAll("[data-surah-name]").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll("[data-surah-name]").forEach((b) => b.classList.remove("active"));
-    btn.classList.add("active");
-    NoorState.design.ayah.showSurahName = btn.dataset.surahName === "on";
-    NoorRenderer.debouncedRender();
-  });
-});
+  if (tool === "image") {
+    const pickBtn = document.getElementById("pick-image-btn");
+    const picker = document.getElementById("image-picker");
 
-document.querySelectorAll("[data-bismillah]").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll("[data-bismillah]").forEach((b) => b.classList.remove("active"));
-    btn.classList.add("active");
-    NoorState.design.ayah.showBismillah = btn.dataset.bismillah === "on";
-    NoorRenderer.debouncedRender();
-  });
-});
+    pickBtn?.addEventListener("click", () => picker?.click());
 
-document.querySelectorAll("[data-istiadha]").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll("[data-istiadha]").forEach((b) => b.classList.remove("active"));
-    btn.classList.add("active");
-    NoorState.design.ayah.showIstiadha = btn.dataset.istiadha === "on";
-    NoorRenderer.debouncedRender();
-  });
-});
-
-document.querySelectorAll("[data-ayah-num]").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll("[data-ayah-num]").forEach((b) => b.classList.remove("active"));
-    btn.classList.add("active");
-    NoorState.design.ayah.decorNumber = btn.dataset.ayahNum === "on";
-    NoorRenderer.debouncedRender();
-  });
-});
-
-document.querySelectorAll("[data-deco-id]").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    const id = btn.dataset.decoId;
-    const d = NoorState.design;
-    if (!d.decorations) d.decorations = [];
-    const def = NoorDecorations.get(id);
-    if (!def) return;
-    d.decorations.push({
-      id: id,
-      x: d.width / 2,
-      y: d.height - 100,
-      size: def.size || 60,
-      color: def.color || "#c9a227",
-      rotation: 0,
+    picker?.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = async () => {
+          const d = NoorState.design;
+          const maxW = d.width * 0.6;
+          const ratio = img.height / img.width;
+          const w = Math.min(maxW, img.width);
+          const h = w * ratio;
+          if (!d.images) d.images = [];
+          d.images.push({
+            id: "img_" + Date.now(),
+            src: ev.target.result,
+            x: (d.width - w) / 2,
+            y: (d.height - h) / 2,
+            width: w,
+            height: h,
+            rotation: 0,
+          });
+          NoorState.pushHistory();
+          await NoorRenderer.render();
+          window.showToast?.("تم إضافة الصورة");
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
     });
-    NoorState.pushHistory();
-    NoorRenderer.debouncedRender();
-    window.showToast?.("تم إضافة الزخرفة");
-  });
-});
-          }
-  
+
+    document.querySelectorAll("[data-image-tpl]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const tpl = btn.dataset.imageTpl;
+        const d = NoorState.design;
+        const texts = { allah: "الله", muhammad: "محمد", bismillah: "﷽", star: "★" };
+        if (!d.stickers) d.stickers = [];
+        d.stickers.push({
+          id: "stk_" + Date.now(),
+          text: texts[tpl] || "★",
+          x: d.width / 2,
+          y: d.height / 2,
+          size: 120,
+          color: "#7c3aed",
+          rotation: 0,
+        });
+        NoorState.pushHistory();
+        await NoorRenderer.render();
+        window.showToast?.("تم إضافة العنصر");
+      });
+    });
+  }
+
+  if (tool === "font") {
+    document.querySelectorAll("#font-grid .font-option").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        document.querySelectorAll("#font-grid .font-option").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        NoorState.design.text.fontId = btn.dataset.font;
+        NoorState.pushHistory();
+        await NoorRenderer.render();
+      });
+    });
+
+    const sizeInput = document.getElementById("font-size");
+    const sizeOut = document.getElementById("size-value");
+    sizeInput?.addEventListener("input", () => {
+      NoorState.design.text.size = parseInt(sizeInput.value);
+      if (sizeOut) sizeOut.textContent = sizeInput.value;
+      NoorRenderer.render();
+    });
+
+    document.querySelectorAll("#align-group .toggle-btn").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        document.querySelectorAll("#align-group .toggle-btn").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        NoorState.design.text.align = btn.dataset.align;
+        NoorState.pushHistory();
+        await NoorRenderer.render();
+      });
+    });
+
+    document.querySelectorAll("#shadow-group .toggle-btn").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        document.querySelectorAll("#shadow-group .toggle-btn").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        NoorState.design.text.shadow = btn.dataset.shadow === "on";
+        NoorState.pushHistory();
+        await NoorRenderer.render();
+      });
+    });
+  }
+
+  if (tool === "text-color") {
+    document.querySelectorAll("#text-color-options .color-swatch").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        document.querySelectorAll("#text-color-options .color-swatch").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        NoorState.design.text.color = btn.dataset.color;
+        NoorState.pushHistory();
+        await NoorRenderer.render();
+      });
+    });
+  }
+
   if (tool === "background") {
     document.querySelectorAll(".bg-item[data-bg-type]").forEach((btn) => {
-      btn.addEventListener("click", () => {
+      btn.addEventListener("click", async () => {
         document.querySelectorAll(".bg-item").forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
         NoorState.design.background.type = btn.dataset.bgType;
         NoorState.design.background.value = btn.dataset.bgValue;
         NoorState.design.background.imageUrl = null;
         NoorState.pushHistory();
-        NoorRenderer.debouncedRender();
+        await NoorRenderer.render();
       });
     });
 
     document.querySelectorAll(".bg-item[data-bg-category]").forEach((btn) => {
-      btn.addEventListener("click", () => {
+      btn.addEventListener("click", async () => {
         document.querySelectorAll(".bg-item").forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
         const catId = btn.dataset.bgCategory;
@@ -508,10 +470,9 @@ document.querySelectorAll("[data-deco-id]").forEach((btn) => {
           if (note) note.hidden = false;
           NoorState.design.background.type = "image";
           NoorState.design.background.imageUrl = url;
-          NoorRenderer.render().then(() => {
-            if (note) note.hidden = true;
-            NoorState.pushHistory();
-          });
+          await NoorRenderer.render();
+          if (note) note.hidden = true;
+          NoorState.pushHistory();
         }
       });
     });
@@ -519,22 +480,22 @@ document.querySelectorAll("[data-deco-id]").forEach((btn) => {
 
   if (tool === "frame") {
     document.querySelectorAll("#frame-types .frame-item").forEach((btn) => {
-      btn.addEventListener("click", () => {
+      btn.addEventListener("click", async () => {
         document.querySelectorAll("#frame-types .frame-item").forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
         NoorState.design.frame.type = btn.dataset.frame;
         NoorState.pushHistory();
-        NoorRenderer.debouncedRender();
+        await NoorRenderer.render();
       });
     });
 
     document.querySelectorAll("#frame-colors .color-swatch").forEach((btn) => {
-      btn.addEventListener("click", () => {
+      btn.addEventListener("click", async () => {
         document.querySelectorAll("#frame-colors .color-swatch").forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
         NoorState.design.frame.color = btn.dataset.color;
         NoorState.pushHistory();
-        NoorRenderer.debouncedRender();
+        await NoorRenderer.render();
       });
     });
 
@@ -543,19 +504,18 @@ document.querySelectorAll("[data-deco-id]").forEach((btn) => {
     thickInput?.addEventListener("input", () => {
       NoorState.design.frame.thickness = parseInt(thickInput.value);
       if (thickOut) thickOut.textContent = thickInput.value;
-      NoorRenderer.debouncedRender();
+      NoorRenderer.render();
     });
-    thickInput?.addEventListener("change", () => NoorState.pushHistory());
   }
 
   if (tool === "translation") {
     document.querySelectorAll("[data-trans]").forEach((btn) => {
-      btn.addEventListener("click", () => {
+      btn.addEventListener("click", async () => {
         document.querySelectorAll("[data-trans]").forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
         NoorState.design.translation.enabled = btn.dataset.trans === "on";
         NoorState.pushHistory();
-        NoorRenderer.debouncedRender();
+        await NoorRenderer.render();
       });
     });
 
@@ -572,7 +532,7 @@ document.querySelectorAll("[data-deco-id]").forEach((btn) => {
           if (text) {
             d.translation.text = text;
             NoorState.pushHistory();
-            NoorRenderer.debouncedRender();
+            await NoorRenderer.render();
             NoorPanels.refresh();
           }
         }
@@ -581,7 +541,7 @@ document.querySelectorAll("[data-deco-id]").forEach((btn) => {
 
     document.getElementById("translation-text")?.addEventListener("input", (e) => {
       NoorState.design.translation.text = e.target.value;
-      NoorRenderer.debouncedRender();
+      NoorRenderer.render();
     });
 
     const transSize = document.getElementById("trans-size");
@@ -589,21 +549,20 @@ document.querySelectorAll("[data-deco-id]").forEach((btn) => {
     transSize?.addEventListener("input", () => {
       NoorState.design.translation.size = parseInt(transSize.value);
       if (transOut) transOut.textContent = transSize.value;
-      NoorRenderer.debouncedRender();
+      NoorRenderer.render();
     });
-    transSize?.addEventListener("change", () => NoorState.pushHistory());
   }
 
   if (tool === "decor") {
     document.querySelectorAll("[data-decor]").forEach((btn) => {
-      btn.addEventListener("click", () => {
+      btn.addEventListener("click", async () => {
         const val = btn.dataset.decor;
         if (val === "top-on") NoorState.design.decor.top = true;
         if (val === "top-off") NoorState.design.decor.top = false;
         if (val === "bottom-on") NoorState.design.decor.bottom = true;
         if (val === "bottom-off") NoorState.design.decor.bottom = false;
         NoorState.pushHistory();
-        NoorRenderer.debouncedRender();
+        await NoorRenderer.render();
         NoorPanels.refresh();
       });
     });
