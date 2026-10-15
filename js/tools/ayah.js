@@ -6,6 +6,7 @@
 NoorTools.register("ayah", {
   render() {
     const d = NoorState.design;
+    const font = NoorFonts.get(d.text.fontId);
     return `
       <h3 class="panel-title">الآية</h3>
 
@@ -24,17 +25,16 @@ NoorTools.register("ayah", {
         <textarea class="textarea-input" id="ayah-text" dir="rtl" placeholder="اكتب النص هنا...">${this.escape(d.ayah.text)}</textarea>
       </div>
 
-      <div class="panel-row">
-        <label class="panel-label">الخط</label>
-        <div class="font-grid" id="font-grid">${NoorFonts.renderOptions(d.text.fontId)}</div>
-      </div>
+      <button class="action-btn" id="open-font-panel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="4 7 4 4 20 4 20 7"></polyline>
+          <line x1="9" y1="20" x2="15" y2="20"></line>
+          <line x1="12" y1="4" x2="12" y2="20"></line>
+        </svg>
+        الخط: ${font.name} — ${d.text.size}px
+      </button>
 
-      <div class="panel-row">
-        <label class="panel-label">حجم الخط: <output id="size-value">${d.text.size}</output>px</label>
-        <input type="range" class="size-slider" id="font-size" min="24" max="140" value="${d.text.size}" />
-      </div>
-
-      <div class="panel-row">
+      <div class="panel-row" style="margin-top: 12px;">
         <label class="panel-label">لون النص</label>
         <div class="color-options" id="text-color-options">
           ${["#1a1a1a","#ffffff","#c9a227","#0d8b5f","#1e40af","#b91c1c","#7c3aed","#f59e0b","#be185d","#0891b2"].map((c) => `<button class="color-swatch ${d.text.color === c ? "active" : ""}" data-color="${c}" style="background:${c};${c === "#ffffff" ? "border:2px solid #e5e5e5;" : ""}"></button>`).join("")}
@@ -51,7 +51,26 @@ NoorTools.register("ayah", {
     `;
   },
 
-  renderSubPanel() {
+  renderFontSubPanel() {
+    const d = NoorState.design;
+    return `
+      <div class="sub-panel-header">
+        <span class="sub-panel-title">اختر الخط</span>
+        <button class="sub-panel-close" id="sub-panel-close" aria-label="إغلاق">×</button>
+      </div>
+
+      <div class="font-grid" id="font-grid">
+        ${NoorFonts.renderOptions(d.text.fontId)}
+      </div>
+
+      <div class="panel-row" style="margin-top: 14px;">
+        <label class="panel-label">حجم الخط: <output id="size-value">${d.text.size}</output>px</label>
+        <input type="range" class="size-slider" id="font-size" min="24" max="140" value="${d.text.size}" />
+      </div>
+    `;
+  },
+
+  renderExtraSubPanel() {
     const d = NoorState.design;
     return `
       <div class="sub-panel-header">
@@ -167,24 +186,6 @@ NoorTools.register("ayah", {
       NoorRenderer.render();
     });
 
-    document.querySelectorAll("#font-grid .font-option").forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        document.querySelectorAll("#font-grid .font-option").forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-        NoorState.design.text.fontId = btn.dataset.font;
-        NoorState.pushHistory();
-        await NoorRenderer.render();
-      });
-    });
-
-    const sizeInput = document.getElementById("font-size");
-    const sizeOut = document.getElementById("size-value");
-    sizeInput?.addEventListener("input", () => {
-      NoorState.design.text.size = parseInt(sizeInput.value);
-      if (sizeOut) sizeOut.textContent = sizeInput.value;
-      NoorRenderer.render();
-    });
-
     document.querySelectorAll("#text-color-options .color-swatch").forEach((btn) => {
       btn.addEventListener("click", async () => {
         document.querySelectorAll("#text-color-options .color-swatch").forEach((b) => b.classList.remove("active"));
@@ -195,13 +196,16 @@ NoorTools.register("ayah", {
       });
     });
 
-    // زر "خيارات إضافية"
+    document.getElementById("open-font-panel")?.addEventListener("click", () => {
+      this.openSubPanel("font");
+    });
+
     document.getElementById("open-extra-options")?.addEventListener("click", () => {
-      this.openSubPanel();
+      this.openSubPanel("extra");
     });
   },
 
-  openSubPanel() {
+  openSubPanel(type) {
     let subPanel = document.getElementById("sub-panel");
     if (!subPanel) {
       subPanel = document.createElement("div");
@@ -209,9 +213,10 @@ NoorTools.register("ayah", {
       subPanel.className = "sub-panel";
       document.body.appendChild(subPanel);
     }
-    subPanel.innerHTML = this.renderSubPanel();
+    subPanel.innerHTML = type === "font" ? this.renderFontSubPanel() : this.renderExtraSubPanel();
     subPanel.hidden = false;
-    this.bindSubPanel();
+    if (type === "font") this.bindFontSubPanel();
+    else this.bindExtraSubPanel();
   },
 
   closeSubPanel() {
@@ -219,7 +224,32 @@ NoorTools.register("ayah", {
     if (subPanel) subPanel.hidden = true;
   },
 
-  bindSubPanel() {
+  bindFontSubPanel() {
+    document.getElementById("sub-panel-close")?.addEventListener("click", () => {
+      this.closeSubPanel();
+    });
+
+    document.querySelectorAll("#sub-panel #font-grid .font-option").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        document.querySelectorAll("#sub-panel #font-grid .font-option").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        NoorState.design.text.fontId = btn.dataset.font;
+        NoorState.pushHistory();
+        await NoorRenderer.render();
+        window.showToast?.("تم تغيير الخط");
+      });
+    });
+
+    const sizeInput = document.getElementById("font-size");
+    const sizeOut = document.getElementById("size-value");
+    sizeInput?.addEventListener("input", () => {
+      NoorState.design.text.size = parseInt(sizeInput.value);
+      if (sizeOut) sizeOut.textContent = sizeInput.value;
+      NoorRenderer.render();
+    });
+  },
+
+  bindExtraSubPanel() {
     document.getElementById("sub-panel-close")?.addEventListener("click", () => {
       this.closeSubPanel();
     });
