@@ -903,3 +903,127 @@ html[dir="rtl"] .switch::after { left: auto; right: 3px; }
   .size-number { width: 48px; height: 34px; font-size: 13px; }
   .size-btn { width: 34px; height: 34px; font-size: 18px; }
 }
+
+/* =========================================
+   Text Editor (Side Panel — slides from left)
+   ========================================= */
+
+.text-editor-side {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  bottom: 80px;
+  width: 280px;
+  max-width: 85vw;
+  background: #ffffff;
+  border-top-right-radius: 18px;
+  border-bottom-right-radius: 18px;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.18);
+  z-index: 800;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 16px 14px 20px;
+  animation: slideInFromLeft 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+  direction: rtl;
+}
+
+.text-editor-side[hidden] { display: none; }
+
+@keyframes slideInFromLeft {
+  from { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.text-editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.text-editor-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.text-editor-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: #f0f0f0;
+  border: none;
+  color: var(--muted);
+  font-size: 22px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s;
+  font-family: inherit;
+  line-height: 1;
+  padding: 0;
+}
+
+.text-editor-close:hover { background: #000; color: #fff; }
+
+.text-editor-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.text-editor-side .color-options {
+  gap: 6px;
+}
+
+.text-editor-side .color-swatch {
+  width: 28px;
+  height: 28px;
+}
+
+.text-editor-side .color-custom-btn {
+  width: 30px;
+  height: 30px;
+}
+
+.text-editor-side .size-control {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+}
+
+.text-editor-side .size-number {
+  width: 100%;
+  height: 36px;
+  font-size: 13px;
+}
+
+.text-editor-side .size-btn {
+  width: 100%;
+  height: 36px;
+}
+
+.text-editor-side .size-slider {
+  width: 100%;
+}
+
+@media (max-width: 600px) {
+  .text-editor-side {
+    width: 260px;
+    top: 56px;
+    bottom: 76px;
+    padding: 12px 10px 16px;
+  }
+  .text-editor-side .color-swatch {
+    width: 26px;
+    height: 26px;
+  }
+  .text-editor-side .color-custom-btn {
+    width: 28px;
+    height: 28px;
+  }
+}
