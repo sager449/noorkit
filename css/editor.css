@@ -98,11 +98,7 @@
   border: 1px solid var(--line);
 }
 
-.btn-save:hover {
-  background: #f0f0f0;
-  border-color: #000;
-  color: #000;
-}
+.btn-save:hover { background: #f0f0f0; border-color: #000; color: #000; }
 
 .btn-export {
   background: #000000;
@@ -202,17 +198,23 @@
   box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.12);
   padding: 14px 14px 18px;
   z-index: 500;
-  max-height: 42vh;
+  max-height: 55vh;
   overflow-y: auto;
-  animation: noorSlideUp 0.22s ease;
   -webkit-overflow-scrolling: touch;
+  animation: slideUpSmooth 0.28s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 .tool-panel[hidden] { display: none; }
 
-@keyframes noorSlideUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
+@keyframes slideUpSmooth {
+  from {
+    transform: translateY(100%);
+    opacity: 0.5;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .panel-close {
@@ -273,20 +275,64 @@
   right: 0;
   bottom: 0;
   background: var(--paper);
-  border-top-left-radius: 18px;
-  border-top-right-radius: 18px;
-  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.18);
-  padding: 16px 14px 20px;
-  z-index: 600;
-  max-height: 70vh;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.2);
+  padding: 16px 14px 24px;
+  z-index: 700;
+  max-height: 85vh;
+  min-height: 40vh;
   overflow-y: auto;
-  animation: noorSlideUp 0.25s ease;
   -webkit-overflow-scrolling: touch;
+  animation: slideUpSmooth 0.32s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 .sub-panel[hidden] { display: none; }
 
-/* ---------- Switch Row (professional toggle) ---------- */
+.sub-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  background: var(--paper);
+  z-index: 10;
+}
+
+.sub-panel-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.sub-panel-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: var(--cream);
+  border: none;
+  color: var(--muted);
+  font-size: 22px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s;
+  font-family: inherit;
+  line-height: 1;
+  padding: 0;
+}
+
+.sub-panel-close:hover {
+  background: #000;
+  color: #fff;
+}
+
+/* ---------- Switch Row ---------- */
 .switch-row {
   display: flex;
   align-items: center;
@@ -347,22 +393,11 @@
   transition: transform 0.25s ease;
 }
 
-.switch.active {
-  background: #000000;
-}
+.switch.active { background: #000000; }
+.switch.active::after { transform: translateX(20px); }
 
-.switch.active::after {
-  transform: translateX(20px);
-}
-
-html[dir="rtl"] .switch.active::after {
-  transform: translateX(-20px);
-}
-
-html[dir="rtl"] .switch::after {
-  left: auto;
-  right: 3px;
-}
+html[dir="rtl"] .switch.active::after { transform: translateX(-20px); }
+html[dir="rtl"] .switch::after { left: auto; right: 3px; }
 
 /* ---------- Action Button ---------- */
 .action-btn {
@@ -390,10 +425,7 @@ html[dir="rtl"] .switch::after {
   border-color: #000000;
 }
 
-.action-btn svg {
-  width: 18px;
-  height: 18px;
-}
+.action-btn svg { width: 18px; height: 18px; }
 
 /* ---------- Font grid ---------- */
 .font-grid {
@@ -427,11 +459,7 @@ html[dir="rtl"] .switch::after {
 }
 
 .font-option:hover { border-color: #000; }
-.font-option.active {
-  border-color: #000;
-  background: #f0f0f0;
-  color: #000;
-}
+.font-option.active { border-color: #000; background: #f0f0f0; color: #000; }
 
 .font-option-name {
   font-size: 10px;
@@ -468,14 +496,11 @@ html[dir="rtl"] .switch::after {
 }
 
 .color-swatch:hover { transform: scale(1.08); }
-.color-swatch.active {
-  border-color: #000;
-  box-shadow: 0 0 0 3px #f0f0f0;
-}
+.color-swatch.active { border-color: #000; box-shadow: 0 0 0 3px #f0f0f0; }
 
 /* ---------- Slider ---------- */
 .size-slider {
-  width: 100%;
+  flex: 1;
   -webkit-appearance: none;
   appearance: none;
   height: 5px;
@@ -504,6 +529,70 @@ html[dir="rtl"] .switch::after {
   border-radius: 50%;
   cursor: pointer;
   border: 3px solid #fff;
+}
+
+/* ---------- Size Control (slider + number + buttons) ---------- */
+.size-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.size-number {
+  width: 48px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--cream);
+  border: 1.5px solid var(--line);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 800;
+  text-align: center;
+  font-family: inherit;
+  outline: none;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.size-number:focus {
+  border-color: #000;
+  background: var(--paper);
+}
+
+.size-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--cream);
+  border: 1.5px solid var(--line);
+  color: var(--ink);
+  font-size: 20px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.15s ease;
+  font-family: inherit;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+  padding: 0;
+  line-height: 1;
+}
+
+.size-btn:hover {
+  background: #000;
+  color: #fff;
+  border-color: #000;
+}
+
+.size-btn:active {
+  transform: scale(0.92);
+  background: #000;
+  color: #fff;
+  border-color: #000;
 }
 
 /* ---------- Select / Textarea ---------- */
@@ -543,7 +632,7 @@ html[dir="rtl"] .switch::after {
 
 .textarea-input:focus { border-color: #000; background: var(--paper); }
 
-/* ---------- Grids (bg, frame, lang) ---------- */
+/* ---------- Grids ---------- */
 .bg-grid {
   display: flex;
   gap: 8px;
@@ -571,7 +660,6 @@ html[dir="rtl"] .switch::after {
 
 .bg-item:hover { border-color: #000; transform: translateY(-2px); }
 .bg-item.active { border-color: #000; box-shadow: 0 0 0 3px #f0f0f0; }
-
 .bg-item-color { width: 100%; height: 100%; display: block; }
 
 .bg-item-label {
@@ -698,8 +786,8 @@ html[dir="rtl"] .switch::after {
   .tool-btn { min-width: 56px; padding: 6px 8px; }
   .tool-btn svg { width: 20px; height: 20px; }
   .tool-btn span { font-size: 9px; }
-  .tool-panel { padding: 12px; max-height: 45vh; bottom: 72px; }
-  .sub-panel { padding: 14px 12px 18px; max-height: 75vh; }
+  .tool-panel { padding: 12px; max-height: 55vh; bottom: 72px; }
+  .sub-panel { padding: 14px 12px 20px; max-height: 88vh; }
   .panel-title { font-size: 13px; }
   .font-option { min-width: 80px; padding: 6px 8px; }
   .font-option-preview { font-size: 14px; }
@@ -712,4 +800,6 @@ html[dir="rtl"] .switch::after {
   .switch::after { width: 18px; height: 18px; }
   .switch.active::after { transform: translateX(18px); }
   html[dir="rtl"] .switch.active::after { transform: translateX(-18px); }
-    }
+  .size-number { width: 42px; height: 34px; font-size: 13px; }
+  .size-btn { width: 34px; height: 34px; font-size: 18px; }
+}
