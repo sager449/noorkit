@@ -1,30 +1,29 @@
 /* ═══════════════════════════════════════════════
-   NoorKit — Text Styles CSS
+   NoorKit — Text Styles CSS (v2)
    ═══════════════════════════════════════════════ */
 
 /* ─── رفع الـ canvas عند فتح النافذة ─── */
-.canvas-wrapper.canvas-shifted,
-#canvas-wrapper.canvas-shifted {
-  transform: translateY(-25vh);
-  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
-}
-
 .canvas-wrapper,
 #canvas-wrapper {
   transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
-/* ─── الحاوية الرئيسية ─── */
+.canvas-wrapper.canvas-shifted,
+#canvas-wrapper.canvas-shifted {
+  transform: translateY(-12vh);
+}
+
+/* ─── الحاوية الرئيسية (فوق كل شيء) ─── */
 .ts-sheet {
   position: fixed;
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 9997;
+  z-index: 10000;
   background: #141414;
   color: #ffffff;
   border-radius: 20px 20px 0 0;
-  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6);
   transform: translateY(100%);
   transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
   display: flex;
@@ -32,7 +31,7 @@
   direction: rtl;
   padding-bottom: env(safe-area-inset-bottom, 0px);
   will-change: transform;
-  max-height: 38vh;
+  max-height: 45vh;
   font-family: "Cairo", sans-serif;
 }
 
@@ -159,6 +158,7 @@
   overflow-x: hidden;
   scrollbar-width: thin;
   scrollbar-color: #3a3a3a transparent;
+  min-height: 100px;
 }
 
 .ts-content::-webkit-scrollbar {
@@ -168,7 +168,7 @@
 .ts-content::-webkit-scrollbar-thumb {
   background: #3a3a3a;
   border-radius: 2px;
-  }
+}
 /* ═══════════════════════════════════════════════
    الصفوف العامة
    ═══════════════════════════════════════════════ */
@@ -271,12 +271,6 @@
   box-shadow: 0 0 0 2px #141414, 0 0 0 4px #ffffff;
 }
 
-.ts-color-dot[data-ts-shadow-color="#000000"],
-.ts-color-dot[data-ts-outline-color="#000000"],
-.ts-color-dot[data-ts-hl-color="#000000"] {
-  border-color: #444;
-}
-
 /* ─── منتقي اللون (input color) ─── */
 .ts-color-pick {
   display: flex;
@@ -358,7 +352,7 @@
 .ts-quick-btn.active {
   background: #ffffff;
   color: #111111;
-  }
+}
 /* ═══════════════════════════════════════════════
    التدرجات الجاهزة (Gradient Presets)
    ═══════════════════════════════════════════════ */
@@ -474,3 +468,105 @@
     font-size: 9px;
   }
 }
+/* ═══════════════════════════════════════════════
+   منتقي الألوان (iro.js) - يظهر فوق كل شيء
+   ═══════════════════════════════════════════════ */
+
+.color-picker-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.color-picker-modal[hidden] {
+  display: none !important;
+}
+
+.color-picker-inner {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 20px;
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  direction: rtl;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  animation: cpFadeIn 0.25s ease;
+}
+
+@keyframes cpFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.color-picker-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #111;
+  text-align: center;
+}
+
+.color-picker-body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 6px 0;
+}
+
+#iro-picker {
+  width: 220px;
+  height: 220px;
+}
+
+.color-picker-footer {
+  display: flex;
+  gap: 10px;
+}
+
+.color-picker-cancel,
+.color-picker-confirm {
+  flex: 1;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, transform 0.15s;
+}
+
+.color-picker-cancel {
+  background: #f0f0f0;
+  color: #555;
+}
+
+.color-picker-cancel:active {
+  background: #e0e0e0;
+  transform: scale(0.97);
+}
+
+.color-picker-confirm {
+  background: #111;
+  color: #ffffff;
+}
+
+.color-picker-confirm:active {
+  background: #333;
+  transform: scale(0.97);
+   }
