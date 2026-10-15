@@ -30,11 +30,12 @@ NoorTools.register("ayah", {
       </button>
 
       <div class="panel-row" style="margin-top: 12px;">
-        <label class="panel-label">حجم الخط: <output id="size-value">${d.text.size}</output>px</label>
+        <label class="panel-label">حجم الخط</label>
         <div class="size-control">
           <button class="size-btn" data-size-action="minus" aria-label="تصغير">−</button>
           <input type="range" class="size-slider" id="font-size" min="24" max="140" value="${d.text.size}" />
           <button class="size-btn" data-size-action="plus" aria-label="تكبير">+</button>
+          <input type="number" class="size-number" id="font-size-number" min="24" max="140" value="${d.text.size}" />
         </div>
       </div>
 
@@ -131,6 +132,21 @@ NoorTools.register("ayah", {
     `;
   },
 
+  updateSizeUI() {
+    const val = NoorState.design.text.size;
+    const slider = document.getElementById("font-size");
+    const numberInput = document.getElementById("font-size-number");
+    if (slider) slider.value = val;
+    if (numberInput) numberInput.value = val;
+  },
+
+  async setSize(value) {
+    const clamped = Math.max(24, Math.min(140, parseInt(value) || 64));
+    NoorState.design.text.size = clamped;
+    this.updateSizeUI();
+    await NoorRenderer.render();
+  },
+
   async bind() {
     const surahSel = document.getElementById("surah-select");
     const ayahSel = document.getElementById("ayah-select");
@@ -188,36 +204,38 @@ NoorTools.register("ayah", {
       });
     });
 
-    // زر الخط
     document.getElementById("open-font-panel")?.addEventListener("click", () => {
       this.openSubPanel("font");
     });
 
-    // حجم الخط
-    const sizeInput = document.getElementById("font-size");
-    const sizeOut = document.getElementById("size-value");
-    sizeInput?.addEventListener("input", () => {
-      NoorState.design.text.size = parseInt(sizeInput.value);
-      if (sizeOut) sizeOut.textContent = sizeInput.value;
+    // Slider
+    const sizeSlider = document.getElementById("font-size");
+    sizeSlider?.addEventListener("input", () => {
+      NoorState.design.text.size = parseInt(sizeSlider.value);
+      const numberInput = document.getElementById("font-size-number");
+      if (numberInput) numberInput.value = sizeSlider.value;
       NoorRenderer.render();
     });
 
+    // Number input
+    const sizeNumber = document.getElementById("font-size-number");
+    sizeNumber?.addEventListener("change", async () => {
+      await this.setSize(sizeNumber.value);
+      NoorState.pushHistory();
+    });
+
+    // Plus / Minus buttons
     document.querySelectorAll(".size-btn[data-size-action]").forEach((btn) => {
       btn.addEventListener("click", async () => {
         const action = btn.dataset.sizeAction;
         const current = NoorState.design.text.size || 64;
         const step = 4;
         const next = action === "plus" ? current + step : current - step;
-        const clamped = Math.max(24, Math.min(140, next));
-        NoorState.design.text.size = clamped;
-        if (sizeInput) sizeInput.value = clamped;
-        if (sizeOut) sizeOut.textContent = clamped;
+        await this.setSize(next);
         NoorState.pushHistory();
-        await NoorRenderer.render();
       });
     });
 
-    // زر خيارات إضافية
     document.getElementById("open-extra-options")?.addEventListener("click", () => {
       this.openSubPanel("extra");
     });
@@ -298,6 +316,6 @@ NoorTools.register("ayah", {
   },
 
   escape(str) {
-    return String(str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/&#39;/g, "&#39;");
+    return String(str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
   },
 });
