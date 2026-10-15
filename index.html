@@ -55,34 +55,48 @@
         const grid = document.getElementById("projects-grid");
         if (!grid || typeof NoorDB === "undefined") return;
 
-        const projects = await NoorDB.getAll();
-        if (!projects || projects.length === 0) {
-          grid.innerHTML = "";
-          return;
-        }
+        try {
+          const projects = await NoorDB.getAll();
+          if (!projects || projects.length === 0) {
+            grid.innerHTML = "";
+            return;
+          }
 
-        grid.innerHTML = projects.map((p) => {
-          const design = p.design || {};
-          const title = design.title || "تصميم بدون عنوان";
-          const date = new Date(p.updatedAt).toLocaleDateString("ar");
-          return `
-            <a class="project-card" href="editor.html?id=${p.id}">
-              <div class="project-thumb">
-                ${design.background && design.background.type === "solid"
-                  ? `<div style="background:${design.background.value};width:100%;height:100%;"></div>`
-                  : `<div style="background:#f5ede0;width:100%;height:100%;"></div>`}
-              </div>
-              <div class="project-info">
-                <div class="project-name">${title}</div>
-                <div class="project-date">${date}</div>
-              </div>
-            </a>
-          `;
-        }).join("");
+          grid.innerHTML = projects.map((p) => {
+            const design = p.design || {};
+            const title = design.title || "تصميم بدون عنوان";
+            const date = new Date(p.updatedAt).toLocaleDateString("ar-EG");
+            const bg = design.background || {};
+            let thumbStyle = "background:#f5ede0;width:100%;height:100%;";
+
+            if (bg.type === "solid" && bg.value) {
+              thumbStyle = `background:${bg.value};width:100%;height:100%;`;
+            } else if (bg.type === "gradient" && bg.value) {
+              thumbStyle = `background:${bg.value};width:100%;height:100%;`;
+            } else if (bg.type === "image" && bg.imageUrl) {
+              thumbStyle = `background-image:url('${bg.imageUrl}');background-size:cover;background-position:center;width:100%;height:100%;`;
+            }
+
+            return `
+              <a class="project-card" href="editor.html?id=${p.id}">
+                <div class="project-thumb">
+                  <div style="${thumbStyle}"></div>
+                </div>
+                <div class="project-info">
+                  <div class="project-name">${title}</div>
+                  <div class="project-date">${date}</div>
+                </div>
+              </a>
+            `;
+          }).join("");
+        } catch (err) {
+          console.error("loadProjects failed:", err);
+        }
       }
 
       document.addEventListener("DOMContentLoaded", loadProjects);
       window.addEventListener("focus", loadProjects);
+      window.addEventListener("pageshow", loadProjects);
     </script>
   </body>
-            </html>
+</html>
