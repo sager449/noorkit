@@ -1,0 +1,476 @@
+/* ═══════════════════════════════════════════════
+   NoorKit — Text Styles CSS
+   ═══════════════════════════════════════════════ */
+
+/* ─── رفع الـ canvas عند فتح النافذة ─── */
+.canvas-wrapper.canvas-shifted,
+#canvas-wrapper.canvas-shifted {
+  transform: translateY(-25vh);
+  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.canvas-wrapper,
+#canvas-wrapper {
+  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* ─── الحاوية الرئيسية ─── */
+.ts-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9997;
+  background: #141414;
+  color: #ffffff;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
+  transform: translateY(100%);
+  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  display: flex;
+  flex-direction: column;
+  direction: rtl;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  will-change: transform;
+  max-height: 38vh;
+  font-family: "Cairo", sans-serif;
+}
+
+.ts-sheet.open {
+  transform: translateY(0);
+}
+
+/* ─── المقبض ─── */
+.ts-handle {
+  width: 40px;
+  height: 4px;
+  background: #444;
+  border-radius: 2px;
+  margin: 10px auto 6px;
+  flex-shrink: 0;
+}
+
+/* ─── الرأس ─── */
+.ts-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 16px 10px;
+  border-bottom: 1px solid #2a2a2a;
+  flex-shrink: 0;
+}
+
+.ts-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+  flex: 1;
+  text-align: center;
+}
+
+.ts-close {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #2a2a2a;
+  border: none;
+  color: #cccccc;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.ts-close:active {
+  background: #3a3a3a;
+}
+
+.ts-spacer {
+  width: 30px;
+  height: 30px;
+}
+
+/* ─── التبويبات ─── */
+.ts-tabs {
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  padding: 10px 10px 8px;
+  background: #141414;
+  border-bottom: 1px solid #2a2a2a;
+  flex-shrink: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.ts-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.ts-tab {
+  flex: 1;
+  min-width: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 4px;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  color: #888888;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ts-tab:active {
+  background: #2a2a2a;
+  transform: scale(0.96);
+}
+
+.ts-tab.active {
+  background: #2a2a2a;
+  color: #ffffff;
+}
+
+.ts-tab-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.ts-tab-label {
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* ─── المحتوى ─── */
+.ts-content {
+  padding: 12px 16px 16px;
+  background: #141414;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #3a3a3a transparent;
+}
+
+.ts-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.ts-content::-webkit-scrollbar-thumb {
+  background: #3a3a3a;
+  border-radius: 2px;
+  }
+/* ═══════════════════════════════════════════════
+   الصفوف العامة
+   ═══════════════════════════════════════════════ */
+
+.ts-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.ts-row:last-child {
+  margin-bottom: 0;
+}
+
+.ts-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #b0b0b0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.ts-value {
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  background: #2a2a2a;
+  padding: 2px 8px;
+  border-radius: 6px;
+  min-width: 36px;
+  text-align: center;
+}
+
+/* ═══════════════════════════════════════════════
+   المفاتيح (Toggles)
+   ═══════════════════════════════════════════════ */
+
+.ts-toggle {
+  display: flex;
+  gap: 6px;
+  background: #1f1f1f;
+  padding: 4px;
+  border-radius: 10px;
+}
+
+.ts-toggle-btn {
+  flex: 1;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: #888888;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ts-toggle-btn:active {
+  transform: scale(0.97);
+}
+
+.ts-toggle-btn.active {
+  background: #ffffff;
+  color: #111111;
+}
+
+/* ═══════════════════════════════════════════════
+   الألوان (Color Dots)
+   ═══════════════════════════════════════════════ */
+
+.ts-colors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ts-color-dot {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid #2a2a2a;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.ts-color-dot:active {
+  transform: scale(0.9);
+}
+
+.ts-color-dot.active {
+  border-color: #ffffff;
+  transform: scale(1.12);
+  box-shadow: 0 0 0 2px #141414, 0 0 0 4px #ffffff;
+}
+
+.ts-color-dot[data-ts-shadow-color="#000000"],
+.ts-color-dot[data-ts-outline-color="#000000"],
+.ts-color-dot[data-ts-hl-color="#000000"] {
+  border-color: #444;
+}
+
+/* ─── منتقي اللون (input color) ─── */
+.ts-color-pick {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ts-color-input {
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  overflow: hidden;
+}
+
+.ts-color-input::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.ts-color-input::-webkit-color-swatch {
+  border: 2px solid #2a2a2a;
+  border-radius: 10px;
+}
+
+.ts-color-code {
+  font-size: 12px;
+  font-weight: 700;
+  color: #b0b0b0;
+  font-family: "Courier New", monospace;
+  background: #1f1f1f;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+/* ═══════════════════════════════════════════════
+   Sliders
+   ═══════════════════════════════════════════════ */
+
+.ts-slider {
+  width: 100%;
+  height: 4px;
+  accent-color: #ffffff;
+  cursor: pointer;
+  background: transparent;
+}
+
+/* ═══════════════════════════════════════════════
+   القيم السريعة (Quick Buttons)
+   ═══════════════════════════════════════════════ */
+
+.ts-quick-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.ts-quick-btn {
+  flex: 1;
+  min-width: 56px;
+  padding: 10px 8px;
+  background: #2a2a2a;
+  border: none;
+  border-radius: 10px;
+  color: #cccccc;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ts-quick-btn:active {
+  transform: scale(0.95);
+}
+
+.ts-quick-btn.active {
+  background: #ffffff;
+  color: #111111;
+  }
+/* ═══════════════════════════════════════════════
+   التدرجات الجاهزة (Gradient Presets)
+   ═══════════════════════════════════════════════ */
+
+.ts-gradient-presets {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+
+.ts-gradient-preset {
+  aspect-ratio: 1 / 1;
+  border-radius: 10px;
+  border: 2px solid #2a2a2a;
+  background: #1f1f1f;
+  cursor: pointer;
+  padding: 3px;
+  transition: all 0.15s ease;
+  overflow: hidden;
+}
+
+.ts-gradient-preset span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 7px;
+}
+
+.ts-gradient-preset:active {
+  transform: scale(0.92);
+}
+
+.ts-gradient-preset.active {
+  border-color: #ffffff;
+  transform: scale(1.08);
+}
+
+/* ═══════════════════════════════════════════════
+   التأثيرات الجاهزة (Presets Grid)
+   ═══════════════════════════════════════════════ */
+
+.ts-presets-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.ts-preset-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  background: #1f1f1f;
+  border: 2px solid #2a2a2a;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.ts-preset-card:active {
+  transform: scale(0.95);
+  border-color: #555;
+}
+
+.ts-preset-preview {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 8px;
+  display: block;
+}
+
+.ts-preset-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: #cccccc;
+  white-space: nowrap;
+}
+
+.ts-preset-card:active .ts-preset-name {
+  color: #ffffff;
+}
+
+/* ═══════════════════════════════════════════════
+   عناصر إضافية
+   ═══════════════════════════════════════════════ */
+
+.ts-note {
+  font-size: 11px;
+  color: #777;
+  text-align: center;
+  padding: 8px;
+  line-height: 1.5;
+}
+
+/* ═══════════════════════════════════════════════
+   Responsive - شاشات صغيرة جداً
+   ═══════════════════════════════════════════════ */
+
+@media (max-width: 360px) {
+  .ts-presets-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .ts-gradient-presets {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  .ts-tab {
+    min-width: 54px;
+    font-size: 9px;
+  }
+}
