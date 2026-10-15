@@ -1146,3 +1146,500 @@ html[dir="rtl"] .switch::after { left: auto; right: 3px; }
     max-width: 220px;
   }
    }
+/* ═══════════════════════════════════════════════
+   NoorKit — Text Editor Bottom Sheet
+   ═══════════════════════════════════════════════ */
+
+/* ─── الحاوية الرئيسية (Bottom Sheet) ─── */
+.te-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9998;
+  background: #ffffff;
+  border-radius: 22px 22px 0 0;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.18);
+  transform: translateY(100%);
+  transition: transform 0.38s cubic-bezier(0.32, 0.72, 0, 1);
+  max-height: 62vh;
+  display: flex;
+  flex-direction: column;
+  direction: rtl;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  will-change: transform;
+}
+
+.te-sheet.open {
+  transform: translateY(0);
+}
+
+/* ─── مقبض السحب (الشريط الصغير) ─── */
+.te-handle {
+  width: 42px;
+  height: 4px;
+  background: #d4d4d4;
+  border-radius: 2px;
+  margin: 10px auto 6px;
+  flex-shrink: 0;
+}
+
+/* ─── الرأس (Header) ─── */
+.te-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 16px 12px;
+  border-bottom: 1px solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.te-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #111;
+  flex: 1;
+  text-align: center;
+}
+
+.te-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #f5f5f5;
+  border: none;
+  font-size: 16px;
+  font-weight: 700;
+  color: #666;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.te-close:active {
+  background: #e5e5e5;
+}
+
+.te-spacer {
+  width: 32px;
+  height: 32px;
+}
+
+/* ─── منطقة البطاقات (تمرير أفقي) ─── */
+.te-cards {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  padding: 16px 16px 20px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  flex: 1;
+  align-items: stretch;
+}
+
+.te-cards::-webkit-scrollbar {
+  display: none;
+}
+
+/* ─── البطاقة الواحدة ─── */
+.te-card {
+  flex: 0 0 auto;
+  min-width: 170px;
+  background: #f8f8f8;
+  border-radius: 16px;
+  padding: 12px;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-sizing: border-box;
+}
+
+.te-card-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #888;
+  text-align: right;
+  padding-right: 2px;
+}
+
+.te-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+/* ═══════════════════════════════════════════════
+   بطاقة الخط
+   ═══════════════════════════════════════════════ */
+
+.te-card-font {
+  min-width: 260px;
+}
+
+.te-fonts {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+
+.te-fonts::-webkit-scrollbar {
+  display: none;
+}
+
+/* عنصر الخط الواحد (يأتي من NoorFonts.renderOptions) */
+.te-fonts .font-option {
+  flex: 0 0 auto;
+  min-width: 108px;
+  padding: 10px 8px;
+  background: #ffffff;
+  border: 2px solid #e8e8e8;
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+  color: #333;
+  box-sizing: border-box;
+}
+
+.te-fonts .font-option:active {
+  transform: scale(0.97);
+}
+
+.te-fonts .font-option.active {
+  border-color: #111;
+  background: #111;
+  color: #fff;
+}
+
+.te-fonts .font-option .font-name,
+.te-fonts .font-option span:first-child {
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.7;
+  line-height: 1.2;
+}
+
+.te-fonts .font-option .font-preview,
+.te-fonts .font-option span:last-child {
+  font-size: 18px;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* ═══════════════════════════════════════════════
+   بطاقة الحجم
+   ═══════════════════════════════════════════════ */
+
+.te-size-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.te-size-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  background: #ffffff;
+  font-size: 20px;
+  font-weight: 700;
+  color: #111;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.te-size-btn:active {
+  background: #f0f0f0;
+  transform: scale(0.95);
+}
+
+.te-size-num {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: #111;
+  border: 1px solid #e0e0e0;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 8px 4px;
+  height: 38px;
+  box-sizing: border-box;
+  font-family: inherit;
+  -moz-appearance: textfield;
+}
+
+.te-size-num::-webkit-outer-spin-button,
+.te-size-num::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.te-size-num:focus {
+  outline: none;
+  border-color: #111;
+}
+
+.te-size-slider {
+  width: 100%;
+  height: 4px;
+  accent-color: #111;
+  cursor: pointer;
+  margin-top: 4px;
+}
+/* ═══════════════════════════════════════════════
+   بطاقة اللون
+   ═══════════════════════════════════════════════ */
+
+.te-colors {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  align-content: flex-start;
+  max-width: 170px;
+}
+
+.te-color-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid #e0e0e0;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.te-color-dot:active {
+  transform: scale(0.9);
+}
+
+.te-color-dot.active {
+  border-color: #111;
+  transform: scale(1.12);
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px #111;
+}
+
+/* دائرية بيضاء - تحتاج حدود أوضح */
+.te-color-dot[data-te-color="#ffffff"] {
+  border-color: #d4d4d4;
+}
+
+/* زر اللون المخصص */
+.te-color-custom {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px dashed #b0b0b0;
+  background: conic-gradient(
+    from 0deg,
+    #ff0000, #ffff00, #00ff00, #00ffff,
+    #0000ff, #ff00ff, #ff0000
+  );
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+
+.te-color-custom:active {
+  transform: scale(0.9);
+}
+
+/* ═══════════════════════════════════════════════
+   بطاقة المحاذاة
+   ═══════════════════════════════════════════════ */
+
+.te-align-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.te-align-btn {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #e0e0e0;
+  background: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.te-align-btn:active {
+  transform: scale(0.97);
+}
+
+.te-align-btn.active {
+  background: #111;
+  color: #ffffff;
+  border-color: #111;
+}
+
+/* ═══════════════════════════════════════════════
+   بطاقة الحذف
+   ═══════════════════════════════════════════════ */
+
+.te-card-danger {
+  background: #fff5f5;
+  min-width: 140px;
+}
+
+.te-delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #ff4d4d;
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, transform 0.15s;
+  width: 100%;
+  margin-top: auto;
+}
+
+.te-delete-btn:active {
+  background: #e63939;
+  transform: scale(0.97);
+}
+
+/* ═══════════════════════════════════════════════
+   منتقي الألوان (iro.js)
+   ═══════════════════════════════════════════════ */
+
+.color-picker-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.color-picker-modal[hidden] {
+  display: none !important;
+}
+
+.color-picker-inner {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 20px;
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  direction: rtl;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  animation: cpFadeIn 0.25s ease;
+}
+
+@keyframes cpFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.color-picker-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #111;
+  text-align: center;
+}
+
+.color-picker-body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 6px 0;
+}
+
+#iro-picker {
+  width: 220px;
+  height: 220px;
+}
+
+.color-picker-footer {
+  display: flex;
+  gap: 10px;
+}
+
+.color-picker-cancel,
+.color-picker-confirm {
+  flex: 1;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, transform 0.15s;
+}
+
+.color-picker-cancel {
+  background: #f0f0f0;
+  color: #555;
+}
+
+.color-picker-cancel:active {
+  background: #e0e0e0;
+  transform: scale(0.97);
+}
+
+.color-picker-confirm {
+  background: #111;
+  color: #ffffff;
+}
+
+.color-picker-confirm:active {
+  background: #333;
+  transform: scale(0.97);
+   }
