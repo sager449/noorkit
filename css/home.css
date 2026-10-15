@@ -15,8 +15,67 @@
 .home-main {
   flex: 1 1 auto;
   position: relative;
-  overflow: hidden;
+  overflow-y: auto;
+  padding: 20px 16px 100px;
   -webkit-tap-highlight-color: transparent;
+}
+
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 14px;
+}
+
+.project-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  text-decoration: none;
+  color: var(--ink);
+  transition: 0.2s ease;
+  cursor: pointer;
+}
+
+.project-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.project-thumb {
+  aspect-ratio: 1;
+  background: var(--cream);
+  border-bottom: 1px solid var(--line);
+  overflow: hidden;
+  position: relative;
+}
+
+.project-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.project-info {
+  padding: 10px 12px;
+}
+
+.project-name {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.project-date {
+  font-size: 11px;
+  color: var(--muted);
 }
 
 .floating-btn {
@@ -55,10 +114,6 @@
   background: var(--accent-dark);
 }
 
-.floating-btn:focus {
-  outline: none;
-}
-
 .floating-btn svg {
   width: 24px;
   height: 24px;
@@ -66,6 +121,8 @@
 }
 
 @media (max-width: 600px) {
+  .home-main { padding: 16px 12px 100px; }
+  .projects-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; }
   .floating-btn {
     width: 50px;
     height: 50px;
@@ -76,4 +133,4 @@
     width: 22px;
     height: 22px;
   }
-}
+   }
