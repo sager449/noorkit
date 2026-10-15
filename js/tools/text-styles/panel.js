@@ -26,19 +26,14 @@ window.NoorTextStylesPanel = {
         <span class="ts-spacer"></span>
       </div>
 
-      <div class="ts-tabs" id="ts-tabs">
-        <!-- تُملأ ديناميكياً -->
-      </div>
+      <div class="ts-tabs" id="ts-tabs"></div>
 
-      <div class="ts-content" id="ts-content">
-        <!-- يُملأ ديناميكياً -->
-      </div>
+      <div class="ts-content" id="ts-content"></div>
     `;
 
     document.body.appendChild(sheet);
     this.sheetEl = sheet;
 
-    // زر إغلاق
     document.getElementById("ts-close")?.addEventListener("click", () => {
       this.close();
     });
@@ -51,30 +46,39 @@ window.NoorTextStylesPanel = {
     if (!this.sheetEl) this.build();
     if (!this.sheetEl) return;
 
-    // بناء التبويبات
+    // ① أغلق لوحة تحرير النص (لتجنب التراكب)
+    if (
+      typeof NoorTextEditor !== "undefined" &&
+      NoorTextEditor.active &&
+      typeof NoorTextEditor.close === "function"
+    ) {
+      NoorTextEditor.close();
+    }
+
+    // ② بناء التبويبات
     const tabs = document.getElementById("ts-tabs");
     if (tabs) {
       tabs.innerHTML = NoorTextStyles.renderTabs();
     }
 
-    // تفعيل أول أداة افتراضياً
+    // ③ تفعيل أول أداة افتراضياً
     const first = NoorTextStyles.getAll()[0];
     if (first && !NoorTextStyles.currentTab) {
       NoorTextStyles.currentTab = first.id;
     }
 
-    // بناء المحتوى
+    // ④ بناء المحتوى
     this.renderCurrent();
 
-    // ربط التبويبات
+    // ⑤ ربط التبويبات
     this.bindTabs();
 
-    // فتح
+    // ⑥ فتح النافذة
     this.sheetEl.classList.add("open");
     this.sheetEl.setAttribute("aria-hidden", "false");
     this.isOpen = true;
 
-    // رفع الـ canvas
+    // ⑦ رفع الـ canvas
     this.shiftCanvas(true);
   },
 
@@ -95,8 +99,9 @@ window.NoorTextStylesPanel = {
      رفع/إرجاع الـ canvas
      ───────────────────────────────────── */
   shiftCanvas(up) {
-    const wrapper = document.querySelector(".canvas-wrapper") ||
-                    document.getElementById("canvas-wrapper");
+    const wrapper =
+      document.querySelector(".canvas-wrapper") ||
+      document.getElementById("canvas-wrapper");
     if (!wrapper) return;
 
     if (up) {
@@ -116,7 +121,8 @@ window.NoorTextStylesPanel = {
 
     const current = NoorTextStyles.currentTab;
     if (!current) {
-      content.innerHTML = "<p style='color:#888;text-align:center;padding:20px;'>اختر أداة</p>";
+      content.innerHTML =
+        "<p style='color:#888;text-align:center;padding:20px;'>اختر أداة</p>";
       return;
     }
 
