@@ -1,93 +1,5 @@
 /* =========================================
    NoorKit — Tool: Ayah
-   أداة الآية (السورة + الآية + الخط + اللون + الزخارف)
-   ========================================= */
-
-NoorTools.register("ayah", {
-  render() {
-    const d = NoorState.design;
-    return `
-      <h3 class="panel-title">الآية</h3>
-
-      <div class="panel-row">
-        <label class="panel-label">السورة</label>
-        <select class="select-input" id="surah-select"><option value="">-- اختر السورة --</option></select>
-      </div>
-
-      <div class="panel-row">
-        <label class="panel-label">الآية</label>
-        <select class="select-input" id="ayah-select" disabled><option value="">-- اختر السورة أولًا --</option></select>
-      </div>
-
-      <div class="panel-row">
-        <label class="panel-label">أو اكتب يدويًا</label>
-        <textarea class="textarea-input" id="ayah-text" dir="rtl" placeholder="اكتب النص هنا...">${this.escape(d.ayah.text)}</textarea>
-      </div>
-
-      <div class="panel-row">
-        <label class="panel-label">الخط</label>
-        <div class="font-grid" id="font-grid">${NoorFonts.renderOptions(d.text.fontId)}</div>
-      </div>
-
-      <div class="panel-row">
-        <label class="panel-label">حجم الخط: <output id="size-value">${d.text.size}</output>px</label>
-        <input type="range" class="size-slider" id="font-size" min="24" max="140" value="${d.text.size}" />
-      </div>
-
-      <div class="panel-row">
-        <label class="panel-label">لون النص</label>
-        <div class="color-options" id="text-color-options">
-          ${["#1a1a1a","#ffffff","#c9a227","#0d8b5f","#1e40af","#b91c1c","#7c3aed","#f59e0b","#be185d","#0891b2"].map((c) => `<button class="color-swatch ${d.text.color === c ? "active" : ""}" data-color="${c}" style="background:${c};${c === "#ffffff" ? "border:2px solid #e5e5e5;" : ""}"></button>`).join("")}
-        </div>
-      </div>
-
-      <div class="panel-row">
-        <label class="panel-label">عنوان الآية (اسم السورة)</label>
-        <div class="toggle-group" id="surah-name-group">
-          <button class="toggle-btn ${d.ayah.showSurahName ? "active" : ""}" data-surah-name="on">إظهار</button>
-          <button class="toggle-btn ${!d.ayah.showSurahName ? "active" : ""}" data-surah-name="off">إخفاء</button>
-        </div>
-      </div>
-
-      <div class="panel-row">
-        <label class="panel-label">البسملة (﷽)</label>
-        <div class="toggle-group" id="bismillah-group">
-          <button class="toggle-btn ${d.ayah.showBismillah ? "active" : ""}" data-bismillah="on">إظهار</button>
-          <button class="toggle-btn ${!d.ayah.showBismillah ? "active" : ""}" data-bismillah="off">إخفاء</button>
-        </div>
-      </div>
-
-      <div class="panel-row">
-        <label class="panel-label">أعوذ بالله (الاستعاذة)</label>
-        <div class="toggle-group" id="istiadha-group">
-          <button class="toggle-btn ${d.ayah.showIstiadha ? "active" : ""}" data-istiadha="on">إظهار</button>
-          <button class="toggle-btn ${!d.ayah.showIstiadha ? "active" : ""}" data-istiadha="off">إخفاء</button>
-        </div>
-      </div>
-
-      <div class="panel-row">
-        <label class="panel-label">رقم الآية داخل زخرفة</label>
-        <div class="toggle-group" id="ayah-num-group">
-          <button class="toggle-btn ${d.ayah.decorNumber ? "active" : ""}" data-ayah-num="on">إظهار</button>
-          <button class="toggle-btn ${!d.ayah.decorNumber ? "active" : ""}" data-ayah-num="off">إخفاء</button>
-        </div>
-      </div>
-
-      <div class="panel-row">
-        <label class="panel-label">زخارف إضافية</label>
-        <div class="bg-grid" id="ayah-decorations">
-          ${(typeof NoorDecorations !== "undefined" ? NoorDecorations.list : []).slice(0, 12).map((deco) => `<button class="bg-item" data-deco-id="${deco.id}" title="${deco.name}"><span class="bg-item-color" style="display:flex;align-items:center;justify-content:center;font-size:22px;font-family:'Amiri',serif;color:${deco.color || "#c9a227"};">${deco.symbol || "◆"}</span></button>`).join("")}
-        </div>
-      </div>
-    `;
-  },
-
-  escape(str) {
-    return String(str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-  },
-});
-/* =========================================
-   NoorKit — Tool: Ayah
    أداة الآية
    ========================================= */
 
@@ -129,39 +41,70 @@ NoorTools.register("ayah", {
         </div>
       </div>
 
-      <div class="panel-row">
-        <label class="panel-label">عنوان الآية (اسم السورة)</label>
-        <div class="toggle-group" id="surah-name-group">
-          <button class="toggle-btn ${d.ayah.showSurahName ? "active" : ""}" data-surah-name="on">إظهار</button>
-          <button class="toggle-btn ${!d.ayah.showSurahName ? "active" : ""}" data-surah-name="off">إخفاء</button>
-        </div>
+      <button class="action-btn" id="open-extra-options">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+        خيارات إضافية
+      </button>
+    `;
+  },
+
+  renderSubPanel() {
+    const d = NoorState.design;
+    return `
+      <div class="sub-panel-header">
+        <span class="sub-panel-title">خيارات إضافية</span>
+        <button class="sub-panel-close" id="sub-panel-close" aria-label="إغلاق">×</button>
       </div>
 
-      <div class="panel-row">
-        <label class="panel-label">البسملة (﷽)</label>
-        <div class="toggle-group" id="bismillah-group">
-          <button class="toggle-btn ${d.ayah.showBismillah ? "active" : ""}" data-bismillah="on">إظهار</button>
-          <button class="toggle-btn ${!d.ayah.showBismillah ? "active" : ""}" data-bismillah="off">إخفاء</button>
-        </div>
+      <div class="switch-row" data-switch="showSurahName">
+        <span class="switch-row-label">
+          <svg class="switch-row-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 7V4h16v3"></path>
+            <path d="M9 20h6"></path>
+            <path d="M12 4v16"></path>
+          </svg>
+          عنوان الآية (اسم السورة)
+        </span>
+        <div class="switch ${d.ayah.showSurahName ? "active" : ""}"></div>
       </div>
 
-      <div class="panel-row">
-        <label class="panel-label">أعوذ بالله (الاستعاذة)</label>
-        <div class="toggle-group" id="istiadha-group">
-          <button class="toggle-btn ${d.ayah.showIstiadha ? "active" : ""}" data-istiadha="on">إظهار</button>
-          <button class="toggle-btn ${!d.ayah.showIstiadha ? "active" : ""}" data-istiadha="off">إخفاء</button>
-        </div>
+      <div class="switch-row" data-switch="showBismillah">
+        <span class="switch-row-label">
+          <svg class="switch-row-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L15.09 8.26 22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+          </svg>
+          البسملة (﷽)
+        </span>
+        <div class="switch ${d.ayah.showBismillah ? "active" : ""}"></div>
       </div>
 
-      <div class="panel-row">
-        <label class="panel-label">رقم الآية داخل زخرفة</label>
-        <div class="toggle-group" id="ayah-num-group">
-          <button class="toggle-btn ${d.ayah.decorNumber ? "active" : ""}" data-ayah-num="on">إظهار</button>
-          <button class="toggle-btn ${!d.ayah.decorNumber ? "active" : ""}" data-ayah-num="off">إخفاء</button>
-        </div>
+      <div class="switch-row" data-switch="showIstiadha">
+        <span class="switch-row-label">
+          <svg class="switch-row-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M12 6v6l4 2"></path>
+          </svg>
+          أعوذ بالله (الاستعاذة)
+        </span>
+        <div class="switch ${d.ayah.showIstiadha ? "active" : ""}"></div>
       </div>
 
-      <div class="panel-row">
+      <div class="switch-row" data-switch="decorNumber">
+        <span class="switch-row-label">
+          <svg class="switch-row-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="16"></line>
+            <line x1="8" y1="12" x2="16" y2="12"></line>
+          </svg>
+          رقم الآية داخل زخرفة
+        </span>
+        <div class="switch ${d.ayah.decorNumber ? "active" : ""}"></div>
+      </div>
+
+      <div class="panel-row" style="margin-top: 16px;">
         <label class="panel-label">زخارف إضافية</label>
         <div class="bg-grid" id="ayah-decorations">
           ${(typeof NoorDecorations !== "undefined" ? NoorDecorations.list : []).slice(0, 12).map((deco) => `<button class="bg-item" data-deco-id="${deco.id}" title="${deco.name}"><span class="bg-item-color" style="display:flex;align-items:center;justify-content:center;font-size:22px;font-family:'Amiri',serif;color:${deco.color || "#c9a227"};">${deco.symbol || "◆"}</span></button>`).join("")}
@@ -252,47 +195,47 @@ NoorTools.register("ayah", {
       });
     });
 
-    document.querySelectorAll("#surah-name-group [data-surah-name]").forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        document.querySelectorAll("#surah-name-group [data-surah-name]").forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-        NoorState.design.ayah.showSurahName = btn.dataset.surahName === "on";
+    // زر "خيارات إضافية"
+    document.getElementById("open-extra-options")?.addEventListener("click", () => {
+      this.openSubPanel();
+    });
+  },
+
+  openSubPanel() {
+    let subPanel = document.getElementById("sub-panel");
+    if (!subPanel) {
+      subPanel = document.createElement("div");
+      subPanel.id = "sub-panel";
+      subPanel.className = "sub-panel";
+      document.body.appendChild(subPanel);
+    }
+    subPanel.innerHTML = this.renderSubPanel();
+    subPanel.hidden = false;
+    this.bindSubPanel();
+  },
+
+  closeSubPanel() {
+    const subPanel = document.getElementById("sub-panel");
+    if (subPanel) subPanel.hidden = true;
+  },
+
+  bindSubPanel() {
+    document.getElementById("sub-panel-close")?.addEventListener("click", () => {
+      this.closeSubPanel();
+    });
+
+    document.querySelectorAll("#sub-panel .switch-row").forEach((row) => {
+      row.addEventListener("click", async () => {
+        const key = row.dataset.switch;
+        const d = NoorState.design;
+        d.ayah[key] = !d.ayah[key];
+        row.querySelector(".switch")?.classList.toggle("active");
         NoorState.pushHistory();
         await NoorRenderer.render();
       });
     });
 
-    document.querySelectorAll("#bismillah-group [data-bismillah]").forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        document.querySelectorAll("#bismillah-group [data-bismillah]").forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-        NoorState.design.ayah.showBismillah = btn.dataset.bismillah === "on";
-        NoorState.pushHistory();
-        await NoorRenderer.render();
-      });
-    });
-
-    document.querySelectorAll("#istiadha-group [data-istiadha]").forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        document.querySelectorAll("#istiadha-group [data-istiadha]").forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-        NoorState.design.ayah.showIstiadha = btn.dataset.istiadha === "on";
-        NoorState.pushHistory();
-        await NoorRenderer.render();
-      });
-    });
-
-    document.querySelectorAll("#ayah-num-group [data-ayah-num]").forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        document.querySelectorAll("#ayah-num-group [data-ayah-num]").forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-        NoorState.design.ayah.decorNumber = btn.dataset.ayahNum === "on";
-        NoorState.pushHistory();
-        await NoorRenderer.render();
-      });
-    });
-
-    document.querySelectorAll("[data-deco-id]").forEach((btn) => {
+    document.querySelectorAll("#sub-panel [data-deco-id]").forEach((btn) => {
       btn.addEventListener("click", async () => {
         const id = btn.dataset.decoId;
         const d = NoorState.design;
