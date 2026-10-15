@@ -1,13 +1,26 @@
 /* =========================================
-   NoorKit — Tool: Text Editor
-   لوحة تحرير النص (جانبية - من اليسار)
+   NoorKit — Tool: Text Editor (Bottom Sheet)
+   لوحة تحرير النص — تنزلق من الأسفل
    ========================================= */
 
 window.NoorTextEditor = {
   active: false,
+  sheetEl: null,
   colorPicker: null,
   tempColor: "#1a1a1a",
 
+  /* ─────────────────────────────────────
+     الألوان الجاهزة
+     ───────────────────────────────────── */
+  COLORS: [
+    "#1a1a1a", "#ffffff", "#c9a227", "#0d8b5f",
+    "#1e40af", "#b91c1c", "#7c3aed", "#f59e0b",
+    "#be185d", "#0891b2",
+  ],
+
+  /* ─────────────────────────────────────
+     التهيئة
+     ───────────────────────────────────── */
   init() {
     const canvas = document.getElementById("main-canvas");
     if (!canvas) return;
@@ -24,8 +37,13 @@ window.NoorTextEditor = {
         this.close();
       }
     });
+
+    this.buildSheet();
   },
 
+  /* ─────────────────────────────────────
+     اختبار الضغط على النص
+     ───────────────────────────────────── */
   hitTestText(x, y) {
     const d = NoorState.design;
     if (!d.ayah.text) return false;
@@ -47,90 +65,143 @@ window.NoorTextEditor = {
            y >= startY && y <= startY + totalH;
   },
 
-  open() {
-    this.active = true;
-    let panel = document.getElementById("text-editor-panel");
-    if (!panel) {
-      panel = document.createElement("div");
-      panel.id = "text-editor-panel";
-      panel.className = "text-editor-side";
-      document.body.appendChild(panel);
-    }
+  /* ─────────────────────────────────────
+     بناء الـ Sheet مرة واحدة
+     ───────────────────────────────────── */
+  buildSheet() {
+    if (document.getElementById("text-editor-sheet")) return;
 
+    const sheet = document.createElement("div");
+    sheet.id = "text-editor-sheet";
+    sheet.className = "te-sheet";
+    sheet.setAttribute("aria-hidden", "true");
+    document.body.appendChild(sheet);
+
+    this.sheetEl = sheet;
+  },
+
+  /* ─────────────────────────────────────
+     توليد المحتوى
+     ───────────────────────────────────── */
+  renderContent() {
     const d = NoorState.design;
+    const fontOptions = NoorFonts.renderOptions(d.text.fontId);
+    const colorsHTML = this.COLORS.map(
+      (c) =>
+        `<button class="te-color-dot ${d.text.color === c ? "active" : ""}" data-te-color="${c}" style="background:${c};"></button>`
+    ).join("");
 
-    panel.innerHTML = `
-      <div class="text-editor-header">
-        <span class="text-editor-title">تحرير النص</span>
-        <button class="text-editor-close" id="text-editor-close" aria-label="إغلاق">×</button>
+    return `
+      <div class="te-handle"></div>
+
+      <div class="te-header">
+        <button class="te-close" id="te-close" aria-label="إغلاق">✕</button>
+        <span class="te-title">تحرير النص</span>
+        <span class="te-spacer"></span>
       </div>
 
-      <div class="text-editor-body">
-        <div class="panel-row">
-          <label class="panel-label">الخط</label>
-          <div class="font-grid" id="te-font-grid">
-            ${NoorFonts.renderOptions(d.text.fontId)}
+      <div class="te-cards" id="te-cards">
+
+        <!-- بطاقة الخط -->
+        <div class="te-card te-card-font">
+          <div class="te-card-label">الخط</div>
+          <div class="te-card-body te-fonts" id="te-font-grid">
+            ${fontOptions}
           </div>
         </div>
 
-        <div class="panel-row">
-          <label class="panel-label">حجم الخط</label>
-          <div class="size-control">
-            <button class="size-btn" data-te-action="minus">−</button>
-            <input type="number" class="size-number" id="te-size-number" min="10" max="999" value="${d.text.size}" />
-            <button class="size-btn" data-te-action="plus">+</button>
-          </div>
-          <input type="range" class="size-slider" id="te-size" min="10" max="999" value="${d.text.size}" style="margin-top:8px;" />
-        </div>
-
-        <div class="panel-row">
-          <label class="panel-label">لون النص</label>
-          <div class="color-options" id="te-colors">
-            ${["#1a1a1a","#ffffff","#c9a227","#0d8b5f","#1e40af","#b91c1c","#7c3aed","#f59e0b","#be185d","#0891b2"].map((c) => `<button class="color-swatch ${d.text.color === c ? "active" : ""}" data-te-color="${c}" style="background:${c};${c === "#ffffff" ? "border:2px solid #e5e5e5;" : ""}"></button>`).join("")}
-            <button class="color-custom-btn" id="te-color-custom" title="لون مخصص"></button>
+        <!-- بطاقة الحجم -->
+        <div class="te-card">
+          <div class="te-card-label">حجم الخط</div>
+          <div class="te-card-body">
+            <div class="te-size-row">
+              <button class="te-size-btn" data-te-action="minus">−</button>
+              <input type="number" class="te-size-num" id="te-size-num" min="10" max="999" value="${d.text.size}" />
+              <button class="te-size-btn" data-te-action="plus">+</button>
+            </div>
+            <input type="range" class="te-size-slider" id="te-size-slider" min="10" max="999" value="${d.text.size}" />
           </div>
         </div>
 
-        <div class="panel-row">
-          <label class="panel-label">المحاذاة</label>
-          <div class="toggle-group" id="te-align-group">
-            <button class="toggle-btn ${d.text.align === "right" ? "active" : ""}" data-te-align="right">يمين</button>
-            <button class="toggle-btn ${d.text.align === "center" ? "active" : ""}" data-te-align="center">وسط</button>
-            <button class="toggle-btn ${d.text.align === "left" ? "active" : ""}" data-te-align="left">يسار</button>
+        <!-- بطاقة اللون -->
+        <div class="te-card">
+          <div class="te-card-label">لون النص</div>
+          <div class="te-card-body">
+            <div class="te-colors" id="te-colors">
+              ${colorsHTML}
+              <button class="te-color-custom" id="te-color-custom" title="لون مخصص"></button>
+            </div>
           </div>
         </div>
 
-        <div class="panel-row">
-          <button class="action-btn" id="te-delete" style="background:#fee;border-color:#fcc;color:#b91c1c;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="3 6 5 6 21 6"></polyline>
-              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
-            </svg>
-            حذف النص
-          </button>
+        <!-- بطاقة المحاذاة -->
+        <div class="te-card">
+          <div class="te-card-label">المحاذاة</div>
+          <div class="te-card-body">
+            <div class="te-align-group" id="te-align-group">
+              <button class="te-align-btn ${d.text.align === "right" ? "active" : ""}" data-te-align="right">يمين</button>
+              <button class="te-align-btn ${d.text.align === "center" ? "active" : ""}" data-te-align="center">وسط</button>
+              <button class="te-align-btn ${d.text.align === "left" ? "active" : ""}" data-te-align="left">يسار</button>
+            </div>
+          </div>
         </div>
+
+        <!-- بطاقة الحذف -->
+        <div class="te-card te-card-danger">
+          <div class="te-card-label">حذف</div>
+          <div class="te-card-body">
+            <button class="te-delete-btn" id="te-delete">
+              <span>🗑</span>
+              <span>حذف النص</span>
+            </button>
+          </div>
+        </div>
+
       </div>
     `;
-
-    panel.hidden = false;
-    this.bind(panel);
   },
 
+  /* ─────────────────────────────────────
+     فتح اللوحة
+     ───────────────────────────────────── */
+  open() {
+    if (!this.sheetEl) this.buildSheet();
+    if (!this.sheetEl) return;
+
+    this.sheetEl.innerHTML = this.renderContent();
+    this.sheetEl.classList.add("open");
+    this.sheetEl.setAttribute("aria-hidden", "false");
+    this.active = true;
+
+    this.bind();
+  },
+
+  /* ─────────────────────────────────────
+     إغلاق اللوحة
+     ───────────────────────────────────── */
   close() {
+    if (!this.sheetEl) return;
+    this.sheetEl.classList.remove("open");
+    this.sheetEl.setAttribute("aria-hidden", "true");
     this.active = false;
-    const panel = document.getElementById("text-editor-panel");
-    if (panel) panel.hidden = true;
-    const colorModal = document.getElementById("color-picker-modal");
-    if (colorModal) colorModal.hidden = true;
+
+    const modal = document.getElementById("color-picker-modal");
+    if (modal) modal.hidden = true;
   },
+     /* ─────────────────────────────────────
+     ربط الأحداث
+     ───────────────────────────────────── */
+  bind() {
+    const sheet = this.sheetEl;
+    if (!sheet) return;
 
-  bind(panel) {
-    document.getElementById("text-editor-close")?.addEventListener("click", () => this.close());
+    /* إغلاق */
+    document.getElementById("te-close")?.addEventListener("click", () => this.close());
 
-    // الخط
-    panel.querySelectorAll("#te-font-grid .font-option").forEach((btn) => {
+    /* الخط */
+    sheet.querySelectorAll("#te-font-grid .font-option").forEach((btn) => {
       btn.addEventListener("click", async () => {
-        panel.querySelectorAll("#te-font-grid .font-option").forEach((b) => b.classList.remove("active"));
+        sheet.querySelectorAll("#te-font-grid .font-option").forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
         NoorState.design.text.fontId = btn.dataset.font;
         NoorState.pushHistory();
@@ -138,25 +209,25 @@ window.NoorTextEditor = {
       });
     });
 
-    // الحجم
-    const sizeSlider = document.getElementById("te-size");
-    const sizeNumber = document.getElementById("te-size-number");
+    /* الحجم */
+    const sizeSlider = document.getElementById("te-size-slider");
+    const sizeNum = document.getElementById("te-size-num");
 
     const updateSize = async (val) => {
       const clamped = Math.max(10, Math.min(999, parseInt(val) || 64));
       NoorState.design.text.size = clamped;
       if (sizeSlider) sizeSlider.value = clamped;
-      if (sizeNumber) sizeNumber.value = clamped;
+      if (sizeNum) sizeNum.value = clamped;
       await NoorRenderer.render();
     };
 
     sizeSlider?.addEventListener("input", () => updateSize(sizeSlider.value));
-    sizeNumber?.addEventListener("change", async () => {
-      await updateSize(sizeNumber.value);
+    sizeNum?.addEventListener("change", async () => {
+      await updateSize(sizeNum.value);
       NoorState.pushHistory();
     });
 
-    panel.querySelectorAll("[data-te-action]").forEach((btn) => {
+    sheet.querySelectorAll("[data-te-action]").forEach((btn) => {
       btn.addEventListener("click", async () => {
         const action = btn.dataset.teAction;
         const current = NoorState.design.text.size || 64;
@@ -167,10 +238,10 @@ window.NoorTextEditor = {
       });
     });
 
-    // اللون
-    panel.querySelectorAll("[data-te-color]").forEach((btn) => {
+    /* اللون */
+    sheet.querySelectorAll("[data-te-color]").forEach((btn) => {
       btn.addEventListener("click", async () => {
-        panel.querySelectorAll("[data-te-color]").forEach((b) => b.classList.remove("active"));
+        sheet.querySelectorAll("[data-te-color]").forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
         NoorState.design.text.color = btn.dataset.teColor;
         NoorState.pushHistory();
@@ -182,10 +253,10 @@ window.NoorTextEditor = {
       this.openColorPicker();
     });
 
-    // المحاذاة
-    panel.querySelectorAll("#te-align-group [data-te-align]").forEach((btn) => {
+    /* المحاذاة */
+    sheet.querySelectorAll("[data-te-align]").forEach((btn) => {
       btn.addEventListener("click", async () => {
-        panel.querySelectorAll("#te-align-group [data-te-align]").forEach((b) => b.classList.remove("active"));
+        sheet.querySelectorAll("[data-te-align]").forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
         NoorState.design.text.align = btn.dataset.teAlign;
         NoorState.pushHistory();
@@ -193,7 +264,7 @@ window.NoorTextEditor = {
       });
     });
 
-    // حذف
+    /* حذف */
     document.getElementById("te-delete")?.addEventListener("click", () => {
       NoorState.design.ayah.text = "";
       NoorState.pushHistory();
@@ -203,6 +274,9 @@ window.NoorTextEditor = {
     });
   },
 
+  /* ─────────────────────────────────────
+     منتقي الألوان (iro.js)
+     ───────────────────────────────────── */
   openColorPicker() {
     let modal = document.getElementById("color-picker-modal");
     if (!modal) {
@@ -259,9 +333,9 @@ window.NoorTextEditor = {
       await NoorRenderer.render();
       modal.hidden = true;
 
-      const panel = document.getElementById("text-editor-panel");
-      if (panel) {
-        panel.querySelectorAll("[data-te-color]").forEach((b) => b.classList.remove("active"));
+      const sheet = document.getElementById("text-editor-sheet");
+      if (sheet) {
+        sheet.querySelectorAll("[data-te-color]").forEach((b) => b.classList.remove("active"));
       }
 
       window.showToast?.("تم تطبيق اللون");
@@ -269,7 +343,9 @@ window.NoorTextEditor = {
   },
 };
 
-/* تشغيل تلقائي عند تحميل الصفحة */
+/* ─────────────────────────────────────
+   تشغيل تلقائي
+   ───────────────────────────────────── */
 document.addEventListener("DOMContentLoaded", () => {
   if (typeof NoorRenderer !== "undefined" && typeof NoorTextEditor !== "undefined") {
     NoorTextEditor.init();
