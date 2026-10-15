@@ -1643,3 +1643,604 @@ html[dir="rtl"] .switch::after { left: auto; right: 3px; }
   background: #333;
   transform: scale(0.97);
    }
+/* ═══════════════════════════════════════════════
+   NoorKit — Text Editor Dark (Bottom Sheet)
+   لوحة تحرير النص — تصميم مظلم مضغوط
+   ═══════════════════════════════════════════════ */
+
+/* ─── الحاوية الرئيسية ─── */
+.te-sheet-dark {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9998;
+  background: #1a1a1a;
+  color: #ffffff;
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
+  transform: translateY(100%);
+  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  display: flex;
+  flex-direction: column;
+  direction: rtl;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  will-change: transform;
+  max-height: 70vh;
+  font-family: "Cairo", sans-serif;
+}
+
+.te-sheet-dark.open {
+  transform: translateY(0);
+}
+
+/* ─── الرأس ─── */
+.te-dark-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid #2a2a2a;
+  flex-shrink: 0;
+}
+
+.te-dark-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  flex: 1;
+  text-align: center;
+}
+
+.te-dark-close {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #2a2a2a;
+  border: none;
+  color: #cccccc;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.te-dark-close:active {
+  background: #3a3a3a;
+}
+
+.te-dark-spacer {
+  width: 34px;
+  height: 34px;
+}
+
+/* ═══ الصف العلوي: الأزرار العامة ═══ */
+.te-dark-toprow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #1a1a1a;
+  border-bottom: 1px solid #2a2a2a;
+  flex-shrink: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.te-dark-toprow::-webkit-scrollbar {
+  display: none;
+}
+
+/* زر الإجراء (تعديل / فرشاة) */
+.te-dark-action {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  background: #2a2a2a;
+  border: none;
+  border-radius: 10px;
+  color: #e8e8e8;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.15s, transform 0.15s;
+}
+
+.te-dark-action:active {
+  background: #3a3a3a;
+  transform: scale(0.96);
+}
+
+.te-dark-action-label {
+  line-height: 1;
+}
+
+.te-dark-action-caret {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+/* زر أيقونة مربع */
+.te-dark-icon-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: #2a2a2a;
+  border: none;
+  color: #e8e8e8;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s, transform 0.15s;
+  padding: 0;
+}
+
+.te-dark-icon-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.te-dark-icon-btn:active {
+  background: #3a3a3a;
+  transform: scale(0.94);
+}
+
+/* مجموعة الحجم السريع */
+.te-dark-size {
+  display: flex;
+  align-items: center;
+  background: #2a2a2a;
+  border-radius: 10px;
+  padding: 2px;
+  flex-shrink: 0;
+  margin-right: auto;
+}
+
+.te-dark-size-btn {
+  width: 32px;
+  height: 34px;
+  background: transparent;
+  border: none;
+  color: #e8e8e8;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font-family: inherit;
+}
+
+.te-dark-size-btn:active {
+  background: #3a3a3a;
+  border-radius: 8px;
+}
+
+.te-dark-size-input {
+  width: 42px;
+  height: 34px;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  font-family: inherit;
+  -moz-appearance: textfield;
+  padding: 0;
+}
+
+.te-dark-size-input::-webkit-outer-spin-button,
+.te-dark-size-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.te-dark-size-input:focus {
+  outline: none;
+   }
+/* ═══════════════════════════════════════════════
+   الصف السفلي: التبويبات الديناميكية
+   ═══════════════════════════════════════════════ */
+
+.te-dark-tabs {
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  padding: 12px 12px;
+  background: #1a1a1a;
+  border-bottom: 1px solid #2a2a2a;
+  flex-shrink: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.te-dark-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.te-dark-tab {
+  flex: 1;
+  min-width: 70px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 6px;
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  color: #999999;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.te-dark-tab:active {
+  background: #2a2a2a;
+  transform: scale(0.96);
+}
+
+.te-dark-tab.active {
+  background: #2a2a2a;
+  color: #ffffff;
+}
+
+.te-dark-tab-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.te-dark-tab-icon svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+}
+
+.te-dark-tab-label {
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* ═══════════════════════════════════════════════
+   منطقة المحتوى (تظهر عند اختيار أداة)
+   ═══════════════════════════════════════════════ */
+
+.te-dark-content {
+  padding: 14px 16px;
+  background: #141414;
+  border-bottom: 1px solid #2a2a2a;
+  flex-shrink: 0;
+  max-height: 180px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #3a3a3a transparent;
+}
+
+.te-dark-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.te-dark-content::-webkit-scrollbar-thumb {
+  background: #3a3a3a;
+  border-radius: 2px;
+}
+
+.te-dark-content[hidden] {
+  display: none !important;
+}
+
+/* ─── محتوى الخط ─── */
+.te-dark-fonts {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+}
+
+.te-dark-fonts::-webkit-scrollbar {
+  display: none;
+}
+
+.te-dark-fonts .font-option {
+  flex: 0 0 auto;
+  min-width: 100px;
+  padding: 10px 8px;
+  background: #1f1f1f;
+  border: 2px solid #2a2a2a;
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+  color: #e8e8e8;
+  box-sizing: border-box;
+}
+
+.te-dark-fonts .font-option:active {
+  transform: scale(0.96);
+}
+
+.te-dark-fonts .font-option.active {
+  border-color: #ffffff;
+  background: #ffffff;
+  color: #111111;
+}
+
+.te-dark-fonts .font-option .font-name,
+.te-dark-fonts .font-option span:first-child {
+  font-size: 10px;
+  font-weight: 600;
+  opacity: 0.7;
+  line-height: 1.2;
+}
+
+.te-dark-fonts .font-option .font-preview,
+.te-dark-fonts .font-option span:last-child {
+  font-size: 17px;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* ─── محتوى الحجم ─── */
+.te-dark-size-full {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.te-dark-size-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.te-dark-size-btn-lg {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #2a2a2a;
+  border: none;
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.15s, transform 0.15s;
+  font-family: inherit;
+}
+
+.te-dark-size-btn-lg:active {
+  background: #3a3a3a;
+  transform: scale(0.94);
+}
+
+.te-dark-size-num {
+  flex: 1;
+  height: 42px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  background: #2a2a2a;
+  border: none;
+  border-radius: 12px;
+  font-family: inherit;
+  padding: 0 8px;
+  -moz-appearance: textfield;
+  box-sizing: border-box;
+}
+
+.te-dark-size-num::-webkit-outer-spin-button,
+.te-dark-size-num::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.te-dark-size-num:focus {
+  outline: 2px solid #555;
+}
+
+.te-dark-size-slider {
+  width: 100%;
+  height: 4px;
+  accent-color: #ffffff;
+  cursor: pointer;
+  background: transparent;
+}
+
+/* ─── محتوى اللون ─── */
+.te-dark-colors {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  align-content: flex-start;
+}
+
+.te-dark-color-dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid #2a2a2a;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.te-dark-color-dot:active {
+  transform: scale(0.9);
+}
+
+.te-dark-color-dot.active {
+  border-color: #ffffff;
+  transform: scale(1.15);
+  box-shadow: 0 0 0 2px #1a1a1a, 0 0 0 4px #ffffff;
+}
+
+.te-dark-color-dot[data-te-color="#000000"] {
+  border-color: #444;
+}
+
+.te-dark-color-custom {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px dashed #555;
+  background: conic-gradient(
+    from 0deg,
+    #ff0000, #ffff00, #00ff00, #00ffff,
+    #0000ff, #ff00ff, #ff0000
+  );
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+
+.te-dark-color-custom:active {
+  transform: scale(0.9);
+}
+
+/* ─── محتوى المحاذاة ─── */
+.te-dark-align {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  justify-content: stretch;
+}
+
+.te-dark-align-btn {
+  flex: 1;
+  padding: 12px 10px;
+  border-radius: 12px;
+  border: none;
+  background: #2a2a2a;
+  color: #cccccc;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+.te-dark-align-btn:active {
+  transform: scale(0.96);
+}
+
+.te-dark-align-btn.active {
+  background: #ffffff;
+  color: #111111;
+}
+
+/* ─── محتوى الحركة ─── */
+.te-dark-move {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+}
+
+.te-dark-move-mid {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.te-dark-move-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #2a2a2a;
+  border: none;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, transform 0.15s;
+  font-family: inherit;
+  padding: 0;
+}
+
+.te-dark-move-btn:active {
+  background: #3a3a3a;
+  transform: scale(0.92);
+}
+
+/* ═══════════════════════════════════════════════
+   زر التأكيد (في الأسفل)
+   ═══════════════════════════════════════════════ */
+
+.te-dark-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px 16px 14px;
+  background: #1a1a1a;
+  flex-shrink: 0;
+}
+
+.te-dark-confirm {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: none;
+  color: #111111;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s, background 0.15s;
+  padding: 0;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
+}
+
+.te-dark-confirm svg {
+  width: 22px;
+  height: 22px;
+  stroke-width: 3;
+}
+
+.te-dark-confirm:active {
+  transform: scale(0.92);
+  background: #e8e8e8;
+}
+
+/* ═══════════════════════════════════════════════
+   منتقي الألوان (يُبقي كما هو - موجود سابقاً)
+   ═══════════════════════════════════════════════ */
