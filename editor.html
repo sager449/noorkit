@@ -11,6 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;900&family=Reem+Kufi:wght@400;500;600;700&family=Scheherazade+New:wght@400;700&family=Lateef&family=Aref+Ruqaa:wght@400;700&family=Noto+Naskh+Arabic:wght@400;700&family=Noto+Kufi+Arabic:wght@400;700&family=El+Messiri:wght@400;700&family=Almarai:wght@400;700;800&family=Harmattan:wght@400;700&family=Mirza:wght@400;700&family=Markazi+Text:wght@400;700&family=Vazirmatn:wght@400;700&family=Changa:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;700&family=Noto+Sans+Arabic:wght@400;700&family=Readex+Pro:wght@400;700&family=Qahiri&display=swap" rel="stylesheet" />
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@jaames/iro@5/dist/iro.min.css" />
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/editor.css" />
   </head>
@@ -72,6 +73,7 @@
       <div class="canvas-wrapper" id="canvas-wrapper">
         <div class="canvas-stage" id="canvas-stage">
           <canvas id="main-canvas"></canvas>
+          <div class="text-overlay" id="text-overlay"></div>
         </div>
       </div>
     </main>
@@ -84,13 +86,6 @@
         </svg>
         <span>الآية</span>
       </button>
-      <button class="tool-btn" data-tool="element-editor">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-  </svg>
-  <span>تحرير</span>
-      </button>
 
       <button class="tool-btn" data-tool="image">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -99,23 +94,6 @@
           <polyline points="21 15 16 10 5 21"></polyline>
         </svg>
         <span>صورة</span>
-      </button>
-
-      <button class="tool-btn" data-tool="font">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="4 7 4 4 20 4 20 7"></polyline>
-          <line x1="9" y1="20" x2="15" y2="20"></line>
-          <line x1="12" y1="4" x2="12" y2="20"></line>
-        </svg>
-        <span>الخط</span>
-      </button>
-
-      <button class="tool-btn" data-tool="text-color">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
-          <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
-        </svg>
-        <span>اللون</span>
       </button>
 
       <button class="tool-btn" data-tool="background">
@@ -172,6 +150,7 @@
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
     <script src="js/db.js"></script>
     <script src="js/quran-api.js"></script>
     <script src="js/backgrounds.js"></script>
@@ -180,17 +159,17 @@
     <script src="js/canvas-renderer.js"></script>
     <script src="js/tools/registry.js"></script>
     <script src="js/tools/eraser.js"></script>
-    <script src="js/tools/ayah-decorations.js"></script>
     <script src="js/tools/editor.js"></script>
     <script src="js/tools/font.js"></script>
-<script src="js/tools/color.js"></script>
-<script src="js/tools/background.js"></script>
-<script src="js/tools/frame.js"></script>
-<script src="js/tools/decor.js"></script>
-<script src="js/tools/translation.js"></script>
-<script src="js/tools/image.js"></script>
-<script src="js/tools/ayah.js"></script>
+    <script src="js/tools/color.js"></script>
+    <script src="js/tools/background.js"></script>
+    <script src="js/tools/frame.js"></script>
+    <script src="js/tools/decor.js"></script>
+    <script src="js/tools/translation.js"></script>
+    <script src="js/tools/image.js"></script>
+    <script src="js/tools/ayah.js"></script>
+    <script src="js/tools/text-editor.js"></script>
     <script src="js/editor-panels.js"></script>
     <script src="js/editor.js"></script>
   </body>
-  </html>
+        </html>
