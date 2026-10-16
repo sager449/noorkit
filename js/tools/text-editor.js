@@ -1,6 +1,6 @@
 /* =========================================
-   NoorKit — Tool: Text Editor (v3)
-   محرر نص مبسط — يعتمد على NoorToolbar
+   NoorKit — Tool: Text Editor
+   محتوى الأدوات الأساسية (يُعرض في اللوحة الصغيرة)
    ========================================= */
 
 window.NoorTextEditor = {
@@ -93,7 +93,6 @@ window.NoorTextEditor = {
 
   /* ─────────────────────────────────────
      محتوى الأدوات الأساسية
-     (يُستدعى من NoorToolbar.openMiniSheet)
      ───────────────────────────────────── */
   renderToolContent(toolId) {
     const d = NoorState.design;
@@ -160,7 +159,7 @@ window.NoorTextEditor = {
   },
 
   /* ─────────────────────────────────────
-     ربط أحداث محتوى الأدوات الأساسية
+     ربط أحداث محتوى الأدوات
      ───────────────────────────────────── */
   bindToolContent(toolId) {
     const content = document.getElementById("nk-mini-content");
@@ -261,7 +260,8 @@ window.NoorTextEditor = {
       });
     }
   },
-     /* ─────────────────────────────────────
+
+  /* ─────────────────────────────────────
      منتقي الألوان
      ───────────────────────────────────── */
   openColorPicker() {
