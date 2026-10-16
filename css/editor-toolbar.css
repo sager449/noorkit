@@ -163,3 +163,114 @@
   text-overflow: ellipsis;
   max-width: 100%;
   }
+/* ═══════════════════════════════════════════════
+   اللوحة الصغيرة (Mini Sheet)
+   تظهر فوق الشريطين
+   ═══════════════════════════════════════════════ */
+
+.nk-mini-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9989;
+  background: var(--nk-bg-secondary);
+  border-top: 1px solid var(--nk-border);
+  border-radius: 18px 18px 0 0;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: transform;
+  max-height: 30vh;
+  display: flex;
+  flex-direction: column;
+  direction: rtl;
+  padding-bottom: 130px;
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.5);
+}
+
+.nk-mini-sheet.open {
+  transform: translateY(0);
+}
+
+/* ─── رأس اللوحة ─── */
+.nk-mini-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--nk-border);
+  flex-shrink: 0;
+}
+
+.nk-mini-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--nk-text-primary);
+  flex: 1;
+  text-align: center;
+}
+
+.nk-mini-close {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--nk-bg-btn);
+  border: none;
+  color: var(--nk-text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.nk-mini-close:active {
+  background: var(--nk-bg-btn-hover);
+}
+
+.nk-mini-spacer {
+  width: 28px;
+  height: 28px;
+}
+
+/* ─── محتوى اللوحة ─── */
+.nk-mini-content {
+  padding: 12px 14px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1;
+  scrollbar-width: thin;
+  scrollbar-color: #3a3a3a transparent;
+}
+
+.nk-mini-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.nk-mini-content::-webkit-scrollbar-thumb {
+  background: #3a3a3a;
+  border-radius: 2px;
+}
+
+/* ═══════════════════════════════════════════════
+   رفع الـ canvas عند ظهور الأشرطة
+   ═══════════════════════════════════════════════ */
+
+.editor-main {
+  transition: padding-bottom 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  padding-bottom: 220px !important;
+}
+
+/* ═══════════════════════════════════════════════
+   إخفاء الشريط القديم
+   ═══════════════════════════════════════════════ */
+
+.editor-toolbar {
+  display: none !important;
+}
+
+.tool-panel {
+  display: none !important;
+}
