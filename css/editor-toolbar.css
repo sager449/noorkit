@@ -1,15 +1,11 @@
 /* ═══════════════════════════════════════════════
-   NoorKit — Editor Toolbar (Final v2)
-   سريع — بلا حواف دائرية — بلا ظلال
-   اللوحة الصغيرة تظهر فوق الأشرطة (تحل محل الورقة)
+   NoorKit — Editor Toolbar (Final v6)
    ═══════════════════════════════════════════════ */
 
 :root {
   --nk-bg-primary:   #0d0d0d;
   --nk-bg-secondary: #141414;
-  --nk-bg-card:      #1a1a1a;
   --nk-bg-btn:       #2a2a2a;
-  --nk-bg-btn-hover: #3a3a3a;
   --nk-border:       #2a2a2a;
   --nk-text-primary: #ffffff;
   --nk-text-secondary: #b0b0b0;
@@ -17,7 +13,6 @@
   --nk-accent:       #ffffff;
 }
 
-/* ═══ الحاوية الرئيسية — ثابتة دائماً في الأسفل ═══ */
 .nk-toolbars {
   position: fixed;
   left: 0;
@@ -30,7 +25,6 @@
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* ═══ الشريط العلوي (يرتفع عند الرفع) ═══ */
 .nk-toolbar-secondary {
   display: none;
   align-items: center;
@@ -47,19 +41,13 @@
   will-change: transform;
 }
 
-.nk-toolbar-secondary::-webkit-scrollbar {
-  display: none;
-}
-
-.nk-toolbar-secondary.active {
-  display: flex;
-}
+.nk-toolbar-secondary::-webkit-scrollbar { display: none; }
+.nk-toolbar-secondary.active { display: flex; }
 
 .nk-toolbars.lifted .nk-toolbar-secondary {
   transform: translateY(-50px);
 }
 
-/* ═══ الشريط السفلي (ثابت — لا يتحرك) ═══ */
 .nk-toolbar-primary {
   display: flex;
   align-items: center;
@@ -74,11 +62,8 @@
   order: 2;
 }
 
-.nk-toolbar-primary::-webkit-scrollbar {
-  display: none;
-}
+.nk-toolbar-primary::-webkit-scrollbar { display: none; }
 
-/* ═══ شريط الرفع (الأسفل تماماً) ═══ */
 .nk-lift-bar {
   display: flex;
   align-items: center;
@@ -91,9 +76,7 @@
   order: 3;
 }
 
-.nk-lift-bar:active {
-  background: var(--nk-bg-btn);
-}
+.nk-lift-bar:active { background: var(--nk-bg-btn); }
 
 .nk-lift-handle {
   width: 48px;
@@ -107,7 +90,6 @@
   background: var(--nk-accent);
 }
 
-/* ═══ الزر الواحد ═══ */
 .nk-tool-btn {
   flex: 0 0 auto;
   display: flex;
@@ -154,22 +136,18 @@
   max-width: 100%;
 }
 
-/* ═══════════════════════════════════════════════
-   اللوحة الصغيرة — تغطي الورقة من الأعلى حتى الأشرطة
-   ═══════════════════════════════════════════════ */
+/* ═══ اللوحة الصغيرة — تحل محل الورقة من الأسفل ═══ */
 
 .nk-mini-sheet {
   position: fixed;
   left: 0;
   right: 0;
-  top: 0;
-  bottom: auto;
   z-index: 9989;
   background: var(--nk-bg-secondary);
-  border-bottom: 1px solid var(--nk-border);
+  border-top: 1px solid var(--nk-border);
   border-radius: 0;
   box-shadow: none;
-  transform: translateY(-100%);
+  transform: translateY(20px);
   opacity: 0;
   pointer-events: none;
   transition: transform 0.15s ease-out, opacity 0.15s ease-out;
@@ -178,6 +156,7 @@
   flex-direction: column;
   direction: rtl;
   overflow: hidden;
+  max-height: 45vh;
 }
 
 .nk-mini-sheet.open {
@@ -186,18 +165,17 @@
   pointer-events: auto;
 }
 
-/* ─── رأس اللوحة ─── */
 .nk-mini-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 14px;
+  padding: 6px 14px;
   border-bottom: 1px solid var(--nk-border);
   flex-shrink: 0;
 }
 
 .nk-mini-title {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--nk-text-primary);
   flex: 1;
@@ -205,13 +183,12 @@
 }
 
 .nk-mini-close {
-  width: 28px;
-  height: 28px;
-  border-radius: 0;
+  width: 26px;
+  height: 26px;
   background: transparent;
   border: none;
   color: var(--nk-text-secondary);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   cursor: pointer;
   display: flex;
@@ -220,44 +197,33 @@
   padding: 0;
 }
 
-.nk-mini-close:active {
-  color: var(--nk-text-primary);
-}
+.nk-mini-close:active { color: var(--nk-text-primary); }
 
-.nk-mini-spacer {
-  width: 28px;
-  height: 28px;
-}
+.nk-mini-spacer { width: 26px; height: 26px; }
 
-/* ─── محتوى اللوحة ─── */
 .nk-mini-content {
-  padding: 12px 14px 20px;
+  padding: 10px 12px;
   overflow-y: auto;
   overflow-x: hidden;
-  flex: 1;
   scrollbar-width: thin;
   scrollbar-color: #3a3a3a transparent;
+  flex: 1;
 }
 
-.nk-mini-content::-webkit-scrollbar {
-  width: 4px;
-}
-
+.nk-mini-content::-webkit-scrollbar { width: 4px; }
 .nk-mini-content::-webkit-scrollbar-thumb {
   background: #3a3a3a;
   border-radius: 2px;
 }
 
-/* ═══ إخفاء الشريط القديم ═══ */
-.editor-toolbar {
-  display: none !important;
-}
+.editor-toolbar { display: none !important; }
+.tool-panel { display: none !important; }
 
-.tool-panel {
-  display: none !important;
-}
-
-/* ═══ مساحة للـ canvas (فوق الأشرطة) ═══ */
 .editor-main {
   padding-bottom: 200px !important;
+  transition: padding-bottom 0.15s ease-out;
 }
+
+.editor-main.mini-open {
+  padding-bottom: 500px !important;
+   }
