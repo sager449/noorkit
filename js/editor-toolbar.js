@@ -1,6 +1,5 @@
 /* =========================================
-   NoorKit — Editor Toolbar System (Final v2)
-   اللوحة الصغيرة تظهر فوق الأشرطة
+   NoorKit — Editor Toolbar System (v6)
    ========================================= */
 
 window.NoorToolbar = {
@@ -22,6 +21,7 @@ window.NoorToolbar = {
 
   SECONDARY_TOOLS: {
     ayah: [
+      { id: "quran",       label: "القرآن", svg: `<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>` },
       { id: "font",        label: "خط",     svg: `<polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line>` },
       { id: "size",        label: "حجم",    svg: `<path d="M21 3H3v18h18V3z"></path><path d="M9 9h6v6H9z"></path>` },
       { id: "color",       label: "لون",    svg: `<circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"></path>` },
@@ -35,21 +35,22 @@ window.NoorToolbar = {
       { id: "highlight",   label: "خلفية",  svg: `<rect x="3" y="6" width="18" height="12" rx="2"></rect>` },
       { id: "line-height", label: "تباعد",  svg: `<line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line>` },
       { id: "presets",     label: "جاهزة",  svg: `<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>` },
+      { id: "basmala",     label: "بسملة",  svg: `<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>` },
+      { id: "istiadha",    label: "استعاذة", svg: `<path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path>` },
+      { id: "ayahnum",     label: "رقم الآية", svg: `<circle cx="12" cy="12" r="9"></circle><text x="12" y="16" text-anchor="middle" font-size="10" fill="currentColor" stroke="none">١</text>` },
     ],
   },
 
-  /* ─────────────────────────────────────
-     التهيئة
-     ───────────────────────────────────── */
   init() {
     this.build();
     this.bindLift();
-    this.adjustMiniSheetOnResize();
+    window.addEventListener("resize", () => {
+      if (this.miniSheetEl?.classList.contains("open")) {
+        this.positionMiniSheet();
+      }
+    });
   },
 
-  /* ─────────────────────────────────────
-     البناء
-     ───────────────────────────────────── */
   build() {
     if (document.getElementById("nk-toolbars")) return;
 
@@ -70,9 +71,6 @@ window.NoorToolbar = {
     this.renderPrimary();
   },
 
-  /* ─────────────────────────────────────
-     عرض الشريط السفلي
-     ───────────────────────────────────── */
   renderPrimary() {
     const bar = document.getElementById("nk-toolbar-primary");
     if (!bar) return;
@@ -91,9 +89,6 @@ window.NoorToolbar = {
     });
   },
 
-  /* ─────────────────────────────────────
-     اختيار أداة رئيسية
-     ───────────────────────────────────── */
   selectPrimary(id) {
     const bar = document.getElementById("nk-toolbar-primary");
     if (!bar) return;
@@ -125,9 +120,6 @@ window.NoorToolbar = {
     this.closeMiniSheet();
   },
 
-  /* ─────────────────────────────────────
-     عرض الشريط العلوي
-     ───────────────────────────────────── */
   renderSecondary(primaryId) {
     const bar = document.getElementById("nk-toolbar-secondary");
     if (!bar) return;
@@ -161,9 +153,6 @@ window.NoorToolbar = {
     }
   },
 
-  /* ─────────────────────────────────────
-     اختيار أداة فرعية
-     ───────────────────────────────────── */
   selectSecondary(id) {
     const bar = document.getElementById("nk-toolbar-secondary");
     if (!bar) return;
@@ -184,9 +173,6 @@ window.NoorToolbar = {
     this.openMiniSheet(id);
   },
 
-  /* ─────────────────────────────────────
-     بناء اللوحة الصغيرة
-     ───────────────────────────────────── */
   buildMiniSheet() {
     if (document.getElementById("nk-mini-sheet")) return;
 
@@ -216,9 +202,6 @@ window.NoorToolbar = {
     });
   },
 
-  /* ─────────────────────────────────────
-     فتح اللوحة الصغيرة — مع حساب مكانها
-     ───────────────────────────────────── */
   openMiniSheet(toolId) {
     if (!this.miniSheetEl) this.buildMiniSheet();
     if (!this.miniSheetEl) return;
@@ -227,18 +210,15 @@ window.NoorToolbar = {
     const title = document.getElementById("nk-mini-title");
     if (!content) return;
 
-    /* حساب ارتفاع الأشرطة */
-    this.adjustMiniSheetHeight();
-
-    /* العنوان */
     const allTools = Object.values(this.SECONDARY_TOOLS).flat();
     const toolDef = allTools.find((t) => t.id === toolId);
     if (title && toolDef) title.textContent = toolDef.label;
 
-    /* المحتوى */
     let html = "";
 
-    if (typeof NoorTextStyles !== "undefined" && NoorTextStyles.get(toolId)) {
+    if (toolId === "quran" && typeof NoorQuranPanel !== "undefined") {
+      html = NoorQuranPanel.render();
+    } else if (typeof NoorTextStyles !== "undefined" && NoorTextStyles.get(toolId)) {
       html = NoorTextStyles.renderContent(toolId);
     } else if (typeof NoorTextEditor !== "undefined") {
       html = NoorTextEditor.renderToolContent(toolId);
@@ -246,48 +226,39 @@ window.NoorToolbar = {
 
     content.innerHTML = html;
 
-    /* الربط */
-    if (typeof NoorTextStyles !== "undefined" && NoorTextStyles.get(toolId)) {
+    if (toolId === "quran" && typeof NoorQuranPanel !== "undefined") {
+      NoorQuranPanel.bind();
+    } else if (typeof NoorTextStyles !== "undefined" && NoorTextStyles.get(toolId)) {
       NoorTextStyles.bindContent(toolId);
     } else if (typeof NoorTextEditor !== "undefined") {
       NoorTextEditor.bindToolContent(toolId);
     }
 
-    /* فتح */
+    this.positionMiniSheet();
+
+    const editorMain = document.querySelector(".editor-main");
+    if (editorMain) editorMain.classList.add("mini-open");
+
     this.miniSheetEl.classList.add("open");
     this.miniSheetEl.setAttribute("aria-hidden", "false");
   },
 
-  /* ─────────────────────────────────────
-     ضبط ارتفاع اللوحة = ارتفاع الأشرطة من الأعلى
-     ───────────────────────────────────── */
-  adjustMiniSheetHeight() {
+  positionMiniSheet() {
     if (!this.miniSheetEl || !this.containerEl) return;
     const rect = this.containerEl.getBoundingClientRect();
-    const topOfBars = rect.top;
-    this.miniSheetEl.style.height = topOfBars + "px";
+    const barsHeight = window.innerHeight - rect.top;
+    this.miniSheetEl.style.bottom = barsHeight + "px";
   },
 
-  adjustMiniSheetOnResize() {
-    window.addEventListener("resize", () => {
-      if (this.miniSheetEl?.classList.contains("open")) {
-        this.adjustMiniSheetHeight();
-      }
-    });
-  },
-
-  /* ─────────────────────────────────────
-     إغلاق اللوحة الصغيرة
-     ───────────────────────────────────── */
   closeMiniSheet() {
     if (!this.miniSheetEl) return;
     this.miniSheetEl.classList.remove("open");
     this.miniSheetEl.setAttribute("aria-hidden", "true");
+
+    const editorMain = document.querySelector(".editor-main");
+    if (editorMain) editorMain.classList.remove("mini-open");
   },
 
-  /* ─────────────────────────────────────
-     شريط الرفع
-     ───────────────────────────────────── */
   bindLift() {
     document.getElementById("nk-lift-bar")?.addEventListener("click", () => {
       this.lifted = !this.lifted;
@@ -296,9 +267,6 @@ window.NoorToolbar = {
   },
 };
 
-/* ─────────────────────────────────────
-   تشغيل تلقائي
-   ───────────────────────────────────── */
 document.addEventListener("DOMContentLoaded", () => {
   if (typeof NoorToolbar !== "undefined") {
     NoorToolbar.init();
