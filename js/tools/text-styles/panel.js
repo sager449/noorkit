@@ -4,12 +4,13 @@
    ========================================= */
 
 window.NoorTextStylesPanel = {
-  /* للتوافق مع الكود القديم فقط */
+  isOpen: false,
+
   open() {
     console.warn("NoorTextStylesPanel deprecated — استخدم NoorToolbar");
   },
+
   close() {
     /* لا شيء */
   },
-  isOpen: false,
 };
