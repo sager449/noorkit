@@ -319,3 +319,13 @@
 
 .nk-iro-cancel { background: #2a2a2a; color: #fff; }
 .nk-iro-confirm { background: #ffffff; color: #111; }
+/* ═══════════════════════════════════════════════
+   قاعدة عامة: كل الأزرار بدون حواف
+   ═══════════════════════════════════════════════ */
+
+.nk-mini-content button,
+.nk-mini-content input,
+.nk-mini-content select,
+.nk-mini-content div {
+  border-radius: 0 !important;
+}
