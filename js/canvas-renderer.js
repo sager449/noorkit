@@ -1,6 +1,5 @@
 /* =========================================
    NoorKit — Canvas Renderer (v4)
-   يدعم: ورقة (لون + تدرج + صورة + نقش + إضاءة + ضباب + HDR + فينيت)
    ========================================= */
 
 window.NoorRenderer = {
@@ -40,32 +39,24 @@ window.NoorRenderer = {
     if (!this.ctx || !NoorState.design) return;
     const d = NoorState.design;
     const ctx = this.ctx;
-
     ctx.clearRect(0, 0, d.width, d.height);
-
     await this.drawBackground(d);
     this.drawAyah(d);
     await this.drawImages(d);
     this.drawStickers(d);
-
     if (d.translation.enabled && d.translation.text) {
       this.drawTranslation(d);
     }
-
     this.drawAyahNumber(d);
     this.drawDecorations(d);
     this.drawFrame(d);
     this.drawDecor(d);
   },
 
-  /* ═══════════════════════════════════════════════
-     رسم الورقة — كامل
-     ═══════════════════════════════════════════════ */
   async drawBackground(d) {
     const ctx = this.ctx;
     const bg = d.background;
 
-    /* ═══ 1. اللون/التدرج/الصورة ═══ */
     if (bg.type === "solid") {
       ctx.fillStyle = bg.value || "#f5ede0";
       ctx.fillRect(0, 0, d.width, d.height);
@@ -88,33 +79,23 @@ window.NoorRenderer = {
       }
     }
 
-    /* ═══ 2. النقش ═══ */
     if (bg.pattern && bg.pattern !== "none") {
       this.drawPattern(ctx, d, bg.pattern);
     }
-
-    /* ═══ 3. إضاءة ═══ */
     if (bg.lighting && bg.lighting.enabled) {
       this.drawLighting(ctx, d, bg.lighting);
     }
-
-    /* ═══ 4. ضباب ═══ */
     if (bg.fog && bg.fog.enabled) {
       this.drawFog(ctx, d, bg.fog);
     }
-
-    /* ═══ 5. HDR ═══ */
     if (bg.hdr && bg.hdr.enabled) {
       this.drawHDR(ctx, d, bg.hdr);
     }
-
-    /* ═══ 6. فينيت ═══ */
     if (bg.vignette && bg.vignette.enabled) {
       this.drawVignette(ctx, d, bg.vignette);
     }
   },
 
-  /* ─── نقش ─── */
   drawPattern(ctx, d, patternId) {
     ctx.save();
     const color = "rgba(201,162,39,0.10)";
@@ -188,14 +169,6 @@ window.NoorRenderer = {
           ctx.stroke();
         }
       }
-      const r2 = 120;
-      for (let x = r2 / 2; x < d.width; x += r2) {
-        for (let y = r2 / 2; y < d.height; y += r2) {
-          ctx.beginPath();
-          ctx.arc(x, y, 6, 0, Math.PI * 2);
-          ctx.stroke();
-        }
-      }
     } else if (patternId === "waves") {
       ctx.strokeStyle = color;
       ctx.lineWidth = 1;
@@ -209,11 +182,9 @@ window.NoorRenderer = {
         ctx.stroke();
       }
     }
-
     ctx.restore();
   },
 
-  /* ─── إضاءة ─── */
   drawLighting(ctx, d, l) {
     ctx.save();
     const angle = ((l.angle || 135) - 90) * (Math.PI / 180);
@@ -224,19 +195,16 @@ window.NoorRenderer = {
     const y1 = cy - Math.sin(angle) * r;
     const x2 = cx + Math.cos(angle) * r;
     const y2 = cy + Math.sin(angle) * r;
-
     const grad = ctx.createLinearGradient(x1, y1, x2, y2);
     const alpha = (l.intensity || 30) / 100;
     grad.addColorStop(0, `rgba(255,255,255,${alpha})`);
     grad.addColorStop(0.5, `rgba(255,255,255,0)`);
     grad.addColorStop(1, `rgba(0,0,0,${alpha * 0.5})`);
-
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, d.width, d.height);
     ctx.restore();
   },
 
-  /* ─── ضباب ─── */
   drawFog(ctx, d, f) {
     ctx.save();
     const alpha = (f.intensity || 20) / 200;
@@ -245,24 +213,20 @@ window.NoorRenderer = {
     ctx.restore();
   },
 
-  /* ─── HDR ─── */
   drawHDR(ctx, d, h) {
     ctx.save();
     ctx.globalCompositeOperation = "overlay";
     const c = (h.contrast || 0) / 100;
     const s = (h.saturation || 0) / 100;
-
     const grad = ctx.createLinearGradient(0, 0, d.width, d.height);
     grad.addColorStop(0, `rgba(255,255,255,${c * 0.15})`);
     grad.addColorStop(0.5, `rgba(255,200,100,${s * 0.08})`);
     grad.addColorStop(1, `rgba(0,0,0,${c * 0.15})`);
-
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, d.width, d.height);
     ctx.restore();
   },
 
-  /* ─── فينيت ─── */
   drawVignette(ctx, d, v) {
     ctx.save();
     const cx = d.width / 2;
@@ -270,14 +234,9 @@ window.NoorRenderer = {
     const r = Math.max(d.width, d.height) * 0.7;
     const alpha = (v.intensity || 40) / 100;
     const soft = (v.softness || 60) / 100;
-
-    const grad = ctx.createRadialGradient(
-      cx, cy, r * (1 - soft),
-      cx, cy, r
-    );
+    const grad = ctx.createRadialGradient(cx, cy, r * (1 - soft), cx, cy, r);
     grad.addColorStop(0, "rgba(0,0,0,0)");
     grad.addColorStop(1, `rgba(0,0,0,${alpha})`);
-
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, d.width, d.height);
     ctx.restore();
@@ -340,223 +299,212 @@ window.NoorRenderer = {
     const a = (typeof opacity === "number" ? opacity : 100) / 100;
     return `rgba(${r},${g},${b},${a})`;
   },
+   
+drawAyah(d) {
+  const ctx = this.ctx;
+  const font = NoorFonts.get(d.text.fontId);
+  const text = d.ayah.text || "";
+  if (!text) return;
 
-  /* ═══════════════════════════════════════════════
-     رسم الآية
-     ═══════════════════════════════════════════════ */
-  drawAyah(d) {
-    const ctx = this.ctx;
-    const font = NoorFonts.get(d.text.fontId);
-    const text = d.ayah.text || "";
-    if (!text) return;
+  const t = d.text;
+  ctx.save();
 
-    const t = d.text;
+  const padding = Math.round(d.width * 0.1);
+  const maxW = d.width - padding * 2;
+  const cx = d.ayah.x || d.width / 2;
+  const cy = d.ayah.y || d.height / 2;
+
+  const rotation = ((d.ayah.rotation || 0) * Math.PI) / 180;
+  if (rotation !== 0) {
+    ctx.translate(cx, cy);
+    ctx.rotate(rotation);
+    ctx.translate(-cx, -cy);
+  }
+
+  ctx.font = `400 ${t.size}px ${font.family}`;
+  ctx.textAlign = t.align || "center";
+  ctx.textBaseline = "middle";
+  ctx.direction = "rtl";
+
+  if (typeof t.opacity === "number" && t.opacity < 100) {
+    ctx.globalAlpha = Math.max(0, Math.min(1, t.opacity / 100));
+  }
+
+  const lines = this.wrapText(ctx, text, maxW);
+  const lineHeight = t.size * (t.lineHeight || 1.8);
+  const totalH = lines.length * lineHeight;
+  const startY = cy - totalH / 2 + lineHeight / 2;
+
+  let x = cx;
+  if (t.align === "right") x = d.width - padding;
+  if (t.align === "left") x = padding;
+
+  if (t.highlight && t.highlight.enabled) {
+    const hl = t.highlight;
+    const pad = hl.padding || 12;
+    const radius = hl.radius || 8;
+    const fillColor = this.hexToRgba(hl.color || "#c9a227", hl.opacity || 100);
+
     ctx.save();
+    ctx.fillStyle = fillColor;
 
-    const padding = Math.round(d.width * 0.1);
-    const maxW = d.width - padding * 2;
-    const cx = d.ayah.x || d.width / 2;
-    const cy = d.ayah.y || d.height / 2;
+    const lineBounds = lines.map((line) => {
+      const m = ctx.measureText(line);
+      const w = m.width;
+      let lx;
+      if (t.align === "right") lx = x - w;
+      else if (t.align === "left") lx = x;
+      else lx = x - w / 2;
+      return { w, lx };
+    });
 
-    const rotation = ((d.ayah.rotation || 0) * Math.PI) / 180;
-    if (rotation !== 0) {
-      ctx.translate(cx, cy);
-      ctx.rotate(rotation);
-      ctx.translate(-cx, -cy);
-    }
+    const minX = Math.min(...lineBounds.map((b) => b.lx));
+    const maxX = Math.max(...lineBounds.map((b) => b.lx + b.w));
 
-    ctx.font = `400 ${t.size}px ${font.family}`;
-    ctx.textAlign = t.align || "center";
-    ctx.textBaseline = "middle";
-    ctx.direction = "rtl";
+    this.roundRect(
+      ctx,
+      minX - pad,
+      cy - totalH / 2 - pad,
+      maxX - minX + pad * 2,
+      totalH + pad * 2,
+      radius
+    );
+    ctx.fill();
+    ctx.restore();
+  }
 
-    if (typeof t.opacity === "number" && t.opacity < 100) {
-      ctx.globalAlpha = Math.max(0, Math.min(1, t.opacity / 100));
-    }
-
-    const lines = this.wrapText(ctx, text, maxW);
-    const lineHeight = t.size * (t.lineHeight || 1.8);
-    const totalH = lines.length * lineHeight;
-    const startY = cy - totalH / 2 + lineHeight / 2;
-
-    let x = cx;
-    if (t.align === "right") x = d.width - padding;
-    if (t.align === "left") x = padding;
-
-    /* Highlight */
-    if (t.highlight && t.highlight.enabled) {
-      const hl = t.highlight;
-      const pad = hl.padding || 12;
-      const radius = hl.radius || 8;
-      const fillColor = this.hexToRgba(hl.color || "#c9a227", hl.opacity || 100);
-
-      ctx.save();
-      ctx.fillStyle = fillColor;
-
-      const lineBounds = lines.map((line) => {
-        const m = ctx.measureText(line);
-        const w = m.width;
-        let lx;
-        if (t.align === "right") lx = x - w;
-        else if (t.align === "left") lx = x;
-        else lx = x - w / 2;
-        return { w, lx };
-      });
-
-      const minX = Math.min(...lineBounds.map((b) => b.lx));
-      const maxX = Math.max(...lineBounds.map((b) => b.lx + b.w));
-
-      this.roundRect(
-        ctx,
-        minX - pad,
-        cy - totalH / 2 - pad,
-        maxX - minX + pad * 2,
-        totalH + pad * 2,
-        radius
-      );
-      ctx.fill();
-      ctx.restore();
-    }
-
-    /* Glow */
-    if (t.glow && t.glow.enabled) {
-      ctx.save();
-      ctx.shadowColor = t.glow.color || "#c9a227";
-      ctx.shadowBlur = t.glow.intensity || 15;
-      ctx.shadowOffsetX = 0;
-      ctx.shadowOffsetY = 0;
-      ctx.fillStyle = t.color || "#1a1a1a";
-      lines.forEach((line, i) => {
-        ctx.fillText(line, x, startY + i * lineHeight);
-      });
-      ctx.restore();
-    }
-
-    /* Shadow */
-    if (t.shadow && t.shadow.enabled) {
-      ctx.save();
-      ctx.shadowColor = this.hexToRgba(
-        t.shadow.color || "#000000",
-        t.shadow.opacity || 100
-      );
-      ctx.shadowBlur = t.shadow.blur || 8;
-      ctx.shadowOffsetX = t.shadow.x || 0;
-      ctx.shadowOffsetY = t.shadow.y || 4;
-    }
-
-    /* Fill */
-    let fillStyle = t.color || "#1a1a1a";
-
-    if (t.gradient && t.gradient.enabled) {
-      const g = t.gradient;
-      const angle = ((g.angle || 90) - 90) * (Math.PI / 180);
-      const r = Math.max(d.width, d.height) / 2;
-      const x1 = cx - Math.cos(angle) * r;
-      const y1 = cy - Math.sin(angle) * r;
-      const x2 = cx + Math.cos(angle) * r;
-      const y2 = cy + Math.sin(angle) * r;
-
-      const grad = ctx.createLinearGradient(x1, y1, x2, y2);
-      grad.addColorStop(0, g.color1 || "#c9a227");
-      grad.addColorStop(1, g.color2 || "#ffffff");
-      fillStyle = grad;
-    }
-
-    ctx.fillStyle = fillStyle;
+  if (t.glow && t.glow.enabled) {
+    ctx.save();
+    ctx.shadowColor = t.glow.color || "#c9a227";
+    ctx.shadowBlur = t.glow.intensity || 15;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+    ctx.fillStyle = t.color || "#1a1a1a";
     lines.forEach((line, i) => {
       ctx.fillText(line, x, startY + i * lineHeight);
     });
-
-    if (t.shadow && t.shadow.enabled) {
-      ctx.restore();
-    }
-
-    /* Outline */
-    if (t.outline && t.outline.enabled) {
-      ctx.save();
-      ctx.strokeStyle = t.outline.color || "#ffffff";
-      ctx.lineWidth = t.outline.width || 2;
-      ctx.lineJoin = "round";
-      ctx.miterLimit = 2;
-
-      lines.forEach((line, i) => {
-        ctx.strokeText(line, x, startY + i * lineHeight);
-      });
-      ctx.restore();
-    }
-
     ctx.restore();
-  },
+  }
 
-  roundRect(ctx, x, y, w, h, r) {
-    if (r <= 0) {
-      ctx.beginPath();
-      ctx.rect(x, y, w, h);
+  if (t.shadow && t.shadow.enabled) {
+    ctx.save();
+    ctx.shadowColor = this.hexToRgba(
+      t.shadow.color || "#000000",
+      t.shadow.opacity || 100
+    );
+    ctx.shadowBlur = t.shadow.blur || 8;
+    ctx.shadowOffsetX = t.shadow.x || 0;
+    ctx.shadowOffsetY = t.shadow.y || 4;
+  }
+
+  let fillStyle = t.color || "#1a1a1a";
+
+  if (t.gradient && t.gradient.enabled) {
+    const g = t.gradient;
+    const angle = ((g.angle || 90) - 90) * (Math.PI / 180);
+    const r = Math.max(d.width, d.height) / 2;
+    const x1 = cx - Math.cos(angle) * r;
+    const y1 = cy - Math.sin(angle) * r;
+    const x2 = cx + Math.cos(angle) * r;
+    const y2 = cy + Math.sin(angle) * r;
+    const grad = ctx.createLinearGradient(x1, y1, x2, y2);
+    grad.addColorStop(0, g.color1 || "#c9a227");
+    grad.addColorStop(1, g.color2 || "#ffffff");
+    fillStyle = grad;
+  }
+
+  ctx.fillStyle = fillStyle;
+  lines.forEach((line, i) => {
+    ctx.fillText(line, x, startY + i * lineHeight);
+  });
+
+  if (t.shadow && t.shadow.enabled) {
+    ctx.restore();
+  }
+
+  if (t.outline && t.outline.enabled) {
+    ctx.save();
+    ctx.strokeStyle = t.outline.color || "#ffffff";
+    ctx.lineWidth = t.outline.width || 2;
+    ctx.lineJoin = "round";
+    ctx.miterLimit = 2;
+    lines.forEach((line, i) => {
+      ctx.strokeText(line, x, startY + i * lineHeight);
+    });
+    ctx.restore();
+  }
+
+  ctx.restore();
+},
+
+roundRect(ctx, x, y, w, h, r) {
+  if (r <= 0) {
+    ctx.beginPath();
+    ctx.rect(x, y, w, h);
+    return;
+  }
+  const radius = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + w - radius, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+  ctx.lineTo(x + w, y + h - radius);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+  ctx.lineTo(x + radius, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
+},
+
+wrapText(ctx, text, maxWidth) {
+  const paragraphs = text.split("\n");
+  const lines = [];
+
+  paragraphs.forEach((para) => {
+    if (!para.trim()) {
+      lines.push("");
       return;
     }
-    const radius = Math.min(r, w / 2, h / 2);
-    ctx.beginPath();
-    ctx.moveTo(x + radius, y);
-    ctx.lineTo(x + w - radius, y);
-    ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
-    ctx.lineTo(x + w, y + h - radius);
-    ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
-    ctx.lineTo(x + radius, y + h);
-    ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
-    ctx.lineTo(x, y + radius);
-    ctx.quadraticCurveTo(x, y, x + radius, y);
-    ctx.closePath();
-  },
+    const words = para.split(/\s+/);
+    let current = "";
 
-  wrapText(ctx, text, maxWidth) {
-    const paragraphs = text.split("\n");
-    const lines = [];
-
-    paragraphs.forEach((para) => {
-      if (!para.trim()) {
-        lines.push("");
-        return;
+    words.forEach((word) => {
+      const test = current ? current + " " + word : word;
+      if (ctx.measureText(test).width > maxWidth && current) {
+        lines.push(current);
+        current = word;
+      } else {
+        current = test;
       }
-      const words = para.split(/\s+/);
-      let current = "";
-
-      words.forEach((word) => {
-        const test = current ? current + " " + word : word;
-        if (ctx.measureText(test).width > maxWidth && current) {
-          lines.push(current);
-          current = word;
-        } else {
-          current = test;
-        }
-      });
-
-      if (current) lines.push(current);
     });
 
-    return lines;
-  },
+    if (current) lines.push(current);
+  });
 
-  async drawImages(d) {
-    if (!d.images || d.images.length === 0) return;
-    const ctx = this.ctx;
+  return lines;
+},
 
-    for (const item of d.images) {
-      const img = await this.loadImage(item.src);
-      if (!img) continue;
+async drawImages(d) {
+  if (!d.images || d.images.length === 0) return;
+  const ctx = this.ctx;
 
-      ctx.save();
-      const cx = item.x + item.width / 2;
-      const cy = item.y + item.height / 2;
-      if (item.rotation) {
-        ctx.translate(cx, cy);
-        ctx.rotate((item.rotation * Math.PI) / 180);
-        ctx.translate(-cx, -cy);
-      }
-      ctx.drawImage(img, item.x, item.y, item.width, item.height);
-      ctx.restore();
+  for (const item of d.images) {
+    const img = await this.loadImage(item.src);
+    if (!img) continue;
+    ctx.save();
+    const cx = item.x + item.width / 2;
+    const cy = item.y + item.height / 2;
+    if (item.rotation) {
+      ctx.translate(cx, cy);
+      ctx.rotate((item.rotation * Math.PI) / 180);
+      ctx.translate(-cx, -cy);
     }
-  },
-
+    ctx.drawImage(img, item.x, item.y, item.width, item.height);
+    ctx.restore();
+  }
+},
+   
   drawStickers(d) {
     if (!d.stickers || d.stickers.length === 0) return;
     const ctx = this.ctx;
@@ -696,174 +644,15 @@ window.NoorRenderer = {
       ctx.lineWidth = thick + 1;
       ctx.strokeRect(pad, pad, d.width - pad * 2, d.height - pad * 2);
       const cs = 30;
-      [
-        [pad,async drawImages(d) {
-  if (!d.images || d.images.length === 0) return;
-  const ctx = this.ctx;
-
-  for (const item of d.images) {
-    const img = await this.loadImage(item.src);
-    if (!img) continue;
-
-    ctx.save();
-    const cx = item.x + item.width / 2;
-    const cy = item.y + item.height / 2;
-    if (item.rotation) {
-      ctx.translate(cx, cy);
-      ctx.rotate((item.rotation * Math.PI) / 180);
-      ctx.translate(-cx, -cy);
-    }
-    ctx.drawImage(img, item.x, item.y, item.width, item.height);
-    ctx.restore();
-  }
-},
-     drawStickers(d) {
-    if (!d.stickers || d.stickers.length === 0) return;
-    const ctx = this.ctx;
-    ctx.save();
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-
-    for (const stk of d.stickers) {
-      ctx.save();
-      if (stk.rotation) {
-        ctx.translate(stk.x, stk.y);
-        ctx.rotate((stk.rotation * Math.PI) / 180);
-        ctx.translate(-stk.x, -stk.y);
-      }
-      ctx.font = `700 ${stk.size}px 'Amiri', serif`;
-      ctx.fillStyle = stk.color || "#7c3aed";
-      ctx.fillText(stk.text, stk.x, stk.y);
-      ctx.restore();
-    }
-    ctx.restore();
-  },
-
-  drawAyahNumber(d) {
-    if (!d.ayah.decorNumber) return;
-    const ctx = this.ctx;
-    const size = 40;
-    const margin = 20;
-    const x = d.width - margin - size - 10;
-    const y = d.height - margin - size - 10;
-
-    ctx.save();
-    ctx.fillStyle = "#c9a227";
-    ctx.beginPath();
-    ctx.arc(x, y, size, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.strokeStyle = "#ffffff";
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(x, y, size - 4, 0, Math.PI * 2);
-    ctx.stroke();
-
-    ctx.fillStyle = "#ffffff";
-    ctx.font = `700 ${size}px 'Cairo', sans-serif`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.direction = "rtl";
-    ctx.fillText(d.ayah.ayahNumber || "١", x, y);
-    ctx.restore();
-  },
-
-  drawDecorations(d) {
-    if (!d.decorations || d.decorations.length === 0) return;
-    const ctx = this.ctx;
-
-    for (const deco of d.decorations) {
-      const def =
-        typeof NoorDecorations !== "undefined"
-          ? NoorDecorations.get(deco.id)
-          : null;
-      if (!def) continue;
-
-      ctx.save();
-      ctx.font = `400 ${deco.size || def.size || 60}px 'Amiri', serif`;
-      ctx.fillStyle = deco.color || def.color || "#c9a227";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.direction = "rtl";
-
-      if (deco.rotation) {
-        ctx.translate(deco.x, deco.y);
-        ctx.rotate((deco.rotation * Math.PI) / 180);
-        ctx.translate(-deco.x, -deco.y);
-      }
-
-      if (def.type === "text" && def.symbol) {
-        ctx.fillText(def.symbol, deco.x, deco.y);
-      }
-      ctx.restore();
-    }
-  },
-
-  drawTranslation(d) {
-    const ctx = this.ctx;
-    const tr = d.translation;
-    if (!tr.text) return;
-
-    ctx.save();
-    const font = NoorFonts.get(tr.fontId);
-    ctx.font = `400 ${tr.size}px ${font.family}`;
-    ctx.fillStyle = tr.color || "#4a4a4a";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "top";
-    ctx.direction = "ltr";
-
-    const padding = Math.round(d.width * 0.1);
-    const maxW = d.width - padding * 2;
-    const lines = this.wrapText(ctx, tr.text, maxW);
-    const lineHeight = tr.size * 1.5;
-
-    const ayahFont = NoorFonts.get(d.text.fontId);
-    ctx.font = `400 ${d.text.size}px ${ayahFont.family}`;
-    const ayahLines = this.wrapText(ctx, d.ayah.text, maxW);
-    const ayahHeight =
-      ayahLines.length * d.text.size * (d.text.lineHeight || 1.8);
-    const ayahBottom = d.height / 2 + ayahHeight / 2;
-    const startY = ayahBottom + 40;
-
-    ctx.font = `400 ${tr.size}px ${font.family}`;
-    lines.forEach((line, i) => {
-      ctx.fillText(line, d.width / 2, startY + i * lineHeight);
-    });
-    ctx.restore();
-  },
-
-  drawFrame(d) {
-    if (d.frame.type === "none") return;
-    const ctx = this.ctx;
-    const pad = Math.round(d.width * 0.05);
-    const thick = d.frame.thickness;
-
-    ctx.save();
-    ctx.strokeStyle = d.frame.color;
-    ctx.lineWidth = thick;
-
-    if (d.frame.type === "simple") {
-      ctx.strokeRect(pad, pad, d.width - pad * 2, d.height - pad * 2);
-    } else if (d.frame.type === "double") {
-      ctx.strokeRect(pad, pad, d.width - pad * 2, d.height - pad * 2);
-      ctx.strokeRect(
-        pad + 12,
-        pad + 12,
-        d.width - (pad + 12) * 2,
-        d.height - (pad + 12) * 2
-      );
-    } else if (d.frame.type === "ornate") {
-      ctx.lineWidth = thick + 1;
-      ctx.strokeRect(pad, pad, d.width - pad * 2, d.height - pad * 2);
-      const cs = 30;
-      [
+      const corners = [
         [pad, pad],
         [d.width - pad, pad],
         [pad, d.height - pad],
         [d.width - pad, d.height - pad],
-      ].forEach(([cx, cy]) => {
+      ];
+      corners.forEach((c) => {
         ctx.beginPath();
-        ctx.arc(cx, cy, cs / 2, 0, Math.PI * 2);
+        ctx.arc(c[0], c[1], cs / 2, 0, Math.PI * 2);
         ctx.stroke();
       });
     }
