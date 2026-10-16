@@ -1,17 +1,15 @@
 /* =========================================
-   NoorKit — Tool: Text Editor (v6)
-   لوحة الحركة الجديدة (أسهم + تدوير)
+   NoorKit — Tool: Text Editor (v7)
+   لوحة حركة مصححة + منتقي لون موحد
    ========================================= */
 
 window.NoorTextEditor = {
   active: false,
-  colorPicker: null,
-  tempColor: "#1a1a1a",
 
   COLORS: [
-    "#000000", "#ffffff", "#c9a227", "#0d8b5f",
-    "#1e40af", "#b91c1c", "#7c3aed", "#f59e0b",
-    "#be185d", "#0891b2",
+    "#000000", "#ffffff", "#c9a227", "#7c3aed",
+    "#1e40af", "#b91c1c", "#0d8b5f", "#f59e0b",
+    "#78350f", "#be185d", "#0891b2", "#78716c",
   ],
 
   init() {
@@ -38,7 +36,7 @@ window.NoorTextEditor = {
 
     const padding = Math.round(d.width * 0.1);
     const maxW = d.width - padding * 2;
-    const cy = d.height / 2;
+    const cy = d.ayah.y || d.height / 2;
 
     const canvas = document.getElementById("main-canvas");
     const ctx = canvas.getContext("2d");
@@ -111,7 +109,13 @@ window.NoorTextEditor = {
           `<button class="nk-color-dot ${d.text.color === c ? "active" : ""}" data-te-color="${c}" style="background:${c};"></button>`
       ).join("");
       return `
-        <div class="nk-color-scroll">${swatches}</div>
+        <div class="nk-row">
+          <span class="nk-row-label">اللون</span>
+        </div>
+        <div class="nk-color-row">
+          <button class="nk-color-picker-btn" data-te-color-picker></button>
+          <div class="nk-color-scroll">${swatches}</div>
+        </div>
       `;
     }
 
@@ -126,26 +130,31 @@ window.NoorTextEditor = {
       `;
     }
 
-    /* ═══ الحركة (جديد: أسهم جانبية + تدوير) ═══ */
+    /* ═══ الحركة (مصححة) ═══ */
     if (toolId === "move") {
       const rotation = d.ayah.rotation || 0;
       return `
-        <div class="te-move-layout">
+        <div class="te-move-grid">
 
-          <!-- أسهم الحركة (يمين) -->
-          <div class="te-move-arrows">
-            <button class="te-arrow-btn" data-te-move="up">↑</button>
-            <div class="te-arrow-mid">
+          <!-- الأسهم -->
+          <div class="te-move-col">
+            <div class="te-move-label">الحركة</div>
+            <div class="te-arrows-grid">
+              <div></div>
+              <button class="te-arrow-btn" data-te-move="up">↑</button>
+              <div></div>
               <button class="te-arrow-btn" data-te-move="left">←</button>
-              <button class="te-arrow-btn center" data-te-move="center">⊙</button>
+              <button class="te-arrow-btn" data-te-move="center">⊙</button>
               <button class="te-arrow-btn" data-te-move="right">→</button>
+              <div></div>
+              <button class="te-arrow-btn" data-te-move="down">↓</button>
+              <div></div>
             </div>
-            <button class="te-arrow-btn" data-te-move="down">↓</button>
           </div>
 
-          <!-- أدوات التدوير (يسار) -->
-          <div class="te-rotate-panel">
-            <div class="te-rotate-label">التدوير</div>
+          <!-- التدوير -->
+          <div class="te-move-col">
+            <div class="te-move-label">التدوير</div>
             <div class="te-rotate-row">
               <button class="te-rotate-btn" data-te-rotate="-15">−</button>
               <input type="number" class="te-rotate-num" id="te-rotate-num" value="${rotation}" min="-360" max="360" />
@@ -210,13 +219,24 @@ window.NoorTextEditor = {
 
     /* ═══ اللون ═══ */
     if (toolId === "color") {
+      const setColor = async (color) => {
+        NoorState.design.text.color = color;
+        NoorTextStyles.updateDotActive("te", color);
+        NoorState.pushHistory();
+        await NoorRenderer.render();
+      };
+
       content.querySelectorAll("[data-te-color]").forEach((btn) => {
         btn.addEventListener("click", async () => {
           content.querySelectorAll("[data-te-color]").forEach((b) => b.classList.remove("active"));
           btn.classList.add("active");
-          NoorState.design.text.color = btn.dataset.teColor;
-          NoorState.pushHistory();
-          await NoorRenderer.render();
+          await setColor(btn.dataset.teColor);
+        });
+      });
+
+      content.querySelector("[data-te-color-picker]")?.addEventListener("click", () => {
+        NoorTextStyles.openColorPicker(NoorState.design.text.color, async (c) => {
+          await setColor(c);
         });
       });
     }
@@ -239,7 +259,6 @@ window.NoorTextEditor = {
       const step = 20;
       const d = NoorState.design;
 
-      /* الأسهم */
       content.querySelectorAll("[data-te-move]").forEach((btn) => {
         btn.addEventListener("click", async () => {
           const dir = btn.dataset.teMove;
@@ -256,7 +275,6 @@ window.NoorTextEditor = {
         });
       });
 
-      /* التدوير */
       const rotNum = document.getElementById("te-rotate-num");
 
       const setRotation = async (val) => {
@@ -284,10 +302,6 @@ window.NoorTextEditor = {
         NoorState.pushHistory();
       });
     }
-  },
-
-  openColorPicker() {
-    /* لم يعد مستخدماً — منتقي اللون داخل كل أداة */
   },
 };
 
