@@ -1,6 +1,6 @@
 /* =========================================
-   NoorKit — Tool: Text Editor (v4)
-   محتوى الأدوات الأساسية + البسملة/الاستعاذة/رقم الآية
+   NoorKit — Tool: Text Editor (v6)
+   لوحة الحركة الجديدة (أسهم + تدوير)
    ========================================= */
 
 window.NoorTextEditor = {
@@ -14,9 +14,6 @@ window.NoorTextEditor = {
     "#be185d", "#0891b2",
   ],
 
-  /* ─────────────────────────────────────
-     التهيئة
-     ───────────────────────────────────── */
   init() {
     const canvas = document.getElementById("main-canvas");
     if (!canvas) return;
@@ -35,9 +32,6 @@ window.NoorTextEditor = {
     });
   },
 
-  /* ─────────────────────────────────────
-     اختبار الضغط على النص
-     ───────────────────────────────────── */
   hitTestText(x, y) {
     const d = NoorState.design;
     if (!d.ayah.text) return false;
@@ -63,9 +57,6 @@ window.NoorTextEditor = {
     );
   },
 
-  /* ─────────────────────────────────────
-     فتح
-     ───────────────────────────────────── */
   open() {
     this.active = true;
     if (typeof NoorToolbar !== "undefined") {
@@ -73,9 +64,6 @@ window.NoorTextEditor = {
     }
   },
 
-  /* ─────────────────────────────────────
-     إغلاق
-     ───────────────────────────────────── */
   close() {
     this.active = false;
     if (typeof NoorToolbar !== "undefined") {
@@ -90,9 +78,6 @@ window.NoorTextEditor = {
     }
   },
 
-  /* ─────────────────────────────────────
-     محتوى الأدوات
-     ───────────────────────────────────── */
   renderToolContent(toolId) {
     const d = NoorState.design;
 
@@ -123,13 +108,10 @@ window.NoorTextEditor = {
     if (toolId === "color") {
       const swatches = this.COLORS.map(
         (c) =>
-          `<button class="te-color-dot ${d.text.color === c ? "active" : ""}" data-te-color="${c}" style="background:${c};"></button>`
+          `<button class="nk-color-dot ${d.text.color === c ? "active" : ""}" data-te-color="${c}" style="background:${c};"></button>`
       ).join("");
       return `
-        <div class="te-colors">
-          ${swatches}
-          <button class="te-color-custom" id="te-color-custom" title="لون مخصص"></button>
-        </div>
+        <div class="nk-color-scroll">${swatches}</div>
       `;
     }
 
@@ -144,53 +126,34 @@ window.NoorTextEditor = {
       `;
     }
 
-    /* ═══ الحركة ═══ */
+    /* ═══ الحركة (جديد: أسهم جانبية + تدوير) ═══ */
     if (toolId === "move") {
+      const rotation = d.ayah.rotation || 0;
       return `
-        <div class="te-move">
-          <button class="te-move-btn" data-te-move="up">↑</button>
-          <div class="te-move-mid">
-            <button class="te-move-btn" data-te-move="left">←</button>
-            <button class="te-move-btn" data-te-move="center">⊙</button>
-            <button class="te-move-btn" data-te-move="right">→</button>
+        <div class="te-move-layout">
+
+          <!-- أسهم الحركة (يمين) -->
+          <div class="te-move-arrows">
+            <button class="te-arrow-btn" data-te-move="up">↑</button>
+            <div class="te-arrow-mid">
+              <button class="te-arrow-btn" data-te-move="left">←</button>
+              <button class="te-arrow-btn center" data-te-move="center">⊙</button>
+              <button class="te-arrow-btn" data-te-move="right">→</button>
+            </div>
+            <button class="te-arrow-btn" data-te-move="down">↓</button>
           </div>
-          <button class="te-move-btn" data-te-move="down">↓</button>
-        </div>
-      `;
-    }
 
-    /* ═══ البسملة ═══ */
-    if (toolId === "basmala") {
-      return `
-        <div style="padding:16px;text-align:center;">
-          <p style="color:#b0b0b0;font-size:13px;margin:0 0 12px;">إضافة البسملة في بداية النص</p>
-          <button id="te-add-basmala" style="background:#ffffff;color:#111;border:none;padding:12px 32px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">إضافة البسملة</button>
-        </div>
-      `;
-    }
-
-    /* ═══ الاستعاذة ═══ */
-    if (toolId === "istiadha") {
-      return `
-        <div style="padding:16px;text-align:center;">
-          <p style="color:#b0b0b0;font-size:13px;margin:0 0 12px;">إضافة الاستعاذة في بداية النص</p>
-          <button id="te-add-istiadha" style="background:#ffffff;color:#111;border:none;padding:12px 32px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">إضافة الاستعاذة</button>
-        </div>
-      `;
-    }
-
-    /* ═══ رقم الآية ═══ */
-    if (toolId === "ayahnum") {
-      const current = d.ayah.ayahNumber || "١";
-      const isOn = d.ayah.decorNumber || false;
-      return `
-        <div style="padding:12px;">
-          <label style="color:#b0b0b0;font-size:12px;display:block;margin-bottom:6px;">رقم الآية</label>
-          <input type="text" id="te-ayah-num" value="${current}" maxlength="3" style="width:100%;padding:10px 14px;background:#2a2a2a;border:none;color:#fff;font-size:16px;font-weight:700;font-family:inherit;text-align:center;box-sizing:border-box;margin-bottom:10px;" />
-          <div style="display:flex;gap:8px;">
-            <button id="te-ayah-on" style="flex:1;background:${isOn ? "#ffffff" : "#2a2a2a"};color:${isOn ? "#111" : "#ccc"};border:none;padding:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">تشغيل</button>
-            <button id="te-ayah-off" style="flex:1;background:${!isOn ? "#ffffff" : "#2a2a2a"};color:${!isOn ? "#111" : "#ccc"};border:none;padding:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">إيقاف</button>
+          <!-- أدوات التدوير (يسار) -->
+          <div class="te-rotate-panel">
+            <div class="te-rotate-label">التدوير</div>
+            <div class="te-rotate-row">
+              <button class="te-rotate-btn" data-te-rotate="-15">−</button>
+              <input type="number" class="te-rotate-num" id="te-rotate-num" value="${rotation}" min="-360" max="360" />
+              <button class="te-rotate-btn" data-te-rotate="15">+</button>
+            </div>
+            <button class="te-rotate-reset" data-te-rotate="reset">إعادة الصفر</button>
           </div>
+
         </div>
       `;
     }
@@ -198,9 +161,6 @@ window.NoorTextEditor = {
     return "";
   },
 
-  /* ─────────────────────────────────────
-     ربط أحداث المحتوى
-     ───────────────────────────────────── */
   bindToolContent(toolId) {
     const content = document.getElementById("nk-mini-content");
     if (!content) return;
@@ -259,10 +219,6 @@ window.NoorTextEditor = {
           await NoorRenderer.render();
         });
       });
-
-      document.getElementById("te-color-custom")?.addEventListener("click", () => {
-        this.openColorPicker();
-      });
     }
 
     /* ═══ المحاذاة ═══ */
@@ -283,6 +239,7 @@ window.NoorTextEditor = {
       const step = 20;
       const d = NoorState.design;
 
+      /* الأسهم */
       content.querySelectorAll("[data-te-move]").forEach((btn) => {
         btn.addEventListener("click", async () => {
           const dir = btn.dataset.teMove;
@@ -298,104 +255,42 @@ window.NoorTextEditor = {
           await NoorRenderer.render();
         });
       });
-    }
 
-    /* ═══ البسملة ═══ */
-    if (toolId === "basmala") {
-      document.getElementById("te-add-basmala")?.addEventListener("click", () => {
-        if (typeof NoorQuranTools !== "undefined") NoorQuranTools.addBasmala();
-      });
-    }
+      /* التدوير */
+      const rotNum = document.getElementById("te-rotate-num");
 
-    /* ═══ الاستعاذة ═══ */
-    if (toolId === "istiadha") {
-      document.getElementById("te-add-istiadha")?.addEventListener("click", () => {
-        if (typeof NoorQuranTools !== "undefined") NoorQuranTools.addIstiadha();
-      });
-    }
+      const setRotation = async (val) => {
+        const clamped = Math.max(-360, Math.min(360, parseInt(val) || 0));
+        d.ayah.rotation = clamped;
+        if (rotNum) rotNum.value = clamped;
+        await NoorRenderer.render();
+      };
 
-    /* ═══ رقم الآية ═══ */
-    if (toolId === "ayahnum") {
-      const input = document.getElementById("te-ayah-num");
-      document.getElementById("te-ayah-on")?.addEventListener("click", () => {
-        if (typeof NoorQuranTools !== "undefined") {
-          NoorQuranTools.setAyahNumber(input?.value || "1");
-        }
+      content.querySelectorAll("[data-te-rotate]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const action = btn.dataset.teRotate;
+          if (action === "reset") {
+            await setRotation(0);
+          } else {
+            const current = d.ayah.rotation || 0;
+            await setRotation(current + parseInt(action));
+          }
+          NoorState.pushHistory();
+        });
       });
-      document.getElementById("te-ayah-off")?.addEventListener("click", () => {
-        if (typeof NoorQuranTools !== "undefined") {
-          NoorQuranTools.removeAyahNumber();
-        }
+
+      rotNum?.addEventListener("change", async () => {
+        await setRotation(rotNum.value);
+        NoorState.pushHistory();
       });
     }
   },
 
-  /* ─────────────────────────────────────
-     منتقي الألوان
-     ───────────────────────────────────── */
   openColorPicker() {
-    let modal = document.getElementById("color-picker-modal");
-    if (!modal) {
-      modal = document.createElement("div");
-      modal.id = "color-picker-modal";
-      modal.className = "color-picker-modal";
-      document.body.appendChild(modal);
-    }
-
-    this.tempColor = NoorState.design.text.color || "#1a1a1a";
-
-    modal.innerHTML = `
-      <div class="color-picker-inner">
-        <div class="color-picker-title">اختر لونًا</div>
-        <div class="color-picker-body">
-          <div id="iro-picker"></div>
-        </div>
-        <div class="color-picker-footer">
-          <button class="color-picker-cancel" id="cp-cancel">إلغاء</button>
-          <button class="color-picker-confirm" id="cp-confirm">تطبيق</button>
-        </div>
-      </div>
-    `;
-
-    modal.hidden = false;
-
-    setTimeout(() => {
-      const container = document.getElementById("iro-picker");
-      if (!container || typeof iro === "undefined") return;
-
-      this.colorPicker = new iro.ColorPicker(container, {
-        width: 220,
-        color: this.tempColor,
-        borderWidth: 0,
-        layoutDirection: "horizontal",
-        layout: [
-          { component: iro.ui.Wheel },
-          { component: iro.ui.Slider, options: { sliderType: "value" } },
-        ],
-      });
-
-      this.colorPicker.on("color:change", (color) => {
-        this.tempColor = color.hexString;
-      });
-    }, 50);
-
-    document.getElementById("cp-cancel")?.addEventListener("click", () => {
-      modal.hidden = true;
-    });
-
-    document.getElementById("cp-confirm")?.addEventListener("click", async () => {
-      NoorState.design.text.color = this.tempColor;
-      NoorState.pushHistory();
-      await NoorRenderer.render();
-      modal.hidden = true;
-      window.showToast?.("تم تطبيق اللون");
-    });
+    /* لم يعد مستخدماً — منتقي اللون داخل كل أداة */
   },
 };
 
-/* ─────────────────────────────────────
-   تشغيل تلقائي
-   ───────────────────────────────────── */
 document.addEventListener("DOMContentLoaded", () => {
   if (
     typeof NoorRenderer !== "undefined" &&
