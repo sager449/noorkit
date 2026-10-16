@@ -1,6 +1,6 @@
 /* =========================================
-   NoorKit — Text Style: Shadow (v2)
-   12 لون + شفافية + بدون toggle
+   NoorKit — Text Style: Shadow (v3)
+   دوائر صغيرة + منتقي في المقدمة + بدون HEX
    ========================================= */
 
 NoorTextStyles.register("shadow", {
@@ -40,35 +40,32 @@ NoorTextStyles.register("shadow", {
     ).join("");
 
     return `
-      <div class="nk-row" style="flex-direction:column;align-items:stretch;">
-        <span class="nk-row-label" style="margin-bottom:6px;">اللون</span>
-        <div class="nk-color-scroll">${colorsHTML}</div>
-
-        <div class="nk-color-picker">
-          <div class="nk-color-preview" style="background:${s.color};">
-            <input type="color" id="ts-shadow-picker" value="${s.color}" />
-          </div>
-          <input type="text" class="nk-color-hex" id="ts-shadow-hex" value="${s.color.toUpperCase()}" maxlength="7" />
-        </div>
+      <div class="nk-row">
+        <span class="nk-row-label">اللون</span>
       </div>
 
-      <div class="nk-row">
+      <div class="nk-color-row">
+        <button class="nk-color-picker-btn" data-ts-shadow-picker></button>
+        <div class="nk-color-scroll">${colorsHTML}</div>
+      </div>
+
+      <div class="nk-row" style="margin-top:8px;">
         <span class="nk-row-label">الشفافية</span>
         <span class="nk-row-value" id="ts-shadow-op-val">${s.opacity}%</span>
       </div>
-      <input type="range" class="ts-slider" id="ts-shadow-op" min="0" max="100" value="${s.opacity}" style="width:100%;margin-bottom:10px;" />
+      <input type="range" class="ts-slider" id="ts-shadow-op" min="0" max="100" value="${s.opacity}" style="width:100%;margin-bottom:8px;" />
 
       <div class="nk-row">
         <span class="nk-row-label">الضبابية</span>
         <span class="nk-row-value" id="ts-shadow-blur-val">${s.blur}</span>
       </div>
-      <input type="range" class="ts-slider" id="ts-shadow-blur" min="0" max="40" value="${s.blur}" style="width:100%;margin-bottom:10px;" />
+      <input type="range" class="ts-slider" id="ts-shadow-blur" min="0" max="40" value="${s.blur}" style="width:100%;margin-bottom:8px;" />
 
       <div class="nk-row">
         <span class="nk-row-label">إزاحة أفقية</span>
         <span class="nk-row-value" id="ts-shadow-x-val">${s.x}</span>
       </div>
-      <input type="range" class="ts-slider" id="ts-shadow-x" min="-30" max="30" value="${s.x}" style="width:100%;margin-bottom:10px;" />
+      <input type="range" class="ts-slider" id="ts-shadow-x" min="-30" max="30" value="${s.x}" style="width:100%;margin-bottom:8px;" />
 
       <div class="nk-row">
         <span class="nk-row-label">إزاحة رأسية</span>
@@ -81,12 +78,19 @@ NoorTextStyles.register("shadow", {
   bind() {
     const s = this.ensure();
 
-    /* ── اختيار اللون (مع إمكانية إلغاء التفعيل) ── */
+    const setColor = async (color) => {
+      s.color = color;
+      s.enabled = true;
+      NoorTextStyles.updateDotActive("shadow", color);
+      NoorState.pushHistory();
+      await NoorRenderer.render();
+    };
+
+    /* الألوان */
     document.querySelectorAll("[data-ts-shadow-color]").forEach((btn) => {
       btn.addEventListener("click", async () => {
         const color = btn.dataset.tsShadowColor;
-
-        /* إذا نفس اللون → إلغاء التفعيل */
+        /* نفس اللون → إلغاء */
         if (s.color === color && s.enabled) {
           s.enabled = false;
           document.querySelectorAll("[data-ts-shadow-color]").forEach((b) =>
@@ -96,67 +100,18 @@ NoorTextStyles.register("shadow", {
           await NoorRenderer.render();
           return;
         }
-
-        s.color = color;
-        s.enabled = true;
-
-        document.querySelectorAll("[data-ts-shadow-color]").forEach((b) =>
-          b.classList.remove("active")
-        );
-        btn.classList.add("active");
-
-        const preview = document.querySelector(".nk-color-preview");
-        const picker = document.getElementById("ts-shadow-picker");
-        const hex = document.getElementById("ts-shadow-hex");
-        if (preview) preview.style.background = color;
-        if (picker) picker.value = color;
-        if (hex) hex.value = color.toUpperCase();
-
-        NoorState.pushHistory();
-        await NoorRenderer.render();
+        await setColor(color);
       });
     });
 
-    /* ── منتقي اللون (input color) ── */
-    const picker = document.getElementById("ts-shadow-picker");
-    picker?.addEventListener("input", async () => {
-      s.color = picker.value;
-      s.enabled = true;
-      const preview = document.querySelector(".nk-color-preview");
-      const hex = document.getElementById("ts-shadow-hex");
-      if (preview) preview.style.background = s.color;
-      if (hex) hex.value = s.color.toUpperCase();
-      document.querySelectorAll("[data-ts-shadow-color]").forEach((b) =>
-        b.classList.remove("active")
-      );
-      await NoorRenderer.render();
-    });
-    picker?.addEventListener("change", () => NoorState.pushHistory());
-
-    /* ── حقل HEX ── */
-    const hex = document.getElementById("ts-shadow-hex");
-    hex?.addEventListener("change", async () => {
-      let val = hex.value.trim();
-      if (!val.startsWith("#")) val = "#" + val;
-      if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
-        s.color = val.toUpperCase();
-        s.enabled = true;
-        const preview = document.querySelector(".nk-color-preview");
-        const p = document.getElementById("ts-shadow-picker");
-        if (preview) preview.style.background = s.color;
-        if (p) p.value = s.color;
-        hex.value = s.color;
-        document.querySelectorAll("[data-ts-shadow-color]").forEach((b) =>
-          b.classList.remove("active")
-        );
-        NoorState.pushHistory();
-        await NoorRenderer.render();
-      } else {
-        hex.value = s.color.toUpperCase();
-      }
+    /* منتقي اللون */
+    document.querySelector("[data-ts-shadow-picker]")?.addEventListener("click", () => {
+      NoorTextStyles.openColorPicker(s.color, async (newColor) => {
+        await setColor(newColor);
+      });
     });
 
-    /* ── الشفافية ── */
+    /* الشفافية */
     const op = document.getElementById("ts-shadow-op");
     const opVal = document.getElementById("ts-shadow-op-val");
     op?.addEventListener("input", async () => {
@@ -167,7 +122,7 @@ NoorTextStyles.register("shadow", {
     });
     op?.addEventListener("change", () => NoorState.pushHistory());
 
-    /* ── الضبابية ── */
+    /* الضبابية */
     const blur = document.getElementById("ts-shadow-blur");
     const blurVal = document.getElementById("ts-shadow-blur-val");
     blur?.addEventListener("input", async () => {
@@ -178,7 +133,7 @@ NoorTextStyles.register("shadow", {
     });
     blur?.addEventListener("change", () => NoorState.pushHistory());
 
-    /* ── إزاحة X ── */
+    /* إزاحة X */
     const x = document.getElementById("ts-shadow-x");
     const xVal = document.getElementById("ts-shadow-x-val");
     x?.addEventListener("input", async () => {
@@ -189,7 +144,7 @@ NoorTextStyles.register("shadow", {
     });
     x?.addEventListener("change", () => NoorState.pushHistory());
 
-    /* ── إزاحة Y ── */
+    /* إزاحة Y */
     const y = document.getElementById("ts-shadow-y");
     const yVal = document.getElementById("ts-shadow-y-val");
     y?.addEventListener("input", async () => {
