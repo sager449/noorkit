@@ -1,6 +1,6 @@
 /* =========================================
-   NoorKit — Text Style: Shadow
-   ظل النص — مع Toggle Switch
+   NoorKit — Text Style: Shadow (v2)
+   12 لون + شفافية + بدون toggle
    ========================================= */
 
 NoorTextStyles.register("shadow", {
@@ -16,7 +16,11 @@ NoorTextStyles.register("shadow", {
         blur: 8,
         x: 0,
         y: 4,
+        opacity: 100,
       };
+    }
+    if (typeof NoorState.design.text.shadow.opacity !== "number") {
+      NoorState.design.text.shadow.opacity = 100;
     }
     return NoorState.design.text.shadow;
   },
@@ -24,6 +28,7 @@ NoorTextStyles.register("shadow", {
   COLORS: [
     "#000000", "#ffffff", "#c9a227", "#7c3aed",
     "#1e40af", "#b91c1c", "#0d8b5f", "#f59e0b",
+    "#78350f", "#be185d", "#0891b2", "#78716c",
   ],
 
   render() {
@@ -31,34 +36,39 @@ NoorTextStyles.register("shadow", {
 
     const colorsHTML = this.COLORS.map(
       (c) =>
-        `<button class="ts-color-dot ${s.color === c ? "active" : ""}" data-ts-shadow-color="${c}" style="background:${c};"></button>`
+        `<button class="nk-color-dot ${s.color === c ? "active" : ""}" data-ts-shadow-color="${c}" style="background:${c};"></button>`
     ).join("");
 
     return `
-      <div class="nk-row">
-        <span class="nk-row-label">التشغيل</span>
-        <label class="nk-toggle">
-          <input type="checkbox" class="nk-toggle-input" id="ts-shadow-toggle" ${s.enabled ? "checked" : ""} />
-          <span class="nk-toggle-switch"></span>
-        </label>
-      </div>
-
       <div class="nk-row" style="flex-direction:column;align-items:stretch;">
         <span class="nk-row-label" style="margin-bottom:6px;">اللون</span>
-        <div class="ts-colors">${colorsHTML}</div>
+        <div class="nk-color-scroll">${colorsHTML}</div>
+
+        <div class="nk-color-picker">
+          <div class="nk-color-preview" style="background:${s.color};">
+            <input type="color" id="ts-shadow-picker" value="${s.color}" />
+          </div>
+          <input type="text" class="nk-color-hex" id="ts-shadow-hex" value="${s.color.toUpperCase()}" maxlength="7" />
+        </div>
       </div>
+
+      <div class="nk-row">
+        <span class="nk-row-label">الشفافية</span>
+        <span class="nk-row-value" id="ts-shadow-op-val">${s.opacity}%</span>
+      </div>
+      <input type="range" class="ts-slider" id="ts-shadow-op" min="0" max="100" value="${s.opacity}" style="width:100%;margin-bottom:10px;" />
 
       <div class="nk-row">
         <span class="nk-row-label">الضبابية</span>
         <span class="nk-row-value" id="ts-shadow-blur-val">${s.blur}</span>
       </div>
-      <input type="range" class="ts-slider" id="ts-shadow-blur" min="0" max="40" value="${s.blur}" style="width:100%;margin-bottom:12px;" />
+      <input type="range" class="ts-slider" id="ts-shadow-blur" min="0" max="40" value="${s.blur}" style="width:100%;margin-bottom:10px;" />
 
       <div class="nk-row">
         <span class="nk-row-label">إزاحة أفقية</span>
         <span class="nk-row-value" id="ts-shadow-x-val">${s.x}</span>
       </div>
-      <input type="range" class="ts-slider" id="ts-shadow-x" min="-30" max="30" value="${s.x}" style="width:100%;margin-bottom:12px;" />
+      <input type="range" class="ts-slider" id="ts-shadow-x" min="-30" max="30" value="${s.x}" style="width:100%;margin-bottom:10px;" />
 
       <div class="nk-row">
         <span class="nk-row-label">إزاحة رأسية</span>
@@ -71,28 +81,91 @@ NoorTextStyles.register("shadow", {
   bind() {
     const s = this.ensure();
 
-    /* ── التفعيل ── */
-    const toggle = document.getElementById("ts-shadow-toggle");
-    toggle?.addEventListener("change", async () => {
-      s.enabled = toggle.checked;
-      NoorState.pushHistory();
-      await NoorRenderer.render();
-    });
-
-    /* ── اللون ── */
+    /* ── اختيار اللون (مع إمكانية إلغاء التفعيل) ── */
     document.querySelectorAll("[data-ts-shadow-color]").forEach((btn) => {
       btn.addEventListener("click", async () => {
-        s.color = btn.dataset.tsShadowColor;
+        const color = btn.dataset.tsShadowColor;
+
+        /* إذا نفس اللون → إلغاء التفعيل */
+        if (s.color === color && s.enabled) {
+          s.enabled = false;
+          document.querySelectorAll("[data-ts-shadow-color]").forEach((b) =>
+            b.classList.remove("active")
+          );
+          NoorState.pushHistory();
+          await NoorRenderer.render();
+          return;
+        }
+
+        s.color = color;
+        s.enabled = true;
+
         document.querySelectorAll("[data-ts-shadow-color]").forEach((b) =>
           b.classList.remove("active")
         );
         btn.classList.add("active");
-        s.enabled = true;
-        if (toggle) toggle.checked = true;
+
+        const preview = document.querySelector(".nk-color-preview");
+        const picker = document.getElementById("ts-shadow-picker");
+        const hex = document.getElementById("ts-shadow-hex");
+        if (preview) preview.style.background = color;
+        if (picker) picker.value = color;
+        if (hex) hex.value = color.toUpperCase();
+
         NoorState.pushHistory();
         await NoorRenderer.render();
       });
     });
+
+    /* ── منتقي اللون (input color) ── */
+    const picker = document.getElementById("ts-shadow-picker");
+    picker?.addEventListener("input", async () => {
+      s.color = picker.value;
+      s.enabled = true;
+      const preview = document.querySelector(".nk-color-preview");
+      const hex = document.getElementById("ts-shadow-hex");
+      if (preview) preview.style.background = s.color;
+      if (hex) hex.value = s.color.toUpperCase();
+      document.querySelectorAll("[data-ts-shadow-color]").forEach((b) =>
+        b.classList.remove("active")
+      );
+      await NoorRenderer.render();
+    });
+    picker?.addEventListener("change", () => NoorState.pushHistory());
+
+    /* ── حقل HEX ── */
+    const hex = document.getElementById("ts-shadow-hex");
+    hex?.addEventListener("change", async () => {
+      let val = hex.value.trim();
+      if (!val.startsWith("#")) val = "#" + val;
+      if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+        s.color = val.toUpperCase();
+        s.enabled = true;
+        const preview = document.querySelector(".nk-color-preview");
+        const p = document.getElementById("ts-shadow-picker");
+        if (preview) preview.style.background = s.color;
+        if (p) p.value = s.color;
+        hex.value = s.color;
+        document.querySelectorAll("[data-ts-shadow-color]").forEach((b) =>
+          b.classList.remove("active")
+        );
+        NoorState.pushHistory();
+        await NoorRenderer.render();
+      } else {
+        hex.value = s.color.toUpperCase();
+      }
+    });
+
+    /* ── الشفافية ── */
+    const op = document.getElementById("ts-shadow-op");
+    const opVal = document.getElementById("ts-shadow-op-val");
+    op?.addEventListener("input", async () => {
+      s.opacity = parseInt(op.value);
+      if (opVal) opVal.textContent = s.opacity + "%";
+      s.enabled = true;
+      await NoorRenderer.render();
+    });
+    op?.addEventListener("change", () => NoorState.pushHistory());
 
     /* ── الضبابية ── */
     const blur = document.getElementById("ts-shadow-blur");
@@ -101,7 +174,6 @@ NoorTextStyles.register("shadow", {
       s.blur = parseInt(blur.value);
       if (blurVal) blurVal.textContent = s.blur;
       s.enabled = true;
-      if (toggle) toggle.checked = true;
       await NoorRenderer.render();
     });
     blur?.addEventListener("change", () => NoorState.pushHistory());
@@ -113,7 +185,6 @@ NoorTextStyles.register("shadow", {
       s.x = parseInt(x.value);
       if (xVal) xVal.textContent = s.x;
       s.enabled = true;
-      if (toggle) toggle.checked = true;
       await NoorRenderer.render();
     });
     x?.addEventListener("change", () => NoorState.pushHistory());
@@ -125,7 +196,6 @@ NoorTextStyles.register("shadow", {
       s.y = parseInt(y.value);
       if (yVal) yVal.textContent = s.y;
       s.enabled = true;
-      if (toggle) toggle.checked = true;
       await NoorRenderer.render();
     });
     y?.addEventListener("change", () => NoorState.pushHistory());
