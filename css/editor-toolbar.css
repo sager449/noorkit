@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════
-   NoorKit — Editor Toolbar (Final v11)
-   دوائر صغيرة — بدون تكبير — منتقي في المقدمة
+   NoorKit — Editor Toolbar (Final v12)
+   كل الأيقونات بدون حواف — مربعات للألوان
    ═══════════════════════════════════════════════ */
 
 :root {
@@ -16,9 +16,7 @@
 
 .nk-toolbars {
   position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  left: 0; right: 0; bottom: 0;
   z-index: 9990;
   display: flex;
   flex-direction: column;
@@ -34,7 +32,6 @@
   background: var(--nk-bg-secondary);
   border-top: 1px solid var(--nk-border);
   overflow-x: auto;
-  overflow-y: hidden;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
   order: 1;
@@ -53,7 +50,6 @@
   background: var(--nk-bg-primary);
   border-top: 1px solid var(--nk-border);
   overflow-x: auto;
-  overflow-y: hidden;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
   order: 2;
@@ -78,7 +74,6 @@
   width: 42px;
   height: 4px;
   background: var(--nk-text-muted);
-  border-radius: 2px;
 }
 
 .nk-toolbars.lifted .nk-lift-handle { background: var(--nk-accent); }
@@ -108,8 +103,7 @@
 .nk-tool-btn.active { color: var(--nk-text-primary); }
 
 .nk-tool-btn svg {
-  width: 20px;
-  height: 20px;
+  width: 20px; height: 20px;
   stroke: currentColor;
   stroke-width: 2;
   fill: none;
@@ -123,15 +117,12 @@
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
-  line-height: 1;
 }
 
 /* ═══ اللوحة الصغيرة ═══ */
-
 .nk-mini-sheet {
   position: fixed;
-  left: 0;
-  right: 0;
+  left: 0; right: 0;
   z-index: 9989;
   background: var(--nk-bg-secondary);
   border-top: 1px solid var(--nk-border);
@@ -143,7 +134,7 @@
   flex-direction: column;
   direction: rtl;
   overflow: hidden;
-  max-height: 28vh;
+  max-height: 32vh;
 }
 
 .nk-mini-sheet.open {
@@ -170,12 +161,11 @@
 }
 
 .nk-mini-close {
-  width: 24px;
-  height: 24px;
-  background: transparent;
+  width: 26px; height: 26px;
+  background: #2a2a2a;
   border: none;
-  color: var(--nk-text-secondary);
-  font-size: 13px;
+  color: #ccc;
+  font-size: 14px;
   font-weight: 700;
   cursor: pointer;
   display: flex;
@@ -184,52 +174,44 @@
   padding: 0;
 }
 
-.nk-mini-spacer { width: 24px; height: 24px; }
+.nk-mini-close:active { background: #3a3a3a; }
+
+.nk-mini-spacer { width: 26px; height: 26px; }
 
 .nk-mini-content {
-  padding: 8px 10px 12px;
+  padding: 10px 10px 14px;
   overflow-y: auto;
   overflow-x: hidden;
   flex: 1;
 }
 
-/* ═══ إخفاء القوالب القديمة ═══ */
-.editor-toolbar { display: none !important; }
-.tool-panel { display: none !important; }
-
-.editor-main { padding-bottom: 180px !important; }
-
-/* ═══════════════════════════════════════════════
-   صفوف محتوى اللوحات
-   ═══════════════════════════════════════════════ */
-
+/* ═══ صفوف ═══ */
 .nk-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .nk-row-label {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--nk-text-secondary);
-  white-space: nowrap;
 }
 
 .nk-row-value {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   color: #fff;
   background: #2a2a2a;
-  padding: 2px 8px;
-  min-width: 36px;
+  padding: 3px 10px;
+  min-width: 40px;
   text-align: center;
 }
 
 /* ═══════════════════════════════════════════════
-   صف الألوان: دوائر صغيرة + منتقي في المقدمة
+   صف الألوان — مربعات بدون حواف
    ═══════════════════════════════════════════════ */
 
 .nk-color-row {
@@ -239,11 +221,10 @@
   padding: 2px 0 6px;
 }
 
-/* زر منتقي اللون (في المقدمة) */
+/* زر منتقي اللون */
 .nk-color-picker-btn {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
+  width: 36px;
+  height: 36px;
   border: none;
   background: conic-gradient(
     from 0deg,
@@ -254,16 +235,15 @@
   flex-shrink: 0;
   padding: 0;
   -webkit-tap-highlight-color: transparent;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15);
 }
 
 .nk-color-picker-btn:active { opacity: 0.7; }
 
-/* حاوية التمرير للألوان */
+/* حاوية التمرير */
 .nk-color-scroll {
   display: flex;
   flex-direction: row;
-  gap: 8px;
+  gap: 6px;
   overflow-x: auto;
   scrollbar-width: none;
   padding: 2px 0;
@@ -273,32 +253,30 @@
 
 .nk-color-scroll::-webkit-scrollbar { display: none; }
 
-/* الدائرة الصغيرة — بدون تكبير عند التحديد */
+/* المربع — بدون حواف */
 .nk-color-dot {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: none;
+  width: 36px;
+  height: 36px;
+  border: 2px solid transparent;
+  border-radius: 0;
   cursor: pointer;
   padding: 0;
   flex-shrink: 0;
-  position: relative;
+  box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15);
-  transition: box-shadow 0.15s;
+  transition: border-color 0.15s;
+  position: relative;
 }
 
 .nk-color-dot:active { opacity: 0.7; }
 
-/* عند التحديد: حلقة بيضاء رقيقة فقط، بدون تكبير */
+/* عند التحديد: إطار أبيض رقيق */
 .nk-color-dot.active {
-  box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,0.15),
-    0 0 0 1px #141414,
-    0 0 0 2.5px #ffffff;
+  border-color: #ffffff;
+  box-shadow: inset 0 0 0 2px #141414;
 }
 
-/* ═══ منتقي اللون (iro) — كما في الصورة 4 ═══ */
+/* ═══ منتقي اللون (iro) ═══ */
 .nk-iro-modal {
   position: fixed;
   inset: 0;
@@ -307,15 +285,9 @@
   display: flex;
   flex-direction: column;
   direction: rtl;
-  animation: fadeIn 0.15s ease-out;
 }
 
 .nk-iro-modal[hidden] { display: none !important; }
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
 
 .nk-iro-body {
   flex: 1;
@@ -345,12 +317,5 @@
   justify-content: center;
 }
 
-.nk-iro-cancel {
-  background: #2a2a2a;
-  color: #fff;
-}
-
-.nk-iro-confirm {
-  background: #ffffff;
-  color: #111;
-}
+.nk-iro-cancel { background: #2a2a2a; color: #fff; }
+.nk-iro-confirm { background: #ffffff; color: #111; }
