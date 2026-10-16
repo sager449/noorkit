@@ -1,6 +1,6 @@
 /* =========================================
-   NoorKit — Canvas Renderer (v2)
-   يدعم: ظل، حدود، تدرج، توهج، شفافية، خلفية
+   NoorKit — Canvas Renderer (v3)
+   يدعم: rotation + shadow opacity + highlight opacity
    ========================================= */
 
 window.NoorRenderer = {
@@ -131,8 +131,20 @@ window.NoorRenderer = {
     });
   },
 
+  /* ─── تحويل HEX + شفافية إلى RGBA ─── */
+  hexToRgba(hex, opacity) {
+    if (!hex) return `rgba(0,0,0,${opacity / 100})`;
+    let h = hex.replace("#", "");
+    if (h.length === 3) h = h.split("").map((c) => c + c).join("");
+    const r = parseInt(h.substring(0, 2), 16) || 0;
+    const g = parseInt(h.substring(2, 4), 16) || 0;
+    const b = parseInt(h.substring(4, 6), 16) || 0;
+    const a = (typeof opacity === "number" ? opacity : 100) / 100;
+    return `rgba(${r},${g},${b},${a})`;
+  },
+
   /* ═══════════════════════════════════════════════
-     رسم الآية — يدعم كل الأنماط المتقدمة
+     رسم الآية — يدعم كل الأنماط + rotation
      ═══════════════════════════════════════════════ */
   drawAyah(d) {
     const ctx = this.ctx;
@@ -143,44 +155,51 @@ window.NoorRenderer = {
     const t = d.text;
     ctx.save();
 
-    // ─── الإعدادات الأساسية ───
+    /* ─── الإعدادات الأساسية ─── */
     const padding = Math.round(d.width * 0.1);
     const maxW = d.width - padding * 2;
-    const cy = d.height / 2;
+    const cx = d.ayah.x || d.width / 2;
+    const cy = d.ayah.y || d.height / 2;
+
+    /* ─── Rotation ─── */
+    const rotation = (d.ayah.rotation || 0) * Math.PI / 180;
+    if (rotation !== 0) {
+      ctx.translate(cx, cy);
+      ctx.rotate(rotation);
+      ctx.translate(-cx, -cy);
+    }
 
     ctx.font = `400 ${t.size}px ${font.family}`;
     ctx.textAlign = t.align || "center";
     ctx.textBaseline = "middle";
     ctx.direction = "rtl";
 
-    // ─── الشفافية ───
+    /* ─── الشفافية العامة ─── */
     if (typeof t.opacity === "number" && t.opacity < 100) {
       ctx.globalAlpha = Math.max(0, Math.min(1, t.opacity / 100));
     }
 
-    // ─── الأسطر ───
+    /* ─── الأسطر ─── */
     const lines = this.wrapText(ctx, text, maxW);
     const lineHeight = t.size * (t.lineHeight || 1.8);
     const totalH = lines.length * lineHeight;
     const startY = cy - totalH / 2 + lineHeight / 2;
 
-    // ─── الموضع الأفقي ───
-    let x = d.width / 2;
+    /* ─── الموضع الأفقي ─── */
+    let x = cx;
     if (t.align === "right") x = d.width - padding;
     if (t.align === "left") x = padding;
 
-    // ═══════════════════════════════════════════════
-    //  1. Highlight (خلفية النص)
-    // ═══════════════════════════════════════════════
+    /* ═══ 1. Highlight ═══ */
     if (t.highlight && t.highlight.enabled) {
       const hl = t.highlight;
       const pad = hl.padding || 12;
       const radius = hl.radius || 8;
+      const fillColor = this.hexToRgba(hl.color || "#c9a227", hl.opacity || 100);
 
       ctx.save();
-      ctx.fillStyle = hl.color || "#c9a227";
+      ctx.fillStyle = fillColor;
 
-      // حساب حدود كل سطر
       const lineBounds = lines.map((line) => {
         const m = ctx.measureText(line);
         const w = m.width;
@@ -191,22 +210,14 @@ window.NoorRenderer = {
         return { w, lx };
       });
 
-      // حساب أوسع سطر
-      const maxLineW = Math.max(...lineBounds.map((b) => b.w));
       const minX = Math.min(...lineBounds.map((b) => b.lx));
       const maxX = Math.max(...lineBounds.map((b) => b.lx + b.w));
 
-      // مستطيل واحد حول كل النص
-      const rectX = minX - pad;
-      const rectY = startY - lineHeight / 2 - pad + lineHeight / 2 - lineHeight / 2;
-      const rectW = maxX - minX + pad * 2;
-      const rectH = totalH + pad * 2 - lineHeight + lineHeight;
-
       this.roundRect(
         ctx,
-        rectX,
+        minX - pad,
         cy - totalH / 2 - pad,
-        rectW,
+        maxX - minX + pad * 2,
         totalH + pad * 2,
         radius
       );
@@ -214,9 +225,7 @@ window.NoorRenderer = {
       ctx.restore();
     }
 
-    // ═══════════════════════════════════════════════
-    //  2. Glow (توهج)
-    // ═══════════════════════════════════════════════
+    /* ═══ 2. Glow ═══ */
     if (t.glow && t.glow.enabled) {
       ctx.save();
       ctx.shadowColor = t.glow.color || "#c9a227";
@@ -224,46 +233,32 @@ window.NoorRenderer = {
       ctx.shadowOffsetX = 0;
       ctx.shadowOffsetY = 0;
       ctx.fillStyle = t.color || "#1a1a1a";
-
       lines.forEach((line, i) => {
         ctx.fillText(line, x, startY + i * lineHeight);
       });
       ctx.restore();
     }
 
-    // ═══════════════════════════════════════════════
-    //  3. Shadow (ظل)
-    // ═══════════════════════════════════════════════
+    /* ═══ 3. Shadow ═══ */
     if (t.shadow && t.shadow.enabled) {
       ctx.save();
-      ctx.shadowColor = t.shadow.color || "#000000";
+      ctx.shadowColor = this.hexToRgba(t.shadow.color || "#000000", t.shadow.opacity || 100);
       ctx.shadowBlur = t.shadow.blur || 8;
       ctx.shadowOffsetX = t.shadow.x || 0;
       ctx.shadowOffsetY = t.shadow.y || 4;
-    } else if (t.shadow && typeof t.shadow === "boolean" && t.shadow) {
-      // توافق مع النظام القديم
-      ctx.save();
-      ctx.shadowColor = t.shadowColor || "#000000";
-      ctx.shadowBlur = t.shadowBlur || 8;
-      ctx.shadowOffsetX = 0;
-      ctx.shadowOffsetY = 2;
     }
 
-    // ═══════════════════════════════════════════════
-    //  4. النص (مع Gradient أو اللون العادي)
-    // ═══════════════════════════════════════════════
+    /* ═══ 4. Text (Gradient or Color) ═══ */
     let fillStyle = t.color || "#1a1a1a";
 
     if (t.gradient && t.gradient.enabled) {
       const g = t.gradient;
       const angle = ((g.angle || 90) - 90) * (Math.PI / 180);
-      const cx = d.width / 2;
-      const cyG = d.height / 2;
       const r = Math.max(d.width, d.height) / 2;
       const x1 = cx - Math.cos(angle) * r;
-      const y1 = cyG - Math.sin(angle) * r;
+      const y1 = cy - Math.sin(angle) * r;
       const x2 = cx + Math.cos(angle) * r;
-      const y2 = cyG + Math.sin(angle) * r;
+      const y2 = cy + Math.sin(angle) * r;
 
       const grad = ctx.createLinearGradient(x1, y1, x2, y2);
       grad.addColorStop(0, g.color1 || "#c9a227");
@@ -272,26 +267,22 @@ window.NoorRenderer = {
     }
 
     ctx.fillStyle = fillStyle;
-
     lines.forEach((line, i) => {
       ctx.fillText(line, x, startY + i * lineHeight);
     });
 
-    // إغلاق الـ shadow إذا كان مفتوحاً
-    if ((t.shadow && t.shadow.enabled) || (t.shadow === true)) {
+    /* إغلاق الـ shadow */
+    if (t.shadow && t.shadow.enabled) {
       ctx.restore();
     }
 
-    // ═══════════════════════════════════════════════
-    //  5. Outline (حدود النص)
-    // ═══════════════════════════════════════════════
+    /* ═══ 5. Outline ═══ */
     if (t.outline && t.outline.enabled) {
       ctx.save();
       ctx.strokeStyle = t.outline.color || "#ffffff";
       ctx.lineWidth = t.outline.width || 2;
       ctx.lineJoin = "round";
       ctx.miterLimit = 2;
-      ctx.strokeStyle = t.outline.color || "#ffffff";
 
       lines.forEach((line, i) => {
         ctx.strokeText(line, x, startY + i * lineHeight);
@@ -302,7 +293,6 @@ window.NoorRenderer = {
     ctx.restore();
   },
 
-  /* ─── رسم مستطيل بزوايا دائرية ─── */
   roundRect(ctx, x, y, w, h, r) {
     if (r <= 0) {
       ctx.beginPath();
@@ -350,226 +340,217 @@ window.NoorRenderer = {
 
     return lines;
   },
-   
-async drawImages(d) {
-  if (!d.images || d.images.length === 0) return;
-  const ctx = this.ctx;
 
-  for (const item of d.images) {
-    const img = await this.loadImage(item.src);
-    if (!img) continue;
+  async drawImages(d) {
+    if (!d.images || d.images.length === 0) return;
+    const ctx = this.ctx;
 
-    ctx.save();
-    const cx = item.x + item.width / 2;
-    const cy = item.y + item.height / 2;
-    if (item.rotation) {
-      ctx.translate(cx, cy);
-      ctx.rotate((item.rotation * Math.PI) / 180);
-      ctx.translate(-cx, -cy);
+    for (const item of d.images) {
+      const img = await this.loadImage(item.src);
+      if (!img) continue;
+
+      ctx.save();
+      const cx = item.x + item.width / 2;
+      const cy = item.y + item.height / 2;
+      if (item.rotation) {
+        ctx.translate(cx, cy);
+        ctx.rotate((item.rotation * Math.PI) / 180);
+        ctx.translate(-cx, -cy);
+      }
+      ctx.drawImage(img, item.x, item.y, item.width, item.height);
+      ctx.restore();
     }
-    ctx.drawImage(img, item.x, item.y, item.width, item.height);
-    ctx.restore();
-  }
-},
+  },
 
-drawStickers(d) {
-  if (!d.stickers || d.stickers.length === 0) return;
-  const ctx = this.ctx;
-  ctx.save();
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-
-  for (const stk of d.stickers) {
+  drawStickers(d) {
+    if (!d.stickers || d.stickers.length === 0) return;
+    const ctx = this.ctx;
     ctx.save();
-    if (stk.rotation) {
-      ctx.translate(stk.x, stk.y);
-      ctx.rotate((stk.rotation * Math.PI) / 180);
-      ctx.translate(-stk.x, -stk.y);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    for (const stk of d.stickers) {
+      ctx.save();
+      if (stk.rotation) {
+        ctx.translate(stk.x, stk.y);
+        ctx.rotate((stk.rotation * Math.PI) / 180);
+        ctx.translate(-stk.x, -stk.y);
+      }
+      ctx.font = `700 ${stk.size}px 'Amiri', serif`;
+      ctx.fillStyle = stk.color || "#7c3aed";
+      ctx.fillText(stk.text, stk.x, stk.y);
+      ctx.restore();
     }
-    ctx.font = `700 ${stk.size}px 'Amiri', serif`;
-    ctx.fillStyle = stk.color || "#7c3aed";
-    ctx.fillText(stk.text, stk.x, stk.y);
     ctx.restore();
-  }
-  ctx.restore();
-},
+  },
 
-drawAyahNumber(d) {
-  if (!d.ayah.decorNumber) return;
-  const ctx = this.ctx;
-  const size = 40;
-  const margin = 20;
-  const x = d.width - margin - size - 10;
-  const y = d.height - margin - size - 10;
-
-  ctx.save();
-  ctx.fillStyle = "#c9a227";
-  ctx.beginPath();
-  ctx.arc(x, y, size, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.strokeStyle = "#ffffff";
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.arc(x, y, size - 4, 0, Math.PI * 2);
-  ctx.stroke();
-
-  ctx.fillStyle = "#ffffff";
-  ctx.font = `700 ${size}px 'Cairo', sans-serif`;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.direction = "rtl";
-  ctx.fillText(d.ayah.ayahNumber || "﴿﴾", x, y);
-  ctx.restore();
-},
-
-drawDecorations(d) {
-  if (!d.decorations || d.decorations.length === 0) return;
-  const ctx = this.ctx;
-
-  for (const deco of d.decorations) {
-    const def =
-      typeof NoorDecorations !== "undefined"
-        ? NoorDecorations.get(deco.id)
-        : null;
-    if (!def) continue;
+  drawAyahNumber(d) {
+    if (!d.ayah.decorNumber) return;
+    const ctx = this.ctx;
+    const size = 40;
+    const margin = 20;
+    const x = d.width - margin - size - 10;
+    const y = d.height - margin - size - 10;
 
     ctx.save();
-    ctx.font = `400 ${deco.size || def.size || 60}px 'Amiri', serif`;
-    ctx.fillStyle = deco.color || def.color || "#c9a227";
+    ctx.fillStyle = "#c9a227";
+    ctx.beginPath();
+    ctx.arc(x, y, size, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(x, y, size - 4, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.fillStyle = "#ffffff";
+    ctx.font = `700 ${size}px 'Cairo', sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.direction = "rtl";
-
-    if (deco.rotation) {
-      ctx.translate(deco.x, deco.y);
-      ctx.rotate((deco.rotation * Math.PI) / 180);
-      ctx.translate(-deco.x, -deco.y);
-    }
-
-    if (def.type === "text" && def.symbol) {
-      ctx.fillText(def.symbol, deco.x, deco.y);
-    }
+    ctx.fillText(d.ayah.ayahNumber || "١", x, y);
     ctx.restore();
-  }
-},
-   
-drawTranslation(d) {
-  const ctx = this.ctx;
-  const tr = d.translation;
-  if (!tr.text) return;
+  },
 
-  ctx.save();
-  const font = NoorFonts.get(tr.fontId);
-  ctx.font = `400 ${tr.size}px ${font.family}`;
-  ctx.fillStyle = tr.color || "#4a4a4a";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "top";
-  ctx.direction = "ltr";
+  drawDecorations(d) {
+    if (!d.decorations || d.decorations.length === 0) return;
+    const ctx = this.ctx;
 
-  const padding = Math.round(d.width * 0.1);
-  const maxW = d.width - padding * 2;
-  const lines = this.wrapText(ctx, tr.text, maxW);
-  const lineHeight = tr.size * 1.5;
+    for (const deco of d.decorations) {
+      const def =
+        typeof NoorDecorations !== "undefined"
+          ? NoorDecorations.get(deco.id)
+          : null;
+      if (!def) continue;
 
-  const ayahFont = NoorFonts.get(d.text.fontId);
-  ctx.font = `400 ${d.text.size}px ${ayahFont.family}`;
-  const ayahLines = this.wrapText(ctx, d.ayah.text, maxW);
-  const ayahHeight =
-    ayahLines.length * d.text.size * (d.text.lineHeight || 1.8);
-  const ayahBottom = d.height / 2 + ayahHeight / 2;
-  const startY = ayahBottom + 40;
+      ctx.save();
+      ctx.font = `400 ${deco.size || def.size || 60}px 'Amiri', serif`;
+      ctx.fillStyle = deco.color || def.color || "#c9a227";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.direction = "rtl";
 
-  ctx.font = `400 ${tr.size}px ${font.family}`;
-  lines.forEach((line, i) => {
-    ctx.fillText(line, d.width / 2, startY + i * lineHeight);
-  });
-  ctx.restore();
-},
+      if (deco.rotation) {
+        ctx.translate(deco.x, deco.y);
+        ctx.rotate((deco.rotation * Math.PI) / 180);
+        ctx.translate(-deco.x, -deco.y);
+      }
 
-drawFrame(d) {
-  if (d.frame.type === "none") return;
-  const ctx = this.ctx;
-  const pad = Math.round(d.width * 0.05);
-  const thick = d.frame.thickness;
+      if (def.type === "text" && def.symbol) {
+        ctx.fillText(def.symbol, deco.x, deco.y);
+      }
+      ctx.restore();
+    }
+  },
 
-  ctx.save();
-  ctx.strokeStyle = d.frame.color;
-  ctx.lineWidth = thick;
+  drawTranslation(d) {
+    const ctx = this.ctx;
+    const tr = d.translation;
+    if (!tr.text) return;
 
-  if (d.frame.type === "simple") {
-    ctx.strokeRect(pad, pad, d.width - pad * 2, d.height - pad * 2);
-  } else if (d.frame.type === "double") {
-    ctx.strokeRect(pad, pad, d.width - pad * 2, d.height - pad * 2);
-    ctx.strokeRect(
-      pad + 12,
-      pad + 12,
-      d.width - (pad + 12) * 2,
-      d.height - (pad + 12) * 2
-    );
-  } else if (d.frame.type === "ornate") {
-    ctx.lineWidth = thick + 1;
-    ctx.strokeRect(pad, pad, d.width - pad * 2, d.height - pad * 2);
-    const cs = 30;
-    [
-      [pad, pad],
-      [d.width - pad, pad],
-      [pad, d.height - pad],
-      [d.width - pad, d.height - pad],
-    ].forEach(([cx, cy]) => {
-      ctx.beginPath();
-      ctx.arc(cx, cy, cs / 2, 0, Math.PI * 2);
-      ctx.stroke();
-    });
-  }
-  ctx.restore();
-},
-
-drawDecor(d) {
-  const ctx = this.ctx;
-  const gold = "#c9a227";
-
-  if (d.decor.top) {
     ctx.save();
-    ctx.fillStyle = gold;
-    ctx.font = `400 40px 'Amiri', serif`;
+    const font = NoorFonts.get(tr.fontId);
+    ctx.font = `400 ${tr.size}px ${font.family}`;
+    ctx.fillStyle = tr.color || "#4a4a4a";
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
-    ctx.fillText("﷽", d.width / 2, Math.round(d.height * 0.04));
-    ctx.restore();
-  }
+    ctx.direction = "ltr";
 
-  if (d.decor.bottom) {
+    const padding = Math.round(d.width * 0.1);
+    const maxW = d.width - padding * 2;
+    const lines = this.wrapText(ctx, tr.text, maxW);
+    const lineHeight = tr.size * 1.5;
+
+    const ayahFont = NoorFonts.get(d.text.fontId);
+    ctx.font = `400 ${d.text.size}px ${ayahFont.family}`;
+    const ayahLines = this.wrapText(ctx, d.ayah.text, maxW);
+    const ayahHeight =
+      ayahLines.length * d.text.size * (d.text.lineHeight || 1.8);
+    const ayahBottom = d.height / 2 + ayahHeight / 2;
+    const startY = ayahBottom + 40;
+
+    ctx.font = `400 ${tr.size}px ${font.family}`;
+    lines.forEach((line, i) => {
+      ctx.fillText(line, d.width / 2, startY + i * lineHeight);
+    });
+    ctx.restore();
+  },
+
+  drawFrame(d) {
+    if (d.frame.type === "none") return;
+    const ctx = this.ctx;
+    const pad = Math.round(d.width * 0.05);
+    const thick = d.frame.thickness;
+
     ctx.save();
-    ctx.fillStyle = gold;
-    ctx.font = `400 30px 'Amiri', serif`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "bottom";
-    ctx.fillText("❁ ❁ ❁", d.width / 2, d.height - Math.round(d.height * 0.04));
-    ctx.restore();
-  }
-},
-   };
+    ctx.strokeStyle = d.frame.color;
+    ctx.lineWidth = thick;
 
-/* ---------- Preload fonts ---------- */
+    if (d.frame.type === "simple") {
+      ctx.strokeRect(pad, pad, d.width - pad * 2, d.height - pad * 2);
+    } else if (d.frame.type === "double") {
+      ctx.strokeRect(pad, pad, d.width - pad * 2, d.height - pad * 2);
+      ctx.strokeRect(
+        pad + 12, pad + 12,
+        d.width - (pad + 12) * 2,
+        d.height - (pad + 12) * 2
+      );
+    } else if (d.frame.type === "ornate") {
+      ctx.lineWidth = thick + 1;
+      ctx.strokeRect(pad, pad, d.width - pad * 2, d.height - pad * 2);
+      const cs = 30;
+      [
+        [pad, pad], [d.width - pad, pad],
+        [pad, d.height - pad], [d.width - pad, d.height - pad],
+      ].forEach(([cx, cy]) => {
+        ctx.beginPath();
+        ctx.arc(cx, cy, cs / 2, 0, Math.PI * 2);
+        ctx.stroke();
+      });
+    }
+    ctx.restore();
+  },
+
+  drawDecor(d) {
+    const ctx = this.ctx;
+    const gold = "#c9a227";
+
+    if (d.decor.top) {
+      ctx.save();
+      ctx.fillStyle = gold;
+      ctx.font = `400 40px 'Amiri', serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      ctx.fillText("﷽", d.width / 2, Math.round(d.height * 0.04));
+      ctx.restore();
+    }
+
+    if (d.decor.bottom) {
+      ctx.save();
+      ctx.fillStyle = gold;
+      ctx.font = `400 30px 'Amiri', serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "bottom";
+      ctx.fillText("❁ ❁ ❁", d.width / 2, d.height - Math.round(d.height * 0.04));
+      ctx.restore();
+    }
+  },
+};
+
 window.NoorRenderer.preloadFonts = async function () {
   if (!document.fonts) return;
   const loads = [];
   NoorFonts.list.forEach((f) => {
     try {
       loads.push(document.fonts.load(`400 64px ${f.family}`));
-    } catch (e) {
-      /* skip */
-    }
+    } catch (e) { /* skip */ }
   });
   try {
     await Promise.all(loads);
-  } catch (e) {
-    /* ignore */
-  }
+  } catch (e) { /* ignore */ }
 };
 
-/* ---------- Export PNG ---------- */
 window.NoorRenderer.export = async function () {
   if (!this.canvas) return;
   await this.preloadFonts();
@@ -592,33 +573,22 @@ window.NoorRenderer.export = async function () {
   this.ctx = originalCtx;
 
   return new Promise((resolve) => {
-    exportCanvas.toBlob(
-      (blob) => {
-        if (!blob) {
-          resolve(null);
-          return;
-        }
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        const safeTitle = (d.title || "noor-design").replace(
-          /[\\/:*?"<>|]+/g,
-          "-"
-        );
-        a.href = url;
-        a.download = `${safeTitle}.png`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-        resolve(blob);
-      },
-      "image/png",
-      1.0
-    );
+    exportCanvas.toBlob((blob) => {
+      if (!blob) { resolve(null); return; }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const safeTitle = (d.title || "noor-design").replace(/[\\/:*?"<>|]+/g, "-");
+      a.href = url;
+      a.download = `${safeTitle}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      resolve(blob);
+    }, "image/png", 1.0);
   });
 };
 
-/* ---------- Toast ---------- */
 window.showToast = function (message) {
   const toast = document.getElementById("toast");
   if (!toast) return;
@@ -630,7 +600,6 @@ window.showToast = function (message) {
   }, 2200);
 };
 
-/* ---------- Debounced render ---------- */
 window.NoorRenderer.debouncedRender = (function () {
   let timer = null;
   return function () {
