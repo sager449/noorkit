@@ -1,5 +1,5 @@
 /* =========================================
-   NoorKit — Editor Toolbar System (v6)
+   NoorKit — Editor Toolbar System (v7)
    ========================================= */
 
 window.NoorToolbar = {
@@ -35,9 +35,6 @@ window.NoorToolbar = {
       { id: "highlight",   label: "خلفية",  svg: `<rect x="3" y="6" width="18" height="12" rx="2"></rect>` },
       { id: "line-height", label: "تباعد",  svg: `<line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line>` },
       { id: "presets",     label: "جاهزة",  svg: `<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>` },
-      { id: "basmala",     label: "بسملة",  svg: `<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>` },
-      { id: "istiadha",    label: "استعاذة", svg: `<path d="M12 2L2 7l10 5 10-5-10-5z"></path><path d="M2 17l10 5 10-5"></path><path d="M2 12l10 5 10-5"></path>` },
-      { id: "ayahnum",     label: "رقم الآية", svg: `<circle cx="12" cy="12" r="9"></circle><text x="12" y="16" text-anchor="middle" font-size="10" fill="currentColor" stroke="none">١</text>` },
     ],
   },
 
