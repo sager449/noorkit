@@ -1,38 +1,26 @@
 /* =========================================
-   NoorKit — Text Styles Registry
-   سجل الأنماط المتقدمة للنص
+   NoorKit — Text Styles Registry (v2)
+   + منتقي لون موحد + إدارة الدوائر المحددة
    ========================================= */
 
 window.NoorTextStyles = {
   styles: {},
   currentTab: null,
 
-  /* ─────────────────────────────────────
-     تسجيل نمط جديد
-     ───────────────────────────────────── */
   register(id, config) {
     this.styles[id] = config;
   },
 
-  /* ─────────────────────────────────────
-     الحصول على نمط
-     ───────────────────────────────────── */
   get(id) {
     return this.styles[id];
   },
 
-  /* ─────────────────────────────────────
-     الحصول على كل الأنماط
-     ───────────────────────────────────── */
   getAll() {
     return Object.values(this.styles).sort(
       (a, b) => (a.order || 99) - (b.order || 99)
     );
   },
 
-  /* ─────────────────────────────────────
-     توليد صف التبويبات (الأيقونات)
-     ───────────────────────────────────── */
   renderTabs() {
     const list = this.getAll();
     if (list.length === 0) {
@@ -52,9 +40,6 @@ window.NoorTextStyles = {
       .join("");
   },
 
-  /* ─────────────────────────────────────
-     توليد محتوى الأداة الحالية
-     ───────────────────────────────────── */
   renderContent(id) {
     const style = this.get(id);
     if (!style) {
@@ -66,9 +51,6 @@ window.NoorTextStyles = {
     return "";
   },
 
-  /* ─────────────────────────────────────
-     ربط أحداث الأداة الحالية
-     ───────────────────────────────────── */
   bindContent(id) {
     const style = this.get(id);
     if (style && typeof style.bind === "function") {
@@ -76,9 +58,6 @@ window.NoorTextStyles = {
     }
   },
 
-  /* ─────────────────────────────────────
-     تحديث الأداة الحالية (عند تغيير أي قيمة)
-     ───────────────────────────────────── */
   refresh() {
     if (this.currentTab) {
       const content = document.getElementById("ts-content");
@@ -87,5 +66,80 @@ window.NoorTextStyles = {
         this.bindContent(this.currentTab);
       }
     }
+  },
+
+  /* ─────────────────────────────────────
+     إدارة الدوائر المحددة
+     ───────────────────────────────────── */
+  updateDotActive(styleId, color) {
+    const key = `ts${styleId.charAt(0).toUpperCase() + styleId.slice(1)}Color`;
+    document.querySelectorAll(`[data-ts-${styleId}-color]`).forEach((b) => {
+      b.classList.toggle("active", b.dataset[key] === color);
+    });
+  },
+
+  /* ─────────────────────────────────────
+     منتقي اللون الموحد (iro.js)
+     ───────────────────────────────────── */
+  openColorPicker(initialColor, onConfirm) {
+    let modal = document.getElementById("nk-iro-modal");
+    if (!modal) {
+      modal = document.createElement("div");
+      modal.id = "nk-iro-modal";
+      modal.className = "nk-iro-modal";
+      modal.hidden = true;
+      modal.innerHTML = `
+        <div class="nk-iro-body">
+          <div id="nk-iro-picker"></div>
+        </div>
+        <div class="nk-iro-footer">
+          <button class="nk-iro-btn nk-iro-cancel" id="nk-iro-cancel">✕</button>
+          <button class="nk-iro-btn nk-iro-confirm" id="nk-iro-confirm">✓</button>
+        </div>
+      `;
+      document.body.appendChild(modal);
+
+      document.getElementById("nk-iro-cancel")?.addEventListener("click", () => {
+        modal.hidden = true;
+      });
+    }
+
+    let currentColor = initialColor || "#ffffff";
+    modal.hidden = false;
+
+    setTimeout(() => {
+      const container = document.getElementById("nk-iro-picker");
+      if (!container || typeof iro === "undefined") return;
+
+      container.innerHTML = "";
+
+      const picker = new iro.ColorPicker(container, {
+        width: Math.min(window.innerWidth - 80, 260),
+        color: currentColor,
+        borderWidth: 0,
+        layoutDirection: "horizontal",
+        layout: [
+          { component: iro.ui.Wheel },
+          { component: iro.ui.Slider, options: { sliderType: "value" } },
+        ],
+      });
+
+      picker.on("color:change", (color) => {
+        currentColor = color.hexString;
+      });
+
+      const confirmBtn = document.getElementById("nk-iro-confirm");
+      if (confirmBtn) {
+        const newBtn = confirmBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
+
+        newBtn.addEventListener("click", async () => {
+          modal.hidden = true;
+          if (typeof onConfirm === "function") {
+            await onConfirm(currentColor);
+          }
+        });
+      }
+    }, 20);
   },
 };
