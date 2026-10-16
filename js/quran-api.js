@@ -1,159 +1,190 @@
 /* =========================================
-   NoorKit — Quran API Client
+   NoorKit — Quran Panel
+   لوحة اختيار السورة والآية
    ========================================= */
 
-window.QuranAPI = {
-  BASE: "https://api.alquran.cloud/v1",
-  cache: new Map(),
+window.NoorQuranPanel = {
+  surahSelect: null,
+  ayahSelect: null,
+  basmalaCheck: null,
+  istiadhaCheck: null,
+  ayahNumCheck: null,
 
-  async getSurahs() {
-    const key = "surahs";
-    if (this.cache.has(key)) return this.cache.get(key);
+  /* ─────────────────────────────────────
+     البناء
+     ───────────────────────────────────── */
+  render() {
+    const d = NoorState.design;
 
+    return `
+      <div style="padding: 12px; display: flex; flex-direction: column; gap: 12px;">
+
+        <!-- السورة -->
+        <div>
+          <label style="color:#b0b0b0;font-size:12px;display:block;margin-bottom:6px;">السورة</label>
+          <select id="quran-surah" style="width:100%;padding:10px 12px;background:#2a2a2a;border:none;color:#fff;font-size:14px;font-weight:600;font-family:inherit;box-sizing:border-box;">
+            <option value="">-- اختر السورة --</option>
+          </select>
+        </div>
+
+        <!-- الآية -->
+        <div>
+          <label style="color:#b0b0b0;font-size:12px;display:block;margin-bottom:6px;">الآية</label>
+          <select id="quran-ayah" disabled style="width:100%;padding:10px 12px;background:#2a2a2a;border:none;color:#fff;font-size:14px;font-weight:600;font-family:inherit;box-sizing:border-box;">
+            <option value="">-- اختر السورة أولاً --</option>
+          </select>
+        </div>
+
+        <!-- الخيارات -->
+        <div style="display:flex;flex-direction:column;gap:8px;padding-top:6px;border-top:1px solid #2a2a2a;">
+
+          <label style="display:flex;align-items:center;gap:8px;color:#e8e8e8;font-size:13px;font-weight:600;cursor:pointer;">
+            <input type="checkbox" id="quran-basmala" style="width:18px;height:18px;accent-color:#ffffff;" />
+            <span>إضافة البسملة في البداية</span>
+          </label>
+
+          <label style="display:flex;align-items:center;gap:8px;color:#e8e8e8;font-size:13px;font-weight:600;cursor:pointer;">
+            <input type="checkbox" id="quran-istiadha" style="width:18px;height:18px;accent-color:#ffffff;" />
+            <span>إضافة الاستعاذة في البداية</span>
+          </label>
+
+          <label style="display:flex;align-items:center;gap:8px;color:#e8e8e8;font-size:13px;font-weight:600;cursor:pointer;">
+            <input type="checkbox" id="quran-ayahnum" checked style="width:18px;height:18px;accent-color:#ffffff;" />
+            <span>إضافة رقم الآية (﴿١﴾)</span>
+          </label>
+
+        </div>
+
+      </div>
+    `;
+  },
+
+  /* ─────────────────────────────────────
+     ربط الأحداث
+     ───────────────────────────────────── */
+  async bind() {
+    this.surahSelect = document.getElementById("quran-surah");
+    this.ayahSelect = document.getElementById("quran-ayah");
+    this.basmalaCheck = document.getElementById("quran-basmala");
+    this.istiadhaCheck = document.getElementById("quran-istiadha");
+    this.ayahNumCheck = document.getElementById("quran-ayahnum");
+
+    if (!this.surahSelect || !this.ayahSelect) return;
+
+    /* تحميل السور */
     try {
-      const res = await fetch(`${this.BASE}/surah`);
-      const data = await res.json();
-      if (data.code !== 200) throw new Error("API error");
-
-      const surahs = data.data.map((s) => ({
-        number: s.number,
-        name: s.name,
-        nameArabic: s.name,
-        englishName: s.englishName,
-        englishNameTranslation: s.englishNameTranslation,
-        versesCount: s.numberOfAyahs,
-        revelationType: s.revelationType,
-      }));
-
-      this.cache.set(key, surahs);
-      return surahs;
-    } catch (err) {
-      console.error("getSurahs failed:", err);
-      return this.getSurahsFallback();
+      await QuranUI.populateSurahSelect(this.surahSelect);
+    } catch (e) {
+      console.error("فشل تحميل السور:", e);
+      this.surahSelect.innerHTML = '<option value="">-- تعذر التحميل --</option>';
+      return;
     }
-  },
 
-  async getSurah(number, edition = "quran-uthmani") {
-    const key = `surah_${number}_${edition}`;
-    if (this.cache.has(key)) return this.cache.get(key);
-
-    try {
-      const res = await fetch(`${this.BASE}/surah/${number}/${edition}`);
-      const data = await res.json();
-      if (data.code !== 200) throw new Error("API error");
-
-      const result = {
-        number: data.data.number,
-        name: data.data.name,
-        englishName: data.data.englishName,
-        ayahs: data.data.ayahs.map((a) => ({
-          number: a.numberInSurah,
-          text: a.text,
-          juz: a.juz,
-          page: a.page,
-        })),
-      };
-
-      this.cache.set(key, result);
-      return result;
-    } catch (err) {
-      console.error("getSurah failed:", err);
-      return null;
+    /* استرجاع الحالة السابقة */
+    const d = NoorState.design;
+    if (d.ayah.surah) {
+      this.surahSelect.value = d.ayah.surah;
+      await QuranUI.populateAyahSelect(d.ayah.surah, this.ayahSelect);
+      this.ayahSelect.disabled = false;
+      if (d.ayah.ayahNumber) {
+        this.ayahSelect.value = d.ayah.ayahNumber;
+      }
     }
-  },
 
-  async getAyah(surah, ayah, edition = "quran-uthmani") {
-    try {
-      const res = await fetch(`${this.BASE}/ayah/${surah}:${ayah}/${edition}`);
-      const data = await res.json();
-      if (data.code !== 200) throw new Error("API error");
-      return data.data.text;
-    } catch (err) {
-      console.error("getAyah failed:", err);
-      return null;
-    }
-  },
+    /* تغيير السورة */
+    this.surahSelect.addEventListener("change", async () => {
+      const val = this.surahSelect.value;
+      if (!val) {
+        this.ayahSelect.innerHTML = '<option value="">-- اختر السورة أولاً --</option>';
+        this.ayahSelect.disabled = true;
+        return;
+      }
+      await QuranUI.populateAyahSelect(val, this.ayahSelect);
+      this.ayahSelect.disabled = false;
+    });
 
-  async getTranslation(surah, ayah, lang = "ar") {
-    const editions = {
-      ar: "ar.muyassar",
-      en: "en.sahih",
-      fr: "fr.hamidullah",
-      es: "es.cortes",
-      ur: "ur.jalandhry",
-      id: "id.indonesian",
-      tr: "tr.diyanet",
-      ru: "ru.kuliev",
-    };
-    const edition = editions[lang] || editions.en;
-    return this.getAyah(surah, ayah, edition);
-  },
+    /* تغيير الآية → إضافة مباشرة */
+    this.ayahSelect.addEventListener("change", async () => {
+      const surah = this.surahSelect.value;
+      const ayah = this.ayahSelect.value;
+      if (!surah || !ayah) return;
 
-  getSurahsFallback() {
-    return [
-      { number: 1, name: "الفاتحة", englishName: "Al-Fatihah", versesCount: 7, revelationType: "Meccan" },
-      { number: 2, name: "البقرة", englishName: "Al-Baqarah", versesCount: 286, revelationType: "Medinan" },
-      { number: 3, name: "آل عمران", englishName: "Ali 'Imran", versesCount: 200, revelationType: "Medinan" },
-      { number: 4, name: "النساء", englishName: "An-Nisa", versesCount: 176, revelationType: "Medinan" },
-      { number: 5, name: "المائدة", englishName: "Al-Ma'idah", versesCount: 120, revelationType: "Medinan" },
-      { number: 112, name: "الإخلاص", englishName: "Al-Ikhlas", versesCount: 4, revelationType: "Meccan" },
-      { number: 113, name: "الفلق", englishName: "Al-Falaq", versesCount: 5, revelationType: "Meccan" },
-      { number: 114, name: "الناس", englishName: "An-Nas", versesCount: 6, revelationType: "Meccan" },
-    ];
-  },
+      await this.addAyah(surah, ayah);
+    });
 
-  clearCache() {
-    this.cache.clear();
-  },
-};
+    /* تغيير الخيارات */
+    this.basmalaCheck?.addEventListener("change", () => {
+      NoorState.design.ayah._includeBasmala = this.basmalaCheck.checked;
+    });
 
-/* =========================================
-   Quran UI Helpers
-   ========================================= */
+    this.istiadhaCheck?.addEventListener("change", () => {
+      NoorState.design.ayah._includeIstiadha = this.istiadhaCheck.checked;
+    });
 
-window.QuranUI = {
-  surahsCache: null,
+    this.ayahNumCheck?.addEventListener("change", async () => {
+      const d = NoorState.design;
+      d.ayah.decorNumber = this.ayahNumCheck.checked;
 
-  async populateSurahSelect(selectEl) {
-    if (!selectEl) return;
-    selectEl.innerHTML = '<option value="">-- اختر السورة --</option>';
+      if (d.ayah.decorNumber && d.ayah.ayahNumber) {
+        d.ayah.ayahNumber = NoorQuranTools.toArabicNum(d.ayah.ayahNumber);
+      }
 
-    const surahs = await QuranAPI.getSurahs();
-    this.surahsCache = surahs;
-
-    surahs.forEach((s) => {
-      const opt = document.createElement("option");
-      opt.value = s.number;
-      opt.textContent = `${s.number}. ${s.name} (${s.versesCount} آية)`;
-      selectEl.appendChild(opt);
+      NoorState.pushHistory();
+      await NoorRenderer.render();
     });
   },
 
-  async populateAyahSelect(surahNumber, ayahSelect) {
-    if (!ayahSelect) return;
-    ayahSelect.innerHTML = '<option value="">-- اختر الآية --</option>';
-    if (!surahNumber) return;
+  /* ─────────────────────────────────────
+     إضافة الآية للتصميم
+     ───────────────────────────────────── */
+  async addAyah(surah, ayah) {
+    try {
+      const text = await QuranUI.loadAyahText(surah, ayah);
+      if (!text) {
+        window.showToast?.("تعذر تحميل الآية");
+        return;
+      }
 
-    const surah = this.surahsCache?.find((s) => s.number === parseInt(surahNumber));
-    if (!surah) return;
+      const d = NoorState.design;
 
-    for (let i = 1; i <= surah.versesCount; i++) {
-      const opt = document.createElement("option");
-      opt.value = i;
-      opt.textContent = `الآية ${i}`;
-      ayahSelect.appendChild(opt);
+      /* بناء النص النهائي */
+      let finalText = "";
+
+      if (this.istiadhaCheck?.checked) {
+        finalText += NoorQuranTools.ISTIADHA + "\n\n";
+      }
+
+      if (this.basmalaCheck?.checked) {
+        finalText += NoorQuranTools.BASMALA + "\n\n";
+      }
+
+      finalText += text;
+
+      /* رقم الآية (عربي) */
+      if (this.ayahNumCheck?.checked) {
+        d.ayah.decorNumber = true;
+        d.ayah.ayahNumber = NoorQuranTools.toArabicNum(ayah);
+      } else {
+        d.ayah.decorNumber = false;
+      }
+
+      /* تحديث الحالة */
+      d.ayah.text = finalText;
+      d.ayah.surah = parseInt(surah);
+      d.ayah.surahNumber = parseInt(ayah);
+      d.ayah.surahName = QuranUI.surahsCache?.find(
+        (s) => s.number === parseInt(surah)
+      )?.name || "";
+
+      NoorState.pushHistory();
+      await NoorRenderer.render();
+
+      window.showToast?.(
+        `${d.ayah.surahName} — الآية ${ayah}`
+      );
+    } catch (e) {
+      console.error("addAyah failed:", e);
+      window.showToast?.("تعذر إضافة الآية");
     }
-  },
-
-  async loadAyahText(surah, ayah) {
-    if (!surah || !ayah) return "";
-    const text = await QuranAPI.getAyah(surah, ayah);
-    return text || "";
-  },
-
-  async loadTranslation(surah, ayah, lang) {
-    if (!surah || !ayah) return "";
-    const text = await QuranAPI.getTranslation(surah, ayah, lang);
-    return text || "";
   },
 };
