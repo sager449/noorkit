@@ -697,4 +697,287 @@ window.NoorRenderer = {
       ctx.strokeRect(pad, pad, d.width - pad * 2, d.height - pad * 2);
       const cs = 30;
       [
-        [pad,
+        [pad,async drawImages(d) {
+  if (!d.images || d.images.length === 0) return;
+  const ctx = this.ctx;
+
+  for (const item of d.images) {
+    const img = await this.loadImage(item.src);
+    if (!img) continue;
+
+    ctx.save();
+    const cx = item.x + item.width / 2;
+    const cy = item.y + item.height / 2;
+    if (item.rotation) {
+      ctx.translate(cx, cy);
+      ctx.rotate((item.rotation * Math.PI) / 180);
+      ctx.translate(-cx, -cy);
+    }
+    ctx.drawImage(img, item.x, item.y, item.width, item.height);
+    ctx.restore();
+  }
+},
+     drawStickers(d) {
+    if (!d.stickers || d.stickers.length === 0) return;
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    for (const stk of d.stickers) {
+      ctx.save();
+      if (stk.rotation) {
+        ctx.translate(stk.x, stk.y);
+        ctx.rotate((stk.rotation * Math.PI) / 180);
+        ctx.translate(-stk.x, -stk.y);
+      }
+      ctx.font = `700 ${stk.size}px 'Amiri', serif`;
+      ctx.fillStyle = stk.color || "#7c3aed";
+      ctx.fillText(stk.text, stk.x, stk.y);
+      ctx.restore();
+    }
+    ctx.restore();
+  },
+
+  drawAyahNumber(d) {
+    if (!d.ayah.decorNumber) return;
+    const ctx = this.ctx;
+    const size = 40;
+    const margin = 20;
+    const x = d.width - margin - size - 10;
+    const y = d.height - margin - size - 10;
+
+    ctx.save();
+    ctx.fillStyle = "#c9a227";
+    ctx.beginPath();
+    ctx.arc(x, y, size, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(x, y, size - 4, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.fillStyle = "#ffffff";
+    ctx.font = `700 ${size}px 'Cairo', sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.direction = "rtl";
+    ctx.fillText(d.ayah.ayahNumber || "١", x, y);
+    ctx.restore();
+  },
+
+  drawDecorations(d) {
+    if (!d.decorations || d.decorations.length === 0) return;
+    const ctx = this.ctx;
+
+    for (const deco of d.decorations) {
+      const def =
+        typeof NoorDecorations !== "undefined"
+          ? NoorDecorations.get(deco.id)
+          : null;
+      if (!def) continue;
+
+      ctx.save();
+      ctx.font = `400 ${deco.size || def.size || 60}px 'Amiri', serif`;
+      ctx.fillStyle = deco.color || def.color || "#c9a227";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.direction = "rtl";
+
+      if (deco.rotation) {
+        ctx.translate(deco.x, deco.y);
+        ctx.rotate((deco.rotation * Math.PI) / 180);
+        ctx.translate(-deco.x, -deco.y);
+      }
+
+      if (def.type === "text" && def.symbol) {
+        ctx.fillText(def.symbol, deco.x, deco.y);
+      }
+      ctx.restore();
+    }
+  },
+
+  drawTranslation(d) {
+    const ctx = this.ctx;
+    const tr = d.translation;
+    if (!tr.text) return;
+
+    ctx.save();
+    const font = NoorFonts.get(tr.fontId);
+    ctx.font = `400 ${tr.size}px ${font.family}`;
+    ctx.fillStyle = tr.color || "#4a4a4a";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    ctx.direction = "ltr";
+
+    const padding = Math.round(d.width * 0.1);
+    const maxW = d.width - padding * 2;
+    const lines = this.wrapText(ctx, tr.text, maxW);
+    const lineHeight = tr.size * 1.5;
+
+    const ayahFont = NoorFonts.get(d.text.fontId);
+    ctx.font = `400 ${d.text.size}px ${ayahFont.family}`;
+    const ayahLines = this.wrapText(ctx, d.ayah.text, maxW);
+    const ayahHeight =
+      ayahLines.length * d.text.size * (d.text.lineHeight || 1.8);
+    const ayahBottom = d.height / 2 + ayahHeight / 2;
+    const startY = ayahBottom + 40;
+
+    ctx.font = `400 ${tr.size}px ${font.family}`;
+    lines.forEach((line, i) => {
+      ctx.fillText(line, d.width / 2, startY + i * lineHeight);
+    });
+    ctx.restore();
+  },
+
+  drawFrame(d) {
+    if (d.frame.type === "none") return;
+    const ctx = this.ctx;
+    const pad = Math.round(d.width * 0.05);
+    const thick = d.frame.thickness;
+
+    ctx.save();
+    ctx.strokeStyle = d.frame.color;
+    ctx.lineWidth = thick;
+
+    if (d.frame.type === "simple") {
+      ctx.strokeRect(pad, pad, d.width - pad * 2, d.height - pad * 2);
+    } else if (d.frame.type === "double") {
+      ctx.strokeRect(pad, pad, d.width - pad * 2, d.height - pad * 2);
+      ctx.strokeRect(
+        pad + 12,
+        pad + 12,
+        d.width - (pad + 12) * 2,
+        d.height - (pad + 12) * 2
+      );
+    } else if (d.frame.type === "ornate") {
+      ctx.lineWidth = thick + 1;
+      ctx.strokeRect(pad, pad, d.width - pad * 2, d.height - pad * 2);
+      const cs = 30;
+      [
+        [pad, pad],
+        [d.width - pad, pad],
+        [pad, d.height - pad],
+        [d.width - pad, d.height - pad],
+      ].forEach(([cx, cy]) => {
+        ctx.beginPath();
+        ctx.arc(cx, cy, cs / 2, 0, Math.PI * 2);
+        ctx.stroke();
+      });
+    }
+    ctx.restore();
+  },
+
+  drawDecor(d) {
+    const ctx = this.ctx;
+    const gold = "#c9a227";
+
+    if (d.decor.top) {
+      ctx.save();
+      ctx.fillStyle = gold;
+      ctx.font = `400 40px 'Amiri', serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      ctx.fillText("﷽", d.width / 2, Math.round(d.height * 0.04));
+      ctx.restore();
+    }
+
+    if (d.decor.bottom) {
+      ctx.save();
+      ctx.fillStyle = gold;
+      ctx.font = `400 30px 'Amiri', serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "bottom";
+      ctx.fillText(
+        "❁ ❁ ❁",
+        d.width / 2,
+        d.height - Math.round(d.height * 0.04)
+      );
+      ctx.restore();
+    }
+  },
+};
+
+window.NoorRenderer.preloadFonts = async function () {
+  if (!document.fonts) return;
+  const loads = [];
+  NoorFonts.list.forEach((f) => {
+    try {
+      loads.push(document.fonts.load(`400 64px ${f.family}`));
+    } catch (e) {}
+  });
+  try {
+    await Promise.all(loads);
+  } catch (e) {}
+};
+
+window.NoorRenderer.export = async function () {
+  if (!this.canvas) return;
+  await this.preloadFonts();
+  const d = NoorState.design;
+  const exportCanvas = document.createElement("canvas");
+  const exportScale = 2;
+  exportCanvas.width = d.width * exportScale;
+  exportCanvas.height = d.height * exportScale;
+  const exportCtx = exportCanvas.getContext("2d");
+  exportCtx.scale(exportScale, exportScale);
+
+  const originalCanvas = this.canvas;
+  const originalCtx = this.ctx;
+  this.canvas = exportCanvas;
+  this.ctx = exportCtx;
+
+  await this.render();
+
+  this.canvas = originalCanvas;
+  this.ctx = originalCtx;
+
+  return new Promise((resolve) => {
+    exportCanvas.toBlob(
+      (blob) => {
+        if (!blob) {
+          resolve(null);
+          return;
+        }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        const safeTitle = (d.title || "noor-design").replace(
+          /[\\/:*?"<>|]+/g,
+          "-"
+        );
+        a.href = url;
+        a.download = `${safeTitle}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        resolve(blob);
+      },
+      "image/png",
+      1.0
+    );
+  });
+};
+
+window.showToast = function (message) {
+  const toast = document.getElementById("toast");
+  if (!toast) return;
+  toast.textContent = message;
+  toast.classList.add("show");
+  clearTimeout(window.showToast._timer);
+  window.showToast._timer = setTimeout(() => {
+    toast.classList.remove("show");
+  }, 2200);
+};
+
+window.NoorRenderer.debouncedRender = (function () {
+  let timer = null;
+  return function () {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      NoorRenderer.render();
+    }, 80);
+  };
+})();
