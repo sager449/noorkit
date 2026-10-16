@@ -1,6 +1,6 @@
 /* =========================================
-   NoorKit — Text Style: Presets
-   تأثيرات جاهزة (بضغطة واحدة)
+   NoorKit — Text Style: Presets (v2)
+   14 تأثير جاهز
    ========================================= */
 
 NoorTextStyles.register("presets", {
@@ -8,21 +8,18 @@ NoorTextStyles.register("presets", {
   icon: "★",
   order: 8,
 
-  /* ─────────────────────────────────────
-     التأثيرات الجاهزة
-     ───────────────────────────────────── */
   LIST: [
     {
       id: "classic",
       name: "كلاسيكي",
-      preview: "#111111",
+      preview: "linear-gradient(135deg, #1a1a1a, #4a4a4a)",
       apply: (t) => {
-        t.color = "#111111";
-        t.shadow = { enabled: false, color: "#000000", blur: 8, x: 0, y: 4 };
-        t.outline = { enabled: false, color: "#ffffff", width: 2 };
+        t.color = "#1a1a1a";
+        t.shadow = { enabled: false, color: "#000", blur: 8, x: 0, y: 4, opacity: 100 };
+        t.outline = { enabled: false, color: "#fff", width: 2 };
         t.glow = { enabled: false, color: "#c9a227", intensity: 15 };
-        t.highlight = { enabled: false, color: "#c9a227", padding: 12, radius: 8 };
-        t.gradient = { enabled: false, color1: "#c9a227", color2: "#ffffff", angle: 90 };
+        t.gradient = { enabled: false, color1: "#c9a227", color2: "#fff", angle: 90 };
+        t.highlight = { enabled: false, color: "#c9a227", padding: 12, radius: 8, opacity: 100 };
         t.opacity = 100;
       },
     },
@@ -33,10 +30,10 @@ NoorTextStyles.register("presets", {
       apply: (t) => {
         t.color = "#c9a227";
         t.gradient = { enabled: true, color1: "#c9a227", color2: "#fff8d0", angle: 90 };
-        t.shadow = { enabled: true, color: "#7a5a00", blur: 6, x: 0, y: 2 };
-        t.outline = { enabled: false, color: "#ffffff", width: 2 };
+        t.shadow = { enabled: true, color: "#7a5a00", blur: 6, x: 0, y: 2, opacity: 100 };
+        t.outline = { enabled: false, color: "#fff", width: 2 };
         t.glow = { enabled: false, color: "#c9a227", intensity: 15 };
-        t.highlight = { enabled: false, color: "#c9a227", padding: 12, radius: 8 };
+        t.highlight = { enabled: false, color: "#c9a227", padding: 12, radius: 8, opacity: 100 };
         t.opacity = 100;
       },
     },
@@ -47,38 +44,38 @@ NoorTextStyles.register("presets", {
       apply: (t) => {
         t.color = "#ffffff";
         t.glow = { enabled: true, color: "#7c3aed", intensity: 22 };
-        t.shadow = { enabled: true, color: "#7c3aed", blur: 12, x: 0, y: 0 };
-        t.outline = { enabled: false, color: "#ffffff", width: 2 };
-        t.gradient = { enabled: false, color1: "#c9a227", color2: "#ffffff", angle: 90 };
-        t.highlight = { enabled: false, color: "#c9a227", padding: 12, radius: 8 };
+        t.shadow = { enabled: true, color: "#7c3aed", blur: 12, x: 0, y: 0, opacity: 100 };
+        t.outline = { enabled: false, color: "#fff", width: 2 };
+        t.gradient = { enabled: false, color1: "#c9a227", color2: "#fff", angle: 90 };
+        t.highlight = { enabled: false, color: "#c9a227", padding: 12, radius: 8, opacity: 100 };
         t.opacity = 100;
       },
     },
     {
       id: "soft-shadow",
       name: "ظل ناعم",
-      preview: "#111111",
+      preview: "linear-gradient(135deg, #888, #333)",
       apply: (t) => {
-        t.color = "#111111";
-        t.shadow = { enabled: true, color: "#000000", blur: 14, x: 0, y: 6 };
-        t.outline = { enabled: false, color: "#ffffff", width: 2 };
+        t.color = "#1a1a1a";
+        t.shadow = { enabled: true, color: "#000", blur: 14, x: 0, y: 6, opacity: 60 };
+        t.outline = { enabled: false, color: "#fff", width: 2 };
         t.glow = { enabled: false, color: "#c9a227", intensity: 15 };
-        t.gradient = { enabled: false, color1: "#c9a227", color2: "#ffffff", angle: 90 };
-        t.highlight = { enabled: false, color: "#c9a227", padding: 12, radius: 8 };
+        t.gradient = { enabled: false, color1: "#c9a227", color2: "#fff", angle: 90 };
+        t.highlight = { enabled: false, color: "#c9a227", padding: 12, radius: 8, opacity: 100 };
         t.opacity = 100;
       },
     },
     {
-      id: "highlight",
+      id: "highlight-yellow",
       name: "تظليل",
-      preview: "linear-gradient(135deg, #fff, #c9a227)",
+      preview: "linear-gradient(135deg, #fff8d0, #c9a227)",
       apply: (t) => {
-        t.color = "#111111";
-        t.highlight = { enabled: true, color: "#fff8d0", padding: 14, radius: 10 };
-        t.shadow = { enabled: false, color: "#000000", blur: 8, x: 0, y: 4 };
-        t.outline = { enabled: false, color: "#ffffff", width: 2 };
+        t.color = "#1a1a1a";
+        t.highlight = { enabled: true, color: "#fff8d0", padding: 14, radius: 10, opacity: 100 };
+        t.shadow = { enabled: false, color: "#000", blur: 8, x: 0, y: 4, opacity: 100 };
+        t.outline = { enabled: false, color: "#fff", width: 2 };
         t.glow = { enabled: false, color: "#c9a227", intensity: 15 };
-        t.gradient = { enabled: false, color1: "#c9a227", color2: "#ffffff", angle: 90 };
+        t.gradient = { enabled: false, color1: "#c9a227", color2: "#fff", angle: 90 };
         t.opacity = 100;
       },
     },
@@ -87,12 +84,12 @@ NoorTextStyles.register("presets", {
       name: "محدد",
       preview: "linear-gradient(135deg, #000, #fff)",
       apply: (t) => {
-        t.color = "#111111";
+        t.color = "#1a1a1a";
         t.outline = { enabled: true, color: "#ffffff", width: 3 };
-        t.shadow = { enabled: true, color: "#000000", blur: 8, x: 0, y: 3 };
+        t.shadow = { enabled: true, color: "#000", blur: 8, x: 0, y: 3, opacity: 100 };
         t.glow = { enabled: false, color: "#c9a227", intensity: 15 };
-        t.gradient = { enabled: false, color1: "#c9a227", color2: "#ffffff", angle: 90 };
-        t.highlight = { enabled: false, color: "#c9a227", padding: 12, radius: 8 };
+        t.gradient = { enabled: false, color1: "#c9a227", color2: "#fff", angle: 90 };
+        t.highlight = { enabled: false, color: "#c9a227", padding: 12, radius: 8, opacity: 100 };
         t.opacity = 100;
       },
     },
@@ -103,10 +100,10 @@ NoorTextStyles.register("presets", {
       apply: (t) => {
         t.color = "#f59e0b";
         t.gradient = { enabled: true, color1: "#f59e0b", color2: "#b91c1c", angle: 90 };
-        t.shadow = { enabled: true, color: "#7c1d00", blur: 10, x: 0, y: 4 };
+        t.shadow = { enabled: true, color: "#7c1d00", blur: 10, x: 0, y: 4, opacity: 100 };
         t.glow = { enabled: true, color: "#f59e0b", intensity: 12 };
-        t.outline = { enabled: false, color: "#ffffff", width: 2 };
-        t.highlight = { enabled: false, color: "#c9a227", padding: 12, radius: 8 };
+        t.outline = { enabled: false, color: "#fff", width: 2 };
+        t.highlight = { enabled: false, color: "#c9a227", padding: 12, radius: 8, opacity: 100 };
         t.opacity = 100;
       },
     },
@@ -117,34 +114,110 @@ NoorTextStyles.register("presets", {
       apply: (t) => {
         t.color = "#666666";
         t.opacity = 55;
-        t.shadow = { enabled: false, color: "#000000", blur: 8, x: 0, y: 4 };
-        t.outline = { enabled: false, color: "#ffffff", width: 2 };
+        t.shadow = { enabled: false, color: "#000", blur: 8, x: 0, y: 4, opacity: 100 };
+        t.outline = { enabled: false, color: "#fff", width: 2 };
         t.glow = { enabled: false, color: "#c9a227", intensity: 15 };
-        t.gradient = { enabled: false, color1: "#c9a227", color2: "#ffffff", angle: 90 };
-        t.highlight = { enabled: false, color: "#c9a227", padding: 12, radius: 8 };
+        t.gradient = { enabled: false, color1: "#c9a227", color2: "#fff", angle: 90 };
+        t.highlight = { enabled: false, color: "#c9a227", padding: 12, radius: 8, opacity: 100 };
+      },
+    },
+    {
+      id: "emerald",
+      name: "زمرد",
+      preview: "linear-gradient(135deg, #0d8b5f, #c9a227)",
+      apply: (t) => {
+        t.color = "#0d8b5f";
+        t.gradient = { enabled: true, color1: "#0d8b5f", color2: "#c9a227", angle: 90 };
+        t.shadow = { enabled: true, color: "#043d2a", blur: 8, x: 0, y: 3, opacity: 100 };
+        t.outline = { enabled: false, color: "#fff", width: 2 };
+        t.glow = { enabled: false, color: "#0d8b5f", intensity: 15 };
+        t.highlight = { enabled: false, color: "#c9a227", padding: 12, radius: 8, opacity: 100 };
+        t.opacity = 100;
+      },
+    },
+    {
+      id: "sunset",
+      name: "غروب",
+      preview: "linear-gradient(135deg, #be185d, #f59e0b)",
+      apply: (t) => {
+        t.color = "#be185d";
+        t.gradient = { enabled: true, color1: "#be185d", color2: "#f59e0b", angle: 90 };
+        t.shadow = { enabled: true, color: "#4a0420", blur: 10, x: 0, y: 4, opacity: 100 };
+        t.outline = { enabled: false, color: "#fff", width: 2 };
+        t.glow = { enabled: false, color: "#be185d", intensity: 15 };
+        t.highlight = { enabled: false, color: "#c9a227", padding: 12, radius: 8, opacity: 100 };
+        t.opacity = 100;
+      },
+    },
+    {
+      id: "silver",
+      name: "فضي",
+      preview: "linear-gradient(135deg, #e8e8e8, #888)",
+      apply: (t) => {
+        t.color = "#888888";
+        t.gradient = { enabled: true, color1: "#e8e8e8", color2: "#888888", angle: 90 };
+        t.shadow = { enabled: true, color: "#000", blur: 6, x: 0, y: 2, opacity: 60 };
+        t.outline = { enabled: false, color: "#fff", width: 2 };
+        t.glow = { enabled: false, color: "#c9a227", intensity: 15 };
+        t.highlight = { enabled: false, color: "#c9a227", padding: 12, radius: 8, opacity: 100 };
+        t.opacity = 100;
+      },
+    },
+    {
+      id: "sky",
+      name: "سماء",
+      preview: "linear-gradient(135deg, #0891b2, #7c3aed)",
+      apply: (t) => {
+        t.color = "#0891b2";
+        t.gradient = { enabled: true, color1: "#0891b2", color2: "#7c3aed", angle: 90 };
+        t.shadow = { enabled: true, color: "#052e3f", blur: 8, x: 0, y: 4, opacity: 100 };
+        t.outline = { enabled: false, color: "#fff", width: 2 };
+        t.glow = { enabled: false, color: "#0891b2", intensity: 15 };
+        t.highlight = { enabled: false, color: "#c9a227", padding: 12, radius: 8, opacity: 100 };
+        t.opacity = 100;
+      },
+    },
+    {
+      id: "rose",
+      name: "وردي",
+      preview: "linear-gradient(135deg, #be185d, #ffffff)",
+      apply: (t) => {
+        t.color = "#be185d";
+        t.gradient = { enabled: true, color1: "#be185d", color2: "#ffffff", angle: 90 };
+        t.shadow = { enabled: true, color: "#4a0420", blur: 8, x: 0, y: 3, opacity: 100 };
+        t.outline = { enabled: false, color: "#fff", width: 2 };
+        t.glow = { enabled: false, color: "#be185d", intensity: 15 };
+        t.highlight = { enabled: false, color: "#c9a227", padding: 12, radius: 8, opacity: 100 };
+        t.opacity = 100;
+      },
+    },
+    {
+      id: "black-gold",
+      name: "أسود ذهبي",
+      preview: "linear-gradient(135deg, #000, #c9a227)",
+      apply: (t) => {
+        t.color = "#c9a227";
+        t.gradient = { enabled: true, color1: "#000000", color2: "#c9a227", angle: 90 };
+        t.shadow = { enabled: true, color: "#000", blur: 10, x: 0, y: 3, opacity: 80 };
+        t.outline = { enabled: false, color: "#fff", width: 2 };
+        t.glow = { enabled: false, color: "#c9a227", intensity: 15 };
+        t.highlight = { enabled: false, color: "#c9a227", padding: 12, radius: 8, opacity: 100 };
+        t.opacity = 100;
       },
     },
   ],
 
-  /* ─────────────────────────────────────
-     ضمان وجود الإعدادات
-     ───────────────────────────────────── */
   ensure() {
     const t = NoorState.design.text;
-
     if (typeof t.opacity !== "number") t.opacity = 100;
     if (typeof t.lineHeight !== "number") t.lineHeight = 1.8;
-
-    if (!t.shadow) t.shadow = { enabled: false, color: "#000000", blur: 8, x: 0, y: 4 };
-    if (!t.outline) t.outline = { enabled: false, color: "#ffffff", width: 2 };
+    if (!t.shadow) t.shadow = { enabled: false, color: "#000", blur: 8, x: 0, y: 4, opacity: 100 };
+    if (!t.outline) t.outline = { enabled: false, color: "#fff", width: 2 };
     if (!t.glow) t.glow = { enabled: false, color: "#c9a227", intensity: 15 };
-    if (!t.gradient) t.gradient = { enabled: false, color1: "#c9a227", color2: "#ffffff", angle: 90 };
-    if (!t.highlight) t.highlight = { enabled: false, color: "#c9a227", padding: 12, radius: 8 };
+    if (!t.gradient) t.gradient = { enabled: false, color1: "#c9a227", color2: "#fff", angle: 90 };
+    if (!t.highlight) t.highlight = { enabled: false, color: "#c9a227", padding: 12, radius: 8, opacity: 100 };
   },
 
-  /* ─────────────────────────────────────
-     بناء الواجهة
-     ───────────────────────────────────── */
   render() {
     this.ensure();
 
@@ -158,18 +231,13 @@ NoorTextStyles.register("presets", {
     ).join("");
 
     return `
-      <div class="ts-row">
-        <label class="ts-label">اختر تأثيراً جاهزاً</label>
+      <div class="nk-row">
+        <span class="nk-row-label">${this.LIST.length} تأثير جاهز</span>
       </div>
-      <div class="ts-presets-grid">
-        ${cardsHTML}
-      </div>
+      <div class="ts-presets-grid">${cardsHTML}</div>
     `;
   },
 
-  /* ─────────────────────────────────────
-     ربط الأحداث
-     ───────────────────────────────────── */
   bind() {
     document.querySelectorAll("[data-ts-preset]").forEach((btn) => {
       btn.addEventListener("click", async () => {
@@ -181,7 +249,6 @@ NoorTextStyles.register("presets", {
 
         NoorState.pushHistory();
         await NoorRenderer.render();
-
         window.showToast?.(`تم تطبيق: ${preset.name}`);
       });
     });
