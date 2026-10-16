@@ -52,49 +52,86 @@ window.NoorRenderer = {
     this.drawFrame(d);
     this.drawDecor(d);
   },
+   async drawBackground(d) {
+  const ctx = this.ctx;
+  const bg = d.background;
 
-  async drawBackground(d) {
-    const ctx = this.ctx;
-    const bg = d.background;
+  /* ═══ 1. اللون/التدرج/الصورة ═══ */
+  if (bg.type === "solid") {
+    ctx.fillStyle = bg.value || "#f5ede0";
+    ctx.fillRect(0, 0, d.width, d.height);
+  } else if (bg.type === "gradient") {
+    const gradient = this.parseGradient(bg.value, d.width, d.height);
+    ctx.fillStyle = gradient || "#f5ede0";
+    ctx.fillRect(0, 0, d.width, d.height);
+  } else if (bg.type === "image" && bg.imageUrl) {
+    const img = await this.loadImage(bg.imageUrl);
+    if (img) {
+      const s = bg.imageSettings || { opacity: 100, brightness: 100, blur: 0 };
+      const ratio = Math.max(d.width / img.width, d.height / img.height);
+      const w = img.width * ratio;
+      const h = img.height * ratio;
+      const x = (d.width - w) / 2;
+      const y = (d.height - h) / 2;
 
-    if (bg.type === "solid") {
-      ctx.fillStyle = bg.value || "#f5ede0";
-      ctx.fillRect(0, 0, d.width, d.height);
-    } else if (bg.type === "gradient") {
-      const gradient = this.parseGradient(bg.value, d.width, d.height);
-      ctx.fillStyle = gradient || "#f5ede0";
-      ctx.fillRect(0, 0, d.width, d.height);
-    } else if (bg.type === "image" && bg.imageUrl) {
-      const img = await this.loadImage(bg.imageUrl);
-      if (img) {
-        const ratio = Math.max(d.width / img.width, d.height / img.height);
-        const w = img.width * ratio;
-        const h = img.height * ratio;
-        const x = (d.width - w) / 2;
-        const y = (d.height - h) / 2;
-        ctx.drawImage(img, x, y, w, h);
-      } else {
-        ctx.fillStyle = "#f5ede0";
-        ctx.fillRect(0, 0, d.width, d.height);
+      ctx.save();
+
+      /* الشفافية */
+      if (s.opacity < 100) {
+        ctx.globalAlpha = Math.max(0, Math.min(1, s.opacity / 100));
       }
-    }
 
-    if (bg.pattern && bg.pattern !== "none") {
-      this.drawPattern(ctx, d, bg.pattern);
+      /* الوضوح (brightness) */
+      if (s.brightness !== 100) {
+        const b = s.brightness / 100;
+        ctx.filter = `brightness(${b})`;
+      }
+
+      /* الضبابية */
+      if (s.blur > 0) {
+        const curFilter = ctx.filter && ctx.filter !== "none" ? ctx.filter + " " : "";
+        ctx.filter = `${curFilter}blur(${s.blur}px)`;
+      }
+
+      ctx.drawImage(img, x, y, w, h);
+      ctx.restore();
+
+      /* إذا كانت الصورة شفافة، ارسم خلفية بيضاء تحت */
+      if (s.opacity < 100) {
+        /* لا نفعل شيئاً — فقط نترك الورقة شفافة */
+      }
+    } else {
+      ctx.fillStyle = "#f5ede0";
+      ctx.fillRect(0, 0, d.width, d.height);
     }
-    if (bg.lighting && bg.lighting.enabled) {
-      this.drawLighting(ctx, d, bg.lighting);
-    }
-    if (bg.fog && bg.fog.enabled) {
-      this.drawFog(ctx, d, bg.fog);
-    }
-    if (bg.hdr && bg.hdr.enabled) {
-      this.drawHDR(ctx, d, bg.hdr);
-    }
-    if (bg.vignette && bg.vignette.enabled) {
-      this.drawVignette(ctx, d, bg.vignette);
-    }
-  },
+  }
+
+  /* ═══ 2. النقش ═══ */
+  if (bg.pattern && bg.pattern !== "none") {
+    this.drawPattern(ctx, d, bg.pattern);
+  }
+
+  /* ═══ 3. إضاءة ═══ */
+  if (bg.lighting && bg.lighting.enabled) {
+    this.drawLighting(ctx, d, bg.lighting);
+  }
+
+  /* ═══ 4. ضباب ═══ */
+  if (bg.fog && bg.fog.enabled) {
+    this.drawFog(ctx, d, bg.fog);
+  }
+
+  /* ═══ 5. HDR ═══ */
+  if (bg.hdr && bg.hdr.enabled) {
+    this.drawHDR(ctx, d, bg.hdr);
+  }
+
+  /* ═══ 6. فينيت ═══ */
+  if (bg.vignette && bg.vignette.enabled) {
+    this.drawVignette(ctx, d, bg.vignette);
+  }
+},
+   
 
   drawPattern(ctx, d, patternId) {
     ctx.save();
