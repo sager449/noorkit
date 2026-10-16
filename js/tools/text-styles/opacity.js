@@ -1,5 +1,5 @@
 /* =========================================
-   NoorKit — Text Style: Opacity
+   NoorKit — Text Style: Opacity (v2)
    شفافية النص
    ========================================= */
 
@@ -8,9 +8,6 @@ NoorTextStyles.register("opacity", {
   icon: "◑",
   order: 5,
 
-  /* ─────────────────────────────────────
-     ضمان وجود الإعدادات
-     ───────────────────────────────────── */
   ensure() {
     if (typeof NoorState.design.text.opacity !== "number") {
       NoorState.design.text.opacity = 100;
@@ -18,14 +15,8 @@ NoorTextStyles.register("opacity", {
     return NoorState.design.text.opacity;
   },
 
-  /* ─────────────────────────────────────
-     القيم السريعة
-     ───────────────────────────────────── */
   QUICK: [25, 50, 75, 100],
 
-  /* ─────────────────────────────────────
-     بناء الواجهة
-     ───────────────────────────────────── */
   render() {
     const val = this.ensure();
 
@@ -35,23 +26,19 @@ NoorTextStyles.register("opacity", {
     ).join("");
 
     return `
-      <div class="ts-row">
-        <label class="ts-label">الشفافية <span class="ts-value" id="ts-opacity-val">${val}%</span></label>
-        <input type="range" class="ts-slider" id="ts-opacity-slider" min="0" max="100" value="${val}" />
+      <div class="nk-row">
+        <span class="nk-row-label">الشفافية</span>
+        <span class="nk-row-value" id="ts-opacity-val">${val}%</span>
       </div>
+      <input type="range" class="ts-slider" id="ts-opacity-slider" min="0" max="100" value="${val}" style="width:100%;margin-bottom:10px;" />
 
-      <div class="ts-row">
-        <label class="ts-label">قيم سريعة</label>
-        <div class="ts-quick-group">
-          ${quickHTML}
-        </div>
+      <div class="nk-row">
+        <span class="nk-row-label">قيم سريعة</span>
       </div>
+      <div class="ts-quick-group">${quickHTML}</div>
     `;
   },
 
-  /* ─────────────────────────────────────
-     ربط الأحداث
-     ───────────────────────────────────── */
   bind() {
     const slider = document.getElementById("ts-opacity-slider");
     const valEl = document.getElementById("ts-opacity-val");
@@ -70,7 +57,6 @@ NoorTextStyles.register("opacity", {
 
     slider?.addEventListener("change", () => NoorState.pushHistory());
 
-    /* القيم السريعة */
     document.querySelectorAll("[data-ts-opacity-quick]").forEach((btn) => {
       btn.addEventListener("click", async () => {
         const v = parseInt(btn.dataset.tsOpacityQuick);
