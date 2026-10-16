@@ -1,0 +1,165 @@
+/* ═══════════════════════════════════════════════
+   NoorKit — Editor Toolbar
+   الأشرطة السفلية والعلوية والرفع
+   ═══════════════════════════════════════════════ */
+
+:root {
+  --nk-bg-primary:   #0d0d0d;
+  --nk-bg-secondary: #141414;
+  --nk-bg-card:      #1a1a1a;
+  --nk-bg-btn:       #2a2a2a;
+  --nk-bg-btn-hover: #3a3a3a;
+  --nk-border:       #2a2a2a;
+  --nk-text-primary: #ffffff;
+  --nk-text-secondary: #b0b0b0;
+  --nk-text-muted:   #888888;
+  --nk-accent:       #ffffff;
+}
+
+/* ═══ حاوية الأشرطة السفلية ═══ */
+.nk-toolbars {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9990;
+  display: flex;
+  flex-direction: column;
+  background: var(--nk-bg-primary);
+  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: transform;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.nk-toolbars.lifted {
+  transform: translateY(-50px);
+}
+
+/* ═══ شريط الرفع ═══ */
+.nk-lift-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  background: var(--nk-bg-secondary);
+  border-top: 1px solid var(--nk-border);
+  cursor: pointer;
+  user-select: none;
+  order: 3;
+}
+
+.nk-lift-bar:active {
+  background: var(--nk-bg-btn);
+}
+
+.nk-lift-handle {
+  width: 48px;
+  height: 4px;
+  background: var(--nk-text-muted);
+  border-radius: 2px;
+  transition: background 0.2s;
+}
+
+.nk-toolbars.lifted .nk-lift-handle {
+  background: var(--nk-accent);
+}
+
+/* ═══ الشريط العلوي (الديناميكي) ═══ */
+.nk-toolbar-secondary {
+  display: none;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 10px;
+  background: var(--nk-bg-secondary);
+  border-top: 1px solid var(--nk-border);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  order: 2;
+}
+
+.nk-toolbar-secondary::-webkit-scrollbar {
+  display: none;
+}
+
+.nk-toolbar-secondary.active {
+  display: flex;
+}
+
+/* ═══ الشريط السفلي (الرئيسي) ═══ */
+.nk-toolbar-primary {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 10px;
+  background: var(--nk-bg-primary);
+  border-top: 1px solid var(--nk-border);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  order: 1;
+}
+
+.nk-toolbar-primary::-webkit-scrollbar {
+  display: none;
+}
+
+/* ═══ الزر الواحد في الشريطين ═══ */
+.nk-tool-btn {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 62px;
+  height: 58px;
+  padding: 6px 4px;
+  background: transparent;
+  border: none;
+  border-radius: 12px;
+  color: var(--nk-text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  transition: all 0.18s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.nk-tool-btn:active {
+  background: var(--nk-bg-btn);
+  transform: scale(0.94);
+}
+
+.nk-tool-btn.active {
+  background: var(--nk-bg-btn);
+  color: var(--nk-text-primary);
+}
+
+.nk-tool-btn svg {
+  width: 22px;
+  height: 22px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex-shrink: 0;
+}
+
+.nk-tool-btn .nk-tool-icon {
+  font-size: 20px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.nk-tool-btn .nk-tool-label {
+  white-space: nowrap;
+  line-height: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  }
