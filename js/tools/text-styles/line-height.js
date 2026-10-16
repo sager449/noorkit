@@ -1,5 +1,5 @@
 /* =========================================
-   NoorKit — Text Style: Line Height
+   NoorKit — Text Style: Line Height (v2)
    تباعد الأسطر
    ========================================= */
 
@@ -8,9 +8,6 @@ NoorTextStyles.register("line-height", {
   icon: "☰",
   order: 7,
 
-  /* ─────────────────────────────────────
-     ضمان وجود الإعدادات
-     ───────────────────────────────────── */
   ensure() {
     if (typeof NoorState.design.text.lineHeight !== "number") {
       NoorState.design.text.lineHeight = 1.8;
@@ -18,14 +15,8 @@ NoorTextStyles.register("line-height", {
     return NoorState.design.text.lineHeight;
   },
 
-  /* ─────────────────────────────────────
-     القيم السريعة
-     ───────────────────────────────────── */
   QUICK: [1.2, 1.5, 1.8, 2.2, 2.8],
 
-  /* ─────────────────────────────────────
-     بناء الواجهة
-     ───────────────────────────────────── */
   render() {
     const val = this.ensure();
 
@@ -35,23 +26,19 @@ NoorTextStyles.register("line-height", {
     ).join("");
 
     return `
-      <div class="ts-row">
-        <label class="ts-label">تباعد الأسطر <span class="ts-value" id="ts-lh-val">${val}</span></label>
-        <input type="range" class="ts-slider" id="ts-lh-slider" min="1" max="3" step="0.1" value="${val}" />
+      <div class="nk-row">
+        <span class="nk-row-label">تباعد الأسطر</span>
+        <span class="nk-row-value" id="ts-lh-val">${val.toFixed(1)}</span>
       </div>
+      <input type="range" class="ts-slider" id="ts-lh-slider" min="1" max="3" step="0.1" value="${val}" style="width:100%;margin-bottom:10px;" />
 
-      <div class="ts-row">
-        <label class="ts-label">قيم سريعة</label>
-        <div class="ts-quick-group">
-          ${quickHTML}
-        </div>
+      <div class="nk-row">
+        <span class="nk-row-label">قيم سريعة</span>
       </div>
+      <div class="ts-quick-group">${quickHTML}</div>
     `;
   },
 
-  /* ─────────────────────────────────────
-     ربط الأحداث
-     ───────────────────────────────────── */
   bind() {
     const slider = document.getElementById("ts-lh-slider");
     const valEl = document.getElementById("ts-lh-val");
@@ -73,7 +60,6 @@ NoorTextStyles.register("line-height", {
 
     slider?.addEventListener("change", () => NoorState.pushHistory());
 
-    /* القيم السريعة */
     document.querySelectorAll("[data-ts-lh-quick]").forEach((btn) => {
       btn.addEventListener("click", async () => {
         const v = parseFloat(btn.dataset.tsLhQuick);
