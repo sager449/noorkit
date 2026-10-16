@@ -1,5 +1,6 @@
 /* =========================================
-   NoorKit — Editor Toolbar System (v7)
+   NoorKit — Editor Toolbar System (v8)
+   ورقة بدل خلفية + 8 أدوات للورقة
    ========================================= */
 
 window.NoorToolbar = {
@@ -12,7 +13,7 @@ window.NoorToolbar = {
   PRIMARY_TOOLS: [
     { id: "ayah", label: "الآية", svg: `<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>` },
     { id: "image", label: "صورة", svg: `<rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline>` },
-    { id: "background", label: "خلفية", svg: `<rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline>` },
+    { id: "background", label: "ورقة", svg: `<path d="M4 4h16v16H4z"></path><path d="M4 9h16"></path><path d="M9 4v16"></path>` },
     { id: "frame", label: "إطار", svg: `<rect x="3" y="3" width="18" height="18" rx="2"></rect><rect x="7" y="7" width="10" height="10" rx="1"></rect>` },
     { id: "translation", label: "ترجمة", svg: `<circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>` },
     { id: "decor", label: "زخرفة", svg: `<path d="M12 2L15.09 8.26 22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>` },
@@ -35,6 +36,17 @@ window.NoorToolbar = {
       { id: "highlight",   label: "خلفية",  svg: `<rect x="3" y="6" width="18" height="12" rx="2"></rect>` },
       { id: "line-height", label: "تباعد",  svg: `<line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line>` },
       { id: "presets",     label: "جاهزة",  svg: `<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>` },
+    ],
+
+    background: [
+      { id: "paper-color",    label: "لون",   svg: `<circle cx="12" cy="12" r="9"></circle>` },
+      { id: "paper-gradient", label: "تدرج",  svg: `<rect x="3" y="3" width="18" height="18"></rect><path d="M3 3l18 18"></path>` },
+      { id: "paper-image",    label: "صورة",  svg: `<rect x="3" y="3" width="18" height="18"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline>` },
+      { id: "paper-pattern",  label: "نقش",   svg: `<rect x="3" y="3" width="18" height="18"></rect><path d="M3 9h18M3 15h18M9 3v18M15 3v18"></path>` },
+      { id: "paper-lighting", label: "إضاءة", svg: `<circle cx="12" cy="12" r="4"></circle><line x1="12" y1="2" x2="12" y2="5"></line><line x1="12" y1="19" x2="12" y2="22"></line><line x1="2" y1="12" x2="5" y2="12"></line><line x1="19" y1="12" x2="22" y2="12"></line>` },
+      { id: "paper-fog",      label: "ضباب",  svg: `<path d="M3 12h18M5 16h14M7 8h10"></path>` },
+      { id: "paper-hdr",      label: "HDR",   svg: `<circle cx="12" cy="12" r="9"></circle><path d="M12 3a9 9 0 0 1 0 18"></path>` },
+      { id: "paper-vignette", label: "فينيت", svg: `<rect x="3" y="3" width="18" height="18"></rect><rect x="7" y="7" width="10" height="10"></rect>` },
     ],
   },
 
@@ -72,12 +84,14 @@ window.NoorToolbar = {
     const bar = document.getElementById("nk-toolbar-primary");
     if (!bar) return;
 
-    bar.innerHTML = this.PRIMARY_TOOLS.map((tool) => `
+    bar.innerHTML = this.PRIMARY_TOOLS.map(
+      (tool) => `
       <button class="nk-tool-btn" data-nk-primary="${tool.id}">
         <svg viewBox="0 0 24 24">${tool.svg}</svg>
         <span class="nk-tool-label">${tool.label}</span>
       </button>
-    `).join("");
+    `
+    ).join("");
 
     bar.querySelectorAll("[data-nk-primary]").forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -93,7 +107,9 @@ window.NoorToolbar = {
     if (this.activePrimary === id) {
       this.activePrimary = null;
       this.activeSecondary = null;
-      bar.querySelectorAll(".nk-tool-btn").forEach((b) => b.classList.remove("active"));
+      bar
+        .querySelectorAll(".nk-tool-btn")
+        .forEach((b) => b.classList.remove("active"));
       this.hideSecondary();
       this.closeMiniSheet();
       return;
@@ -123,12 +139,16 @@ window.NoorToolbar = {
 
     const tools = this.SECONDARY_TOOLS[primaryId] || [];
 
-    bar.innerHTML = tools.map((tool) => `
+    bar.innerHTML = tools
+      .map(
+        (tool) => `
       <button class="nk-tool-btn" data-nk-secondary="${tool.id}">
         <svg viewBox="0 0 24 24">${tool.svg}</svg>
         <span class="nk-tool-label">${tool.label}</span>
       </button>
-    `).join("");
+    `
+      )
+      .join("");
 
     bar.querySelectorAll("[data-nk-secondary]").forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -156,7 +176,9 @@ window.NoorToolbar = {
 
     if (this.activeSecondary === id) {
       this.activeSecondary = null;
-      bar.querySelectorAll(".nk-tool-btn").forEach((b) => b.classList.remove("active"));
+      bar
+        .querySelectorAll(".nk-tool-btn")
+        .forEach((b) => b.classList.remove("active"));
       this.closeMiniSheet();
       return;
     }
@@ -193,7 +215,9 @@ window.NoorToolbar = {
       this.activeSecondary = null;
       const bar = document.getElementById("nk-toolbar-secondary");
       if (bar) {
-        bar.querySelectorAll(".nk-tool-btn").forEach((b) => b.classList.remove("active"));
+        bar
+          .querySelectorAll(".nk-tool-btn")
+          .forEach((b) => b.classList.remove("active"));
       }
       this.closeMiniSheet();
     });
@@ -207,15 +231,22 @@ window.NoorToolbar = {
     const title = document.getElementById("nk-mini-title");
     if (!content) return;
 
+    /* العنوان */
     const allTools = Object.values(this.SECONDARY_TOOLS).flat();
     const toolDef = allTools.find((t) => t.id === toolId);
     if (title && toolDef) title.textContent = toolDef.label;
 
+    /* المحتوى */
     let html = "";
 
     if (toolId === "quran" && typeof NoorQuranPanel !== "undefined") {
       html = NoorQuranPanel.render();
-    } else if (typeof NoorTextStyles !== "undefined" && NoorTextStyles.get(toolId)) {
+    } else if (toolId.startsWith("paper-") && typeof NoorPaper !== "undefined") {
+      html = NoorPaper.renderToolContent(toolId);
+    } else if (
+      typeof NoorTextStyles !== "undefined" &&
+      NoorTextStyles.get(toolId)
+    ) {
       html = NoorTextStyles.renderContent(toolId);
     } else if (typeof NoorTextEditor !== "undefined") {
       html = NoorTextEditor.renderToolContent(toolId);
@@ -223,9 +254,15 @@ window.NoorToolbar = {
 
     content.innerHTML = html;
 
+    /* الربط */
     if (toolId === "quran" && typeof NoorQuranPanel !== "undefined") {
       NoorQuranPanel.bind();
-    } else if (typeof NoorTextStyles !== "undefined" && NoorTextStyles.get(toolId)) {
+    } else if (toolId.startsWith("paper-") && typeof NoorPaper !== "undefined") {
+      NoorPaper.bindToolContent(toolId);
+    } else if (
+      typeof NoorTextStyles !== "undefined" &&
+      NoorTextStyles.get(toolId)
+    ) {
       NoorTextStyles.bindContent(toolId);
     } else if (typeof NoorTextEditor !== "undefined") {
       NoorTextEditor.bindToolContent(toolId);
