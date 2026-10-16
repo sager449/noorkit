@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════
-   NoorKit — Editor Toolbar (Final v10)
-   حجم تلقائي + دائرة بيضاء + منتقي HEX
+   NoorKit — Editor Toolbar (Final v11)
+   دوائر صغيرة — بدون تكبير — منتقي في المقدمة
    ═══════════════════════════════════════════════ */
 
 :root {
@@ -14,7 +14,6 @@
   --nk-accent:       #ffffff;
 }
 
-/* ═══ الحاوية ═══ */
 .nk-toolbars {
   position: fixed;
   left: 0;
@@ -40,7 +39,6 @@
   -webkit-overflow-scrolling: touch;
   order: 1;
   transition: transform 0.12s ease-out;
-  will-change: transform;
 }
 
 .nk-toolbar-secondary::-webkit-scrollbar { display: none; }
@@ -71,7 +69,6 @@
   background: var(--nk-bg-secondary);
   border-top: 1px solid var(--nk-border);
   cursor: pointer;
-  user-select: none;
   order: 3;
 }
 
@@ -82,7 +79,6 @@
   height: 4px;
   background: var(--nk-text-muted);
   border-radius: 2px;
-  transition: background 0.1s;
 }
 
 .nk-toolbars.lifted .nk-lift-handle { background: var(--nk-accent); }
@@ -124,15 +120,13 @@
 
 .nk-tool-btn .nk-tool-label {
   white-space: nowrap;
-  line-height: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%;
+  line-height: 1;
 }
 
-/* ═══════════════════════════════════════════════
-   اللوحة الصغيرة — حجم تلقائي (بدون تحديد)
-   ═══════════════════════════════════════════════ */
+/* ═══ اللوحة الصغيرة ═══ */
 
 .nk-mini-sheet {
   position: fixed;
@@ -141,18 +135,15 @@
   z-index: 9989;
   background: var(--nk-bg-secondary);
   border-top: 1px solid var(--nk-border);
-  border-radius: 0;
-  box-shadow: none;
   transform: translateY(20px);
   opacity: 0;
   pointer-events: none;
   transition: transform 0.15s ease-out, opacity 0.15s ease-out;
-  will-change: transform, opacity;
   display: flex;
   flex-direction: column;
   direction: rtl;
   overflow: hidden;
-  max-height: 26vh;
+  max-height: 28vh;
 }
 
 .nk-mini-sheet.open {
@@ -165,13 +156,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 4px 12px;
+  padding: 6px 12px;
   border-bottom: 1px solid var(--nk-border);
   flex-shrink: 0;
 }
 
 .nk-mini-title {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--nk-text-primary);
   flex: 1;
@@ -184,7 +175,7 @@
   background: transparent;
   border: none;
   color: var(--nk-text-secondary);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   cursor: pointer;
   display: flex;
@@ -193,25 +184,16 @@
   padding: 0;
 }
 
-.nk-mini-close:active { color: var(--nk-text-primary); }
-
 .nk-mini-spacer { width: 24px; height: 24px; }
 
 .nk-mini-content {
-  padding: 8px 10px 14px;
+  padding: 8px 10px 12px;
   overflow-y: auto;
   overflow-x: hidden;
-  scrollbar-width: thin;
-  scrollbar-color: #3a3a3a transparent;
   flex: 1;
 }
 
-.nk-mini-content::-webkit-scrollbar { width: 4px; }
-.nk-mini-content::-webkit-scrollbar-thumb {
-  background: #3a3a3a;
-  border-radius: 2px;
-}
-
+/* ═══ إخفاء القوالب القديمة ═══ */
 .editor-toolbar { display: none !important; }
 .tool-panel { display: none !important; }
 
@@ -226,7 +208,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .nk-row-label {
@@ -247,93 +229,128 @@
 }
 
 /* ═══════════════════════════════════════════════
-   نقاط الألوان — دائرة بيضاء عند التحديد
+   صف الألوان: دوائر صغيرة + منتقي في المقدمة
    ═══════════════════════════════════════════════ */
 
+.nk-color-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 0 6px;
+}
+
+/* زر منتقي اللون (في المقدمة) */
+.nk-color-picker-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: conic-gradient(
+    from 0deg,
+    #ff0000, #ffff00, #00ff00, #00ffff,
+    #0000ff, #ff00ff, #ff0000
+  );
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15);
+}
+
+.nk-color-picker-btn:active { opacity: 0.7; }
+
+/* حاوية التمرير للألوان */
 .nk-color-scroll {
   display: flex;
   flex-direction: row;
-  gap: 10px;
+  gap: 8px;
   overflow-x: auto;
   scrollbar-width: none;
-  padding: 4px 2px;
+  padding: 2px 0;
   -webkit-overflow-scrolling: touch;
+  flex: 1;
 }
 
 .nk-color-scroll::-webkit-scrollbar { display: none; }
 
+/* الدائرة الصغيرة — بدون تكبير عند التحديد */
 .nk-color-dot {
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   border: none;
   cursor: pointer;
   padding: 0;
   flex-shrink: 0;
   position: relative;
-  transition: transform 0.15s;
   -webkit-tap-highlight-color: transparent;
   box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15);
+  transition: box-shadow 0.15s;
 }
 
-.nk-color-dot:active { transform: scale(0.9); }
+.nk-color-dot:active { opacity: 0.7; }
 
+/* عند التحديد: حلقة بيضاء رقيقة فقط، بدون تكبير */
 .nk-color-dot.active {
   box-shadow:
     inset 0 0 0 1px rgba(255,255,255,0.15),
-    0 0 0 2px #141414,
-    0 0 0 3px #ffffff;
-  transform: scale(1.05);
+    0 0 0 1px #141414,
+    0 0 0 2.5px #ffffff;
 }
 
-/* ═══════════════════════════════════════════════
-   منتقي اللون المخصص (مربع + HEX)
-   ═══════════════════════════════════════════════ */
+/* ═══ منتقي اللون (iro) — كما في الصورة 4 ═══ */
+.nk-iro-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  background: #141414;
+  display: flex;
+  flex-direction: column;
+  direction: rtl;
+  animation: fadeIn 0.15s ease-out;
+}
 
-.nk-color-picker {
+.nk-iro-modal[hidden] { display: none !important; }
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.nk-iro-body {
+  flex: 1;
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 8px;
+  justify-content: center;
+  padding: 20px;
 }
 
-.nk-color-preview {
-  width: 36px;
-  height: 36px;
-  border: 1px solid #3a3a3a;
-  cursor: pointer;
-  flex-shrink: 0;
-  position: relative;
-  overflow: hidden;
+.nk-iro-footer {
+  display: flex;
+  gap: 10px;
+  padding: 14px 20px;
+  padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
 }
 
-.nk-color-preview input[type="color"] {
-  position: absolute;
-  top: -4px;
-  left: -4px;
-  width: 50px;
-  height: 50px;
-  border: none;
-  cursor: pointer;
-  background: transparent;
-  padding: 0;
-}
-
-.nk-color-hex {
+.nk-iro-btn {
   flex: 1;
-  padding: 8px 10px;
-  background: #2a2a2a;
-  border: 1px solid #2a2a2a;
-  color: #fff;
-  font-size: 12px;
+  padding: 14px;
+  border: none;
+  font-size: 18px;
   font-weight: 700;
-  font-family: "Courier New", monospace;
-  text-align: center;
-  text-transform: uppercase;
-  box-sizing: border-box;
-  outline: none;
+  cursor: pointer;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.nk-color-hex:focus {
-  border-color: #555;
-   }
+.nk-iro-cancel {
+  background: #2a2a2a;
+  color: #fff;
+}
+
+.nk-iro-confirm {
+  background: #ffffff;
+  color: #111;
+}
