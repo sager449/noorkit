@@ -1,6 +1,6 @@
 /* =========================================
    NoorKit — Text Style: Outline
-   حدود النص (Stroke)
+   حدود النص — مع Toggle Switch
    ========================================= */
 
 NoorTextStyles.register("outline", {
@@ -8,9 +8,6 @@ NoorTextStyles.register("outline", {
   icon: "◎",
   order: 2,
 
-  /* ─────────────────────────────────────
-     ضمان وجود الإعدادات
-     ───────────────────────────────────── */
   ensure() {
     if (!NoorState.design.text.outline) {
       NoorState.design.text.outline = {
@@ -22,21 +19,11 @@ NoorTextStyles.register("outline", {
     return NoorState.design.text.outline;
   },
 
-  /* ─────────────────────────────────────
-     الألوان الجاهزة
-     ───────────────────────────────────── */
   COLORS: [
-    "#ffffff",
-    "#000000",
-    "#c9a227",
-    "#7c3aed",
-    "#1e40af",
-    "#b91c1c",
+    "#ffffff", "#000000", "#c9a227", "#7c3aed",
+    "#1e40af", "#b91c1c", "#0d8b5f", "#f59e0b",
   ],
 
-  /* ─────────────────────────────────────
-     بناء الواجهة
-     ───────────────────────────────────── */
   render() {
     const s = this.ensure();
 
@@ -46,48 +33,37 @@ NoorTextStyles.register("outline", {
     ).join("");
 
     return `
-      <div class="ts-row">
-        <label class="ts-label">التشغيل</label>
-        <div class="ts-toggle">
-          <button class="ts-toggle-btn ${s.enabled ? "active" : ""}" data-ts-outline-toggle="on">تشغيل</button>
-          <button class="ts-toggle-btn ${!s.enabled ? "active" : ""}" data-ts-outline-toggle="off">إيقاف</button>
-        </div>
+      <div class="nk-row">
+        <span class="nk-row-label">التشغيل</span>
+        <label class="nk-toggle">
+          <input type="checkbox" class="nk-toggle-input" id="ts-outline-toggle" ${s.enabled ? "checked" : ""} />
+          <span class="nk-toggle-switch"></span>
+        </label>
       </div>
 
-      <div class="ts-row">
-        <label class="ts-label">اللون</label>
-        <div class="ts-colors">
-          ${colorsHTML}
-        </div>
+      <div class="nk-row" style="flex-direction:column;align-items:stretch;">
+        <span class="nk-row-label" style="margin-bottom:6px;">اللون</span>
+        <div class="ts-colors">${colorsHTML}</div>
       </div>
 
-      <div class="ts-row">
-        <label class="ts-label">السماكة <span class="ts-value" id="ts-outline-width-val">${s.width}</span></label>
-        <input type="range" class="ts-slider" id="ts-outline-width" min="1" max="12" value="${s.width}" />
+      <div class="nk-row">
+        <span class="nk-row-label">السماكة</span>
+        <span class="nk-row-value" id="ts-outline-width-val">${s.width}</span>
       </div>
+      <input type="range" class="ts-slider" id="ts-outline-width" min="1" max="12" value="${s.width}" style="width:100%;" />
     `;
   },
 
-  /* ─────────────────────────────────────
-     ربط الأحداث
-     ───────────────────────────────────── */
   bind() {
     const s = this.ensure();
 
-    /* تشغيل / إيقاف */
-    document.querySelectorAll("[data-ts-outline-toggle]").forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        s.enabled = btn.dataset.tsOutlineToggle === "on";
-        document.querySelectorAll("[data-ts-outline-toggle]").forEach((b) =>
-          b.classList.remove("active")
-        );
-        btn.classList.add("active");
-        NoorState.pushHistory();
-        await NoorRenderer.render();
-      });
+    const toggle = document.getElementById("ts-outline-toggle");
+    toggle?.addEventListener("change", async () => {
+      s.enabled = toggle.checked;
+      NoorState.pushHistory();
+      await NoorRenderer.render();
     });
 
-    /* اللون */
     document.querySelectorAll("[data-ts-outline-color]").forEach((btn) => {
       btn.addEventListener("click", async () => {
         s.color = btn.dataset.tsOutlineColor;
@@ -96,18 +72,19 @@ NoorTextStyles.register("outline", {
         );
         btn.classList.add("active");
         s.enabled = true;
+        if (toggle) toggle.checked = true;
         NoorState.pushHistory();
         await NoorRenderer.render();
       });
     });
 
-    /* السماكة */
     const width = document.getElementById("ts-outline-width");
     const widthVal = document.getElementById("ts-outline-width-val");
     width?.addEventListener("input", async () => {
       s.width = parseInt(width.value);
       if (widthVal) widthVal.textContent = s.width;
       s.enabled = true;
+      if (toggle) toggle.checked = true;
       await NoorRenderer.render();
     });
     width?.addEventListener("change", () => NoorState.pushHistory());
