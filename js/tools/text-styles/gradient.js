@@ -1,6 +1,6 @@
 /* =========================================
-   NoorKit — Text Style: Gradient
-   تدرج لوني — مع Toggle Switch
+   NoorKit — Text Style: Gradient (v3)
+   بدون زر تشغيل — تفعيل تلقائي
    ========================================= */
 
 NoorTextStyles.register("gradient", {
@@ -42,26 +42,18 @@ NoorTextStyles.register("gradient", {
 
     return `
       <div class="nk-row">
-        <span class="nk-row-label">التشغيل</span>
-        <label class="nk-toggle">
-          <input type="checkbox" class="nk-toggle-input" id="ts-grad-toggle" ${s.enabled ? "checked" : ""} />
-          <span class="nk-toggle-switch"></span>
-        </label>
+        <span class="nk-row-label">تدرجات جاهزة</span>
       </div>
+      <div class="ts-gradient-presets">${presetsHTML}</div>
 
-      <div class="nk-row" style="flex-direction:column;align-items:stretch;">
-        <span class="nk-row-label" style="margin-bottom:6px;">تدرجات جاهزة</span>
-        <div class="ts-gradient-presets">${presetsHTML}</div>
-      </div>
-
-      <div class="nk-row">
+      <div class="nk-row" style="margin-top:10px;">
         <span class="nk-row-label">اللون الأول</span>
-        <input type="color" class="ts-color-input" id="ts-grad-c1" value="${s.color1}" style="width:36px;height:28px;border:none;cursor:pointer;background:transparent;" />
+        <div class="nk-color-picker-btn" style="background:${s.color1};" data-ts-grad-picker1></div>
       </div>
 
       <div class="nk-row">
         <span class="nk-row-label">اللون الثاني</span>
-        <input type="color" class="ts-color-input" id="ts-grad-c2" value="${s.color2}" style="width:36px;height:28px;border:none;cursor:pointer;background:transparent;" />
+        <div class="nk-color-picker-btn" style="background:${s.color2};" data-ts-grad-picker2></div>
       </div>
 
       <div class="nk-row">
@@ -75,55 +67,54 @@ NoorTextStyles.register("gradient", {
   bind() {
     const s = this.ensure();
 
-    const toggle = document.getElementById("ts-grad-toggle");
-    toggle?.addEventListener("change", async () => {
-      s.enabled = toggle.checked;
-      NoorState.pushHistory();
-      await NoorRenderer.render();
-    });
-
+    /* التدرجات الجاهزة */
     document.querySelectorAll("[data-ts-grad-c1]").forEach((btn) => {
       btn.addEventListener("click", async () => {
         s.color1 = btn.dataset.tsGradC1;
         s.color2 = btn.dataset.tsGradC2;
         s.enabled = true;
-        if (toggle) toggle.checked = true;
 
-        const c1 = document.getElementById("ts-grad-c1");
-        const c2 = document.getElementById("ts-grad-c2");
-        if (c1) c1.value = s.color1;
-        if (c2) c2.value = s.color2;
+        const p1 = document.querySelector("[data-ts-grad-picker1]");
+        const p2 = document.querySelector("[data-ts-grad-picker2]");
+        if (p1) p1.style.background = s.color1;
+        if (p2) p2.style.background = s.color2;
 
         NoorState.pushHistory();
         await NoorRenderer.render();
       });
     });
 
-    const c1 = document.getElementById("ts-grad-c1");
-    c1?.addEventListener("input", async () => {
-      s.color1 = c1.value;
-      s.enabled = true;
-      if (toggle) toggle.checked = true;
-      await NoorRenderer.render();
+    /* اللون الأول */
+    document.querySelector("[data-ts-grad-picker1]")?.addEventListener("click", () => {
+      NoorTextStyles.openColorPicker(s.color1, async (c) => {
+        s.color1 = c;
+        s.enabled = true;
+        const p1 = document.querySelector("[data-ts-grad-picker1]");
+        if (p1) p1.style.background = c;
+        NoorState.pushHistory();
+        await NoorRenderer.render();
+      });
     });
-    c1?.addEventListener("change", () => NoorState.pushHistory());
 
-    const c2 = document.getElementById("ts-grad-c2");
-    c2?.addEventListener("input", async () => {
-      s.color2 = c2.value;
-      s.enabled = true;
-      if (toggle) toggle.checked = true;
-      await NoorRenderer.render();
+    /* اللون الثاني */
+    document.querySelector("[data-ts-grad-picker2]")?.addEventListener("click", () => {
+      NoorTextStyles.openColorPicker(s.color2, async (c) => {
+        s.color2 = c;
+        s.enabled = true;
+        const p2 = document.querySelector("[data-ts-grad-picker2]");
+        if (p2) p2.style.background = c;
+        NoorState.pushHistory();
+        await NoorRenderer.render();
+      });
     });
-    c2?.addEventListener("change", () => NoorState.pushHistory());
 
+    /* الزاوية */
     const angle = document.getElementById("ts-grad-angle");
     const angleVal = document.getElementById("ts-grad-angle-val");
     angle?.addEventListener("input", async () => {
       s.angle = parseInt(angle.value);
       if (angleVal) angleVal.textContent = s.angle + "°";
       s.enabled = true;
-      if (toggle) toggle.checked = true;
       await NoorRenderer.render();
     });
     angle?.addEventListener("change", () => NoorState.pushHistory());
