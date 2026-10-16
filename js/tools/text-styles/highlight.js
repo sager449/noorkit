@@ -1,6 +1,6 @@
 /* =========================================
-   NoorKit — Text Style: Highlight (v2)
-   12 لون + شفافية + بدون toggle
+   NoorKit — Text Style: Highlight (v3)
+   دوائر صغيرة + منتقي في المقدمة + بدون HEX
    ========================================= */
 
 NoorTextStyles.register("highlight", {
@@ -35,118 +35,77 @@ NoorTextStyles.register("highlight", {
 
     const colorsHTML = this.COLORS.map(
       (c) =>
-        `<button class="nk-color-dot ${s.color === c ? "active" : ""}" data-ts-hl-color="${c}" style="background:${c};"></button>`
+        `<button class="nk-color-dot ${s.color === c ? "active" : ""}" data-ts-highlight-color="${c}" style="background:${c};"></button>`
     ).join("");
 
     return `
-      <div class="nk-row" style="flex-direction:column;align-items:stretch;">
-        <span class="nk-row-label" style="margin-bottom:6px;">اللون</span>
-        <div class="nk-color-scroll">${colorsHTML}</div>
-
-        <div class="nk-color-picker">
-          <div class="nk-color-preview" style="background:${s.color};">
-            <input type="color" id="ts-hl-picker" value="${s.color}" />
-          </div>
-          <input type="text" class="nk-color-hex" id="ts-hl-hex" value="${s.color.toUpperCase()}" maxlength="7" />
-        </div>
-      </div>
-
       <div class="nk-row">
-        <span class="nk-row-label">الشفافية</span>
-        <span class="nk-row-value" id="ts-hl-op-val">${s.opacity}%</span>
+        <span class="nk-row-label">اللون</span>
       </div>
-      <input type="range" class="ts-slider" id="ts-hl-op" min="0" max="100" value="${s.opacity}" style="width:100%;margin-bottom:10px;" />
+
+      <div class="nk-color-row">
+        <button class="nk-color-picker-btn" data-ts-highlight-picker></button>
+        <div class="nk-color-scroll">${colorsHTML}</div>
+      </div>
+
+      <div class="nk-row" style="margin-top:8px;">
+        <span class="nk-row-label">الشفافية</span>
+        <span class="nk-row-value" id="ts-highlight-op-val">${s.opacity}%</span>
+      </div>
+      <input type="range" class="ts-slider" id="ts-highlight-op" min="0" max="100" value="${s.opacity}" style="width:100%;margin-bottom:8px;" />
 
       <div class="nk-row">
         <span class="nk-row-label">الحشو</span>
-        <span class="nk-row-value" id="ts-hl-pad-val">${s.padding}</span>
+        <span class="nk-row-value" id="ts-highlight-pad-val">${s.padding}</span>
       </div>
-      <input type="range" class="ts-slider" id="ts-hl-pad" min="0" max="40" value="${s.padding}" style="width:100%;margin-bottom:10px;" />
+      <input type="range" class="ts-slider" id="ts-highlight-pad" min="0" max="40" value="${s.padding}" style="width:100%;margin-bottom:8px;" />
 
       <div class="nk-row">
         <span class="nk-row-label">الاستدارة</span>
-        <span class="nk-row-value" id="ts-hl-radius-val">${s.radius}</span>
+        <span class="nk-row-value" id="ts-highlight-radius-val">${s.radius}</span>
       </div>
-      <input type="range" class="ts-slider" id="ts-hl-radius" min="0" max="30" value="${s.radius}" style="width:100%;" />
+      <input type="range" class="ts-slider" id="ts-highlight-radius" min="0" max="30" value="${s.radius}" style="width:100%;" />
     `;
   },
 
   bind() {
     const s = this.ensure();
 
-    document.querySelectorAll("[data-ts-hl-color]").forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        const color = btn.dataset.tsHlColor;
+    const setColor = async (color) => {
+      s.color = color;
+      s.enabled = true;
+      NoorTextStyles.updateDotActive("highlight", color);
+      NoorState.pushHistory();
+      await NoorRenderer.render();
+    };
 
+    /* الألوان */
+    document.querySelectorAll("[data-ts-highlight-color]").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const color = btn.dataset.tsHighlightColor;
         if (s.color === color && s.enabled) {
           s.enabled = false;
-          document.querySelectorAll("[data-ts-hl-color]").forEach((b) =>
+          document.querySelectorAll("[data-ts-highlight-color]").forEach((b) =>
             b.classList.remove("active")
           );
           NoorState.pushHistory();
           await NoorRenderer.render();
           return;
         }
-
-        s.color = color;
-        s.enabled = true;
-
-        document.querySelectorAll("[data-ts-hl-color]").forEach((b) =>
-          b.classList.remove("active")
-        );
-        btn.classList.add("active");
-
-        const preview = document.querySelector(".nk-color-preview");
-        const picker = document.getElementById("ts-hl-picker");
-        const hex = document.getElementById("ts-hl-hex");
-        if (preview) preview.style.background = color;
-        if (picker) picker.value = color;
-        if (hex) hex.value = color.toUpperCase();
-
-        NoorState.pushHistory();
-        await NoorRenderer.render();
+        await setColor(color);
       });
     });
 
-    const picker = document.getElementById("ts-hl-picker");
-    picker?.addEventListener("input", async () => {
-      s.color = picker.value;
-      s.enabled = true;
-      const preview = document.querySelector(".nk-color-preview");
-      const hex = document.getElementById("ts-hl-hex");
-      if (preview) preview.style.background = s.color;
-      if (hex) hex.value = s.color.toUpperCase();
-      document.querySelectorAll("[data-ts-hl-color]").forEach((b) =>
-        b.classList.remove("active")
-      );
-      await NoorRenderer.render();
-    });
-    picker?.addEventListener("change", () => NoorState.pushHistory());
-
-    const hex = document.getElementById("ts-hl-hex");
-    hex?.addEventListener("change", async () => {
-      let val = hex.value.trim();
-      if (!val.startsWith("#")) val = "#" + val;
-      if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
-        s.color = val.toUpperCase();
-        s.enabled = true;
-        const preview = document.querySelector(".nk-color-preview");
-        const p = document.getElementById("ts-hl-picker");
-        if (preview) preview.style.background = s.color;
-        if (p) p.value = s.color;
-        hex.value = s.color;
-        document.querySelectorAll("[data-ts-hl-color]").forEach((b) =>
-          b.classList.remove("active")
-        );
-        NoorState.pushHistory();
-        await NoorRenderer.render();
-      } else {
-        hex.value = s.color.toUpperCase();
-      }
+    /* منتقي اللون */
+    document.querySelector("[data-ts-highlight-picker]")?.addEventListener("click", () => {
+      NoorTextStyles.openColorPicker(s.color, async (newColor) => {
+        await setColor(newColor);
+      });
     });
 
-    const op = document.getElementById("ts-hl-op");
-    const opVal = document.getElementById("ts-hl-op-val");
+    /* الشفافية */
+    const op = document.getElementById("ts-highlight-op");
+    const opVal = document.getElementById("ts-highlight-op-val");
     op?.addEventListener("input", async () => {
       s.opacity = parseInt(op.value);
       if (opVal) opVal.textContent = s.opacity + "%";
@@ -155,8 +114,9 @@ NoorTextStyles.register("highlight", {
     });
     op?.addEventListener("change", () => NoorState.pushHistory());
 
-    const pad = document.getElementById("ts-hl-pad");
-    const padVal = document.getElementById("ts-hl-pad-val");
+    /* الحشو */
+    const pad = document.getElementById("ts-highlight-pad");
+    const padVal = document.getElementById("ts-highlight-pad-val");
     pad?.addEventListener("input", async () => {
       s.padding = parseInt(pad.value);
       if (padVal) padVal.textContent = s.padding;
@@ -165,8 +125,9 @@ NoorTextStyles.register("highlight", {
     });
     pad?.addEventListener("change", () => NoorState.pushHistory());
 
-    const radius = document.getElementById("ts-hl-radius");
-    const radiusVal = document.getElementById("ts-hl-radius-val");
+    /* الاستدارة */
+    const radius = document.getElementById("ts-highlight-radius");
+    const radiusVal = document.getElementById("ts-highlight-radius-val");
     radius?.addEventListener("input", async () => {
       s.radius = parseInt(radius.value);
       if (radiusVal) radiusVal.textContent = s.radius;
