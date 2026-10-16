@@ -1,605 +1,103 @@
 /* ═══════════════════════════════════════════════
-   NoorKit — Text Styles CSS (Final v3)
+   تدرجات أفقية — سطر واحد قابل للتمرير
    ═══════════════════════════════════════════════ */
 
-/* ═══ رفع الـ canvas ═══ */
-.canvas-wrapper,
-#canvas-wrapper {
-  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
-}
-
-.canvas-wrapper.canvas-shifted,
-#canvas-wrapper.canvas-shifted {
-  transform: translateY(-12vh);
-}
-
-/* ═══ Tab مفعل ═══ */
-.ts-tab.active {
-  background: #2a2a2a;
-  color: #ffffff;
-}
-
-/* ═══ Sliders عام ═══ */
-.ts-slider {
-  width: 100%;
-  height: 3px;
-  accent-color: #ffffff;
-  cursor: pointer;
-  background: transparent;
-}
-
-/* ═══════════════════════════════════════════════
-   منتقي الألوان (iro) — كما في الصورة 4
-   ═══════════════════════════════════════════════ */
-
-.color-picker-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 10001;
-  background: #141414;
-  display: flex;
-  flex-direction: column;
-  direction: rtl;
-}
-
-.color-picker-modal[hidden] { display: none !important; }
-
-.color-picker-inner {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.color-picker-title {
-  font-size: 15px;
-  font-weight: 700;
-  color: #fff;
-  text-align: center;
-  padding: 16px;
-}
-
-.color-picker-body {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-
-#iro-picker {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.color-picker-footer {
-  display: flex;
-  gap: 10px;
-  padding: 14px 20px;
-  padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
-}
-
-.color-picker-cancel,
-.color-picker-confirm {
-  flex: 1;
-  padding: 14px;
-  border: none;
-  font-size: 18px;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: inherit;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.color-picker-cancel {
-  background: #2a2a2a;
-  color: #fff;
-}
-
-.color-picker-confirm {
-  background: #ffffff;
-  color: #111;
-}
-
-/* ═══════════════════════════════════════════════
-   لوحة الحركة الجديدة (أسهم + تدوير)
-   ═══════════════════════════════════════════════ */
-
-.te-move-grid {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 4px 0;
-}
-
-.te-move-col {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex: 1;
-}
-
-.te-move-label {
-  font-size: 11px;
-  font-weight: 700;
-  color: #b0b0b0;
-  text-align: center;
-}
-
-/* ─── شبكة الأسهم 3×3 ─── */
-.te-arrows-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 38px);
-  grid-template-rows: repeat(3, 38px);
-  gap: 4px;
-  justify-content: center;
-}
-
-.te-arrow-btn {
-  width: 38px;
-  height: 38px;
-  background: #2a2a2a;
-  border: none;
-  color: #ffffff;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: inherit;
-  padding: 0;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.te-arrow-btn:active {
-  background: #3a3a3a;
-}
-
-.te-arrow-btn[data-te-move="center"] {
-  font-size: 18px;
-  color: #b0b0b0;
-}
-
-/* ─── التدوير ─── */
-.te-rotate-row {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.te-rotate-btn {
-  width: 38px;
-  height: 38px;
-  background: #2a2a2a;
-  border: none;
-  color: #ffffff;
-  font-size: 18px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: inherit;
-  padding: 0;
-  flex-shrink: 0;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.te-rotate-btn:active {
-  background: #3a3a3a;
-}
-
-.te-rotate-num {
-  flex: 1;
-  height: 38px;
-  background: #2a2a2a;
-  border: none;
-  color: #ffffff;
-  font-size: 14px;
-  font-weight: 700;
-  text-align: center;
-  font-family: inherit;
-  -moz-appearance: textfield;
-  padding: 0 4px;
-  min-width: 0;
-}
-
-.te-rotate-num::-webkit-outer-spin-button,
-.te-rotate-num::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-.te-rotate-reset {
-  padding: 10px;
-  background: #2a2a2a;
-  border: none;
-  color: #cccccc;
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-.te-rotate-reset:active {
-  background: #3a3a3a;
-  color: #ffffff;
-}
-/* ═══════════════════════════════════════════════
-   بطاقات الخط (font-option) — بدون حواف صغيرة
-   ═══════════════════════════════════════════════ */
-
-.te-fonts {
+.nk-grad-row {
   display: flex;
   flex-direction: row;
-  gap: 6px;
+  gap: 8px;
   overflow-x: auto;
   scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
   padding: 4px 0;
 }
 
-.te-fonts::-webkit-scrollbar { display: none; }
+.nk-grad-row::-webkit-scrollbar { display: none; }
 
-.te-fonts .font-option {
+.nk-grad-chip {
   flex: 0 0 auto;
-  min-width: 70px;
-  height: 40px;
-  padding: 0 12px;
-  background: #2a2a2a;
-  border: none;
-  border-radius: 0;
+  width: 60px;
+  height: 60px;
+  border: 2px solid transparent;
+  background: transparent;
   cursor: pointer;
-  text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #cccccc;
-  box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent;
-  transition: background 0.15s, color 0.15s;
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.te-fonts .font-option:active {
-  background: #3a3a3a;
-}
-
-.te-fonts .font-option.active {
-  background: #ffffff;
-  color: #111111;
-}
-
-/* إخفاء المعاينة */
-.te-fonts .font-option .font-preview,
-.te-fonts .font-option span:last-child {
-  display: none;
-}
-
-/* اسم الخط */
-.te-fonts .font-option .font-name,
-.te-fonts .font-option span:first-child {
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1;
-  opacity: 1;
-}
-
-/* ═══════════════════════════════════════════════
-   بطاقة الحجم
-   ═══════════════════════════════════════════════ */
-
-.te-size-full {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.te-size-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.te-size-btn-lg {
-  width: 40px;
-  height: 40px;
-  background: #2a2a2a;
-  border: none;
-  color: #ffffff;
-  font-size: 20px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  font-family: inherit;
   padding: 0;
-}
-
-.te-size-btn-lg:active { background: #3a3a3a; }
-
-.te-size-num {
-  flex: 1;
-  height: 40px;
-  text-align: center;
-  font-size: 17px;
-  font-weight: 700;
-  color: #ffffff;
-  background: #2a2a2a;
-  border: none;
-  font-family: inherit;
-  padding: 0 8px;
-  -moz-appearance: textfield;
-  box-sizing: border-box;
-  min-width: 0;
-}
-
-.te-size-num::-webkit-outer-spin-button,
-.te-size-num::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-.te-size-slider {
-  width: 100%;
-  height: 3px;
-  accent-color: #ffffff;
-  cursor: pointer;
-}
-
-/* ═══════════════════════════════════════════════
-   المحاذاة
-   ═══════════════════════════════════════════════ */
-
-.te-align-group {
-  display: flex;
-  gap: 6px;
-}
-
-.te-align-btn {
-  flex: 1;
-  padding: 12px 8px;
-  border: none;
-  background: #2a2a2a;
-  color: #cccccc;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-}
-
-.te-align-btn.active {
-  background: #ffffff;
-  color: #111111;
-}
-
-/* ═══════════════════════════════════════════════
-   نص داخل لوحة القرآن
-   ═══════════════════════════════════════════════ */
-
-#quran-surah,
-#quran-ayah {
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><polyline points='2,4 6,8 10,4' fill='none' stroke='%23b0b0b0' stroke-width='1.5'/></svg>");
-  background-repeat: no-repeat;
-  background-position: left 10px center;
-  padding-left: 28px !important;
-  appearance: none;
-  -webkit-appearance: none;
-}
-
-/* ═══════════════════════════════════════════════
-   Responsive
-   ═══════════════════════════════════════════════ */
-
-@media (max-width: 360px) {
-  .te-arrows-grid {
-    grid-template-columns: repeat(3, 34px);
-    grid-template-rows: repeat(3, 34px);
-  }
-  .te-arrow-btn { width: 34px; height: 34px; font-size: 14px; }
-  .te-rotate-btn { width: 34px; height: 34px; font-size: 16px; }
-   }
-/* ═══════════════════════════════════════════════
-   الأزرار السريعة (شفافية + تباعد)
-   ═══════════════════════════════════════════════ */
-
-.ts-quick-group {
-  display: flex;
-  gap: 6px;
-  flex-wrap: nowrap;
-  width: 100%;
-}
-
-.ts-quick-btn {
-  flex: 1;
-  min-width: 0;
-  padding: 10px 4px;
-  background: #2a2a2a;
-  border: none;
-  color: #cccccc;
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  text-align: center;
-  direction: ltr;
   -webkit-tap-highlight-color: transparent;
-  transition: background 0.15s, color 0.15s;
-}
-
-.ts-quick-btn:active {
-  background: #3a3a3a;
-}
-
-.ts-quick-btn.active {
-  background: #ffffff;
-  color: #111111;
-}
-
-/* ═══════════════════════════════════════════════
-   التدرجات الجاهزة
-   ═══════════════════════════════════════════════ */
-
-.ts-gradient-presets {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 8px;
-  width: 100%;
-}
-
-.ts-gradient-preset {
-  aspect-ratio: 1 / 1;
-  border: 2px solid #2a2a2a;
-  background: #1f1f1f;
-  cursor: pointer;
-  padding: 3px;
+  transition: border-color 0.15s;
   overflow: hidden;
-  -webkit-tap-highlight-color: transparent;
 }
 
-.ts-gradient-preset span {
+.nk-grad-chip span {
   display: block;
   width: 100%;
   height: 100%;
 }
 
-.ts-gradient-preset:active {
+.nk-grad-chip:active {
   border-color: #555;
 }
 
-/* ═══════════════════════════════════════════════
-   فتح لوحة الأنماط المتقدمة (اختياري)
-   ═══════════════════════════════════════════════ */
-
-.nk-mini-content .ts-tab-icon {
-  font-size: 16px;
+.nk-grad-chip.active {
+  border-color: #ffffff;
 }
 
-.nk-mini-content .ts-tab-label {
-  font-size: 10px;
-       }
 /* ═══════════════════════════════════════════════
-   التأثيرات الجاهزة (Presets Grid)
+   نقوش أفقية — سطر واحد قابل للتمرير
    ═══════════════════════════════════════════════ */
 
-.ts-presets-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-top: 6px;
+.nk-pattern-row {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 0;
 }
 
-.ts-preset-card {
+.nk-pattern-row::-webkit-scrollbar { display: none; }
+
+.nk-pattern-chip {
+  flex: 0 0 auto;
+  width: 70px;
   display: flex;
   flex-direction: column;
+  gap: 4px;
   align-items: center;
-  gap: 6px;
-  padding: 8px;
-  background: #1f1f1f;
-  border: 2px solid #2a2a2a;
+  background: transparent;
+  border: 2px solid transparent;
   cursor: pointer;
-  font-family: inherit;
+  padding: 4px;
   -webkit-tap-highlight-color: transparent;
   transition: border-color 0.15s;
+  font-family: inherit;
 }
 
-.ts-preset-card:active {
-  border-color: #555;
-}
-
-.ts-preset-preview {
+.nk-pattern-chip span {
   width: 100%;
-  aspect-ratio: 1 / 1;
+  height: 50px;
   display: block;
 }
 
-.ts-preset-name {
-  font-size: 11px;
+.nk-pattern-chip small {
+  font-size: 10px;
   font-weight: 700;
   color: #cccccc;
   white-space: nowrap;
 }
 
-.ts-preset-card:active .ts-preset-name {
-  color: #ffffff;
+.nk-pattern-chip:active {
+  border-color: #555;
 }
-/* ═══════════════════════════════════════════════
-   قاعدة عامة: كل الأزرار بدون حواف
-   ═══════════════════════════════════════════════ */
 
-.nk-mini-content button,
-.nk-mini-content input,
-.nk-mini-content select,
-.nk-mini-content textarea,
-.nk-mini-content div[class*="btn"],
-.nk-mini-content div[class*="card"] {
-  border-radius: 0 !important;
+.nk-pattern-chip.active {
+  border-color: #ffffff;
 }
 
 /* ═══════════════════════════════════════════════
-   منتقي اللون — نافذة منبثقة صغيرة
+   حقل رفع الصورة
    ═══════════════════════════════════════════════ */
 
-.nk-iro-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 10001;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  direction: rtl;
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
+#paper-image-upload {
+  display: none;
 }
-
-.nk-iro-modal[hidden] { display: none !important; }
-
-.nk-iro-body {
-  background: #1a1a1a;
-  padding: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  max-width: 300px;
-  border-radius: 0;
-}
-
-.nk-iro-footer {
-  display: flex;
-  gap: 8px;
-  position: absolute;
-  bottom: 20px;
-  left: 20px;
-  right: 20px;
-  max-width: 300px;
-  margin: 0 auto;
-}
-
-.nk-iro-btn {
-  flex: 1;
-  padding: 14px;
-  border: none;
-  border-radius: 0;
-  font-size: 18px;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: inherit;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.nk-iro-cancel { background: #2a2a2a; color: #fff; }
-.nk-iro-confirm { background: #ffffff; color: #111; }
