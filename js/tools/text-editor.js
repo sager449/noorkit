@@ -1,6 +1,6 @@
 /* =========================================
-   NoorKit — Tool: Text Editor
-   محتوى الأدوات الأساسية (يُعرض في اللوحة الصغيرة)
+   NoorKit — Tool: Text Editor (v4)
+   محتوى الأدوات الأساسية + البسملة/الاستعاذة/رقم الآية
    ========================================= */
 
 window.NoorTextEditor = {
@@ -8,7 +8,6 @@ window.NoorTextEditor = {
   colorPicker: null,
   tempColor: "#1a1a1a",
 
-  /* ─── الألوان الجاهزة ─── */
   COLORS: [
     "#000000", "#ffffff", "#c9a227", "#0d8b5f",
     "#1e40af", "#b91c1c", "#7c3aed", "#f59e0b",
@@ -65,7 +64,7 @@ window.NoorTextEditor = {
   },
 
   /* ─────────────────────────────────────
-     فتح — يُفعّل شريط النص
+     فتح
      ───────────────────────────────────── */
   open() {
     this.active = true;
@@ -92,11 +91,12 @@ window.NoorTextEditor = {
   },
 
   /* ─────────────────────────────────────
-     محتوى الأدوات الأساسية
+     محتوى الأدوات
      ───────────────────────────────────── */
   renderToolContent(toolId) {
     const d = NoorState.design;
 
+    /* ═══ الخط ═══ */
     if (toolId === "font") {
       return `
         <div class="te-fonts" id="te-font-grid">
@@ -105,6 +105,7 @@ window.NoorTextEditor = {
       `;
     }
 
+    /* ═══ الحجم ═══ */
     if (toolId === "size") {
       return `
         <div class="te-size-full">
@@ -118,6 +119,7 @@ window.NoorTextEditor = {
       `;
     }
 
+    /* ═══ اللون ═══ */
     if (toolId === "color") {
       const swatches = this.COLORS.map(
         (c) =>
@@ -131,6 +133,7 @@ window.NoorTextEditor = {
       `;
     }
 
+    /* ═══ المحاذاة ═══ */
     if (toolId === "align") {
       return `
         <div class="te-align-group">
@@ -141,6 +144,7 @@ window.NoorTextEditor = {
       `;
     }
 
+    /* ═══ الحركة ═══ */
     if (toolId === "move") {
       return `
         <div class="te-move">
@@ -155,17 +159,53 @@ window.NoorTextEditor = {
       `;
     }
 
+    /* ═══ البسملة ═══ */
+    if (toolId === "basmala") {
+      return `
+        <div style="padding:16px;text-align:center;">
+          <p style="color:#b0b0b0;font-size:13px;margin:0 0 12px;">إضافة البسملة في بداية النص</p>
+          <button id="te-add-basmala" style="background:#ffffff;color:#111;border:none;padding:12px 32px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">إضافة البسملة</button>
+        </div>
+      `;
+    }
+
+    /* ═══ الاستعاذة ═══ */
+    if (toolId === "istiadha") {
+      return `
+        <div style="padding:16px;text-align:center;">
+          <p style="color:#b0b0b0;font-size:13px;margin:0 0 12px;">إضافة الاستعاذة في بداية النص</p>
+          <button id="te-add-istiadha" style="background:#ffffff;color:#111;border:none;padding:12px 32px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;">إضافة الاستعاذة</button>
+        </div>
+      `;
+    }
+
+    /* ═══ رقم الآية ═══ */
+    if (toolId === "ayahnum") {
+      const current = d.ayah.ayahNumber || "١";
+      const isOn = d.ayah.decorNumber || false;
+      return `
+        <div style="padding:12px;">
+          <label style="color:#b0b0b0;font-size:12px;display:block;margin-bottom:6px;">رقم الآية</label>
+          <input type="text" id="te-ayah-num" value="${current}" maxlength="3" style="width:100%;padding:10px 14px;background:#2a2a2a;border:none;color:#fff;font-size:16px;font-weight:700;font-family:inherit;text-align:center;box-sizing:border-box;margin-bottom:10px;" />
+          <div style="display:flex;gap:8px;">
+            <button id="te-ayah-on" style="flex:1;background:${isOn ? "#ffffff" : "#2a2a2a"};color:${isOn ? "#111" : "#ccc"};border:none;padding:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">تشغيل</button>
+            <button id="te-ayah-off" style="flex:1;background:${!isOn ? "#ffffff" : "#2a2a2a"};color:${!isOn ? "#111" : "#ccc"};border:none;padding:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">إيقاف</button>
+          </div>
+        </div>
+      `;
+    }
+
     return "";
   },
 
   /* ─────────────────────────────────────
-     ربط أحداث محتوى الأدوات
+     ربط أحداث المحتوى
      ───────────────────────────────────── */
   bindToolContent(toolId) {
     const content = document.getElementById("nk-mini-content");
     if (!content) return;
 
-    /* ── الخط ── */
+    /* ═══ الخط ═══ */
     if (toolId === "font") {
       content.querySelectorAll(".font-option").forEach((btn) => {
         btn.addEventListener("click", async () => {
@@ -178,7 +218,7 @@ window.NoorTextEditor = {
       });
     }
 
-    /* ── الحجم ── */
+    /* ═══ الحجم ═══ */
     if (toolId === "size") {
       const slider = document.getElementById("te-size-slider");
       const num = document.getElementById("te-size-num");
@@ -208,7 +248,7 @@ window.NoorTextEditor = {
       });
     }
 
-    /* ── اللون ── */
+    /* ═══ اللون ═══ */
     if (toolId === "color") {
       content.querySelectorAll("[data-te-color]").forEach((btn) => {
         btn.addEventListener("click", async () => {
@@ -225,7 +265,7 @@ window.NoorTextEditor = {
       });
     }
 
-    /* ── المحاذاة ── */
+    /* ═══ المحاذاة ═══ */
     if (toolId === "align") {
       content.querySelectorAll("[data-te-align]").forEach((btn) => {
         btn.addEventListener("click", async () => {
@@ -238,7 +278,7 @@ window.NoorTextEditor = {
       });
     }
 
-    /* ── الحركة ── */
+    /* ═══ الحركة ═══ */
     if (toolId === "move") {
       const step = 20;
       const d = NoorState.design;
@@ -257,6 +297,35 @@ window.NoorTextEditor = {
           NoorState.pushHistory();
           await NoorRenderer.render();
         });
+      });
+    }
+
+    /* ═══ البسملة ═══ */
+    if (toolId === "basmala") {
+      document.getElementById("te-add-basmala")?.addEventListener("click", () => {
+        if (typeof NoorQuranTools !== "undefined") NoorQuranTools.addBasmala();
+      });
+    }
+
+    /* ═══ الاستعاذة ═══ */
+    if (toolId === "istiadha") {
+      document.getElementById("te-add-istiadha")?.addEventListener("click", () => {
+        if (typeof NoorQuranTools !== "undefined") NoorQuranTools.addIstiadha();
+      });
+    }
+
+    /* ═══ رقم الآية ═══ */
+    if (toolId === "ayahnum") {
+      const input = document.getElementById("te-ayah-num");
+      document.getElementById("te-ayah-on")?.addEventListener("click", () => {
+        if (typeof NoorQuranTools !== "undefined") {
+          NoorQuranTools.setAyahNumber(input?.value || "1");
+        }
+      });
+      document.getElementById("te-ayah-off")?.addEventListener("click", () => {
+        if (typeof NoorQuranTools !== "undefined") {
+          NoorQuranTools.removeAyahNumber();
+        }
       });
     }
   },
