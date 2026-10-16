@@ -482,3 +482,48 @@
 .nk-mini-content .ts-tab-label {
   font-size: 10px;
        }
+/* ═══════════════════════════════════════════════
+   التأثيرات الجاهزة (Presets Grid)
+   ═══════════════════════════════════════════════ */
+
+.ts-presets-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.ts-preset-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  background: #1f1f1f;
+  border: 2px solid #2a2a2a;
+  cursor: pointer;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.15s;
+}
+
+.ts-preset-card:active {
+  border-color: #555;
+}
+
+.ts-preset-preview {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  display: block;
+}
+
+.ts-preset-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: #cccccc;
+  white-space: nowrap;
+}
+
+.ts-preset-card:active .ts-preset-name {
+  color: #ffffff;
+}
