@@ -403,3 +403,82 @@
   .te-arrow-btn { width: 34px; height: 34px; font-size: 14px; }
   .te-rotate-btn { width: 34px; height: 34px; font-size: 16px; }
    }
+/* ═══════════════════════════════════════════════
+   الأزرار السريعة (شفافية + تباعد)
+   ═══════════════════════════════════════════════ */
+
+.ts-quick-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: nowrap;
+  width: 100%;
+}
+
+.ts-quick-btn {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 4px;
+  background: #2a2a2a;
+  border: none;
+  color: #cccccc;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  direction: ltr;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s, color 0.15s;
+}
+
+.ts-quick-btn:active {
+  background: #3a3a3a;
+}
+
+.ts-quick-btn.active {
+  background: #ffffff;
+  color: #111111;
+}
+
+/* ═══════════════════════════════════════════════
+   التدرجات الجاهزة
+   ═══════════════════════════════════════════════ */
+
+.ts-gradient-presets {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  width: 100%;
+}
+
+.ts-gradient-preset {
+  aspect-ratio: 1 / 1;
+  border: 2px solid #2a2a2a;
+  background: #1f1f1f;
+  cursor: pointer;
+  padding: 3px;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ts-gradient-preset span {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.ts-gradient-preset:active {
+  border-color: #555;
+}
+
+/* ═══════════════════════════════════════════════
+   فتح لوحة الأنماط المتقدمة (اختياري)
+   ═══════════════════════════════════════════════ */
+
+.nk-mini-content .ts-tab-icon {
+  font-size: 16px;
+}
+
+.nk-mini-content .ts-tab-label {
+  font-size: 10px;
+       }
