@@ -1,6 +1,6 @@
 /* =========================================
-   NoorKit — Text Style: Outline
-   حدود النص — مع Toggle Switch
+   NoorKit — Text Style: Outline (v3)
+   بدون زر تشغيل — تفعيل تلقائي
    ========================================= */
 
 NoorTextStyles.register("outline", {
@@ -22,6 +22,7 @@ NoorTextStyles.register("outline", {
   COLORS: [
     "#ffffff", "#000000", "#c9a227", "#7c3aed",
     "#1e40af", "#b91c1c", "#0d8b5f", "#f59e0b",
+    "#78350f", "#be185d", "#0891b2", "#78716c",
   ],
 
   render() {
@@ -29,24 +30,20 @@ NoorTextStyles.register("outline", {
 
     const colorsHTML = this.COLORS.map(
       (c) =>
-        `<button class="ts-color-dot ${s.color === c ? "active" : ""}" data-ts-outline-color="${c}" style="background:${c};"></button>`
+        `<button class="nk-color-dot ${s.color === c ? "active" : ""}" data-ts-outline-color="${c}" style="background:${c};"></button>`
     ).join("");
 
     return `
       <div class="nk-row">
-        <span class="nk-row-label">التشغيل</span>
-        <label class="nk-toggle">
-          <input type="checkbox" class="nk-toggle-input" id="ts-outline-toggle" ${s.enabled ? "checked" : ""} />
-          <span class="nk-toggle-switch"></span>
-        </label>
+        <span class="nk-row-label">اللون</span>
       </div>
 
-      <div class="nk-row" style="flex-direction:column;align-items:stretch;">
-        <span class="nk-row-label" style="margin-bottom:6px;">اللون</span>
-        <div class="ts-colors">${colorsHTML}</div>
+      <div class="nk-color-row">
+        <button class="nk-color-picker-btn" data-ts-outline-picker></button>
+        <div class="nk-color-scroll">${colorsHTML}</div>
       </div>
 
-      <div class="nk-row">
+      <div class="nk-row" style="margin-top:8px;">
         <span class="nk-row-label">السماكة</span>
         <span class="nk-row-value" id="ts-outline-width-val">${s.width}</span>
       </div>
@@ -57,24 +54,33 @@ NoorTextStyles.register("outline", {
   bind() {
     const s = this.ensure();
 
-    const toggle = document.getElementById("ts-outline-toggle");
-    toggle?.addEventListener("change", async () => {
-      s.enabled = toggle.checked;
+    const setColor = async (color) => {
+      s.color = color;
+      s.enabled = true;
+      NoorTextStyles.updateDotActive("outline", color);
       NoorState.pushHistory();
       await NoorRenderer.render();
-    });
+    };
 
     document.querySelectorAll("[data-ts-outline-color]").forEach((btn) => {
       btn.addEventListener("click", async () => {
-        s.color = btn.dataset.tsOutlineColor;
-        document.querySelectorAll("[data-ts-outline-color]").forEach((b) =>
-          b.classList.remove("active")
-        );
-        btn.classList.add("active");
-        s.enabled = true;
-        if (toggle) toggle.checked = true;
-        NoorState.pushHistory();
-        await NoorRenderer.render();
+        const color = btn.dataset.tsOutlineColor;
+        if (s.color === color && s.enabled) {
+          s.enabled = false;
+          document.querySelectorAll("[data-ts-outline-color]").forEach((b) =>
+            b.classList.remove("active")
+          );
+          NoorState.pushHistory();
+          await NoorRenderer.render();
+          return;
+        }
+        await setColor(color);
+      });
+    });
+
+    document.querySelector("[data-ts-outline-picker]")?.addEventListener("click", () => {
+      NoorTextStyles.openColorPicker(s.color, async (c) => {
+        await setColor(c);
       });
     });
 
@@ -84,7 +90,6 @@ NoorTextStyles.register("outline", {
       s.width = parseInt(width.value);
       if (widthVal) widthVal.textContent = s.width;
       s.enabled = true;
-      if (toggle) toggle.checked = true;
       await NoorRenderer.render();
     });
     width?.addEventListener("change", () => NoorState.pushHistory());
